@@ -46,6 +46,11 @@ function AuthButtons() {
         </SignUpButton>
       </Show>
       <Show when="signed-in">
+        <Link href="/dashboard">
+          <Button size="sm" variant="outline" className="h-8 text-xs font-semibold border-zinc-300 dark:border-zinc-800">
+            Dashboard
+          </Button>
+        </Link>
         <UserButton />
       </Show>
     </div>

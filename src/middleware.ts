@@ -4,7 +4,12 @@ import { clerkMiddleware } from '@clerk/nextjs/server';
  * Middleware Clerk combinado com proteção de rotas de API na borda.
  */
 export default clerkMiddleware(async (auth, request) => {
-  if (request.nextUrl.pathname.startsWith('/api')) {
+  const { pathname } = request.nextUrl;
+  if (
+    pathname.startsWith('/api') ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/account')
+  ) {
     await auth.protect();
   }
 });
