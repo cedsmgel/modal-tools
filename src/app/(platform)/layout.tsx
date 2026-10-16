@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import { UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
-  Wallet,
   Receipt,
   Building2,
   Settings,
@@ -61,27 +60,6 @@ export default function PlatformLayout({
           >
             <LayoutDashboard className="h-4 w-4 text-zinc-300" />
             <span>Dashboard</span>
-          </Link>
-          <Link
-            href="/dashboard#assets"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-400 hover:bg-zinc-900/60 hover:text-white transition-colors"
-          >
-            <Wallet className="h-4 w-4 text-zinc-500" />
-            <span>Investimentos</span>
-          </Link>
-          <Link
-            href="/dashboard#tax"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-400 hover:bg-zinc-900/60 hover:text-white transition-colors"
-          >
-            <Receipt className="h-4 w-4 text-zinc-500" />
-            <span>Fiscal & DARFs</span>
-          </Link>
-          <Link
-            href="/dashboard#realestate"
-            className="flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-400 hover:bg-zinc-900/60 hover:text-white transition-colors"
-          >
-            <Building2 className="h-4 w-4 text-zinc-500" />
-            <span>Gestão Imobiliária</span>
           </Link>
           <Link
             href="/hub-matematico"

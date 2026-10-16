@@ -7,7 +7,6 @@ import { useTheme } from "next-themes";
 import {
   CreditCard,
   User,
-  ShieldCheck,
   CheckCircle2,
   Sparkles,
   ArrowUpRight,
@@ -53,40 +52,22 @@ export default function AccountPage() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Aba 1: Perfil (Clerk UserProfile) */}
-        <TabsContent value="profile" className="space-y-4">
-          <Card className="bg-zinc-900/40 border-zinc-800/80 overflow-hidden shadow-xs">
-            <CardHeader className="border-b border-zinc-800/60 pb-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-base text-white">Dados de Identidade & Acesso</CardTitle>
-                  <CardDescription className="text-xs text-zinc-400">
-                    Gerenciamento corporativo de autenticação em múltiplos fatores (MFA) e credenciais via Clerk.
-                  </CardDescription>
-                </div>
-                <Badge variant="outline" className="text-[10px] border-zinc-800 text-emerald-400">
-                  <ShieldCheck className="h-3 w-3 mr-1" />
-                  MFA Protegido
-                </Badge>
-              </div>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-6 flex justify-center">
-              <div className="w-full max-w-3xl">
-                <UserProfile
-                  appearance={{
-                    theme: isDark ? (dark as never) : undefined,
-                    elements: {
-                      card: "border border-zinc-800 shadow-none bg-zinc-950",
-                      navbar: "hidden",
-                      headerTitle: "text-white text-base",
-                      headerSubtitle: "text-zinc-400 text-xs",
-                      profileSectionTitleText: "text-zinc-200 text-sm font-semibold",
-                    },
-                  }}
-                />
-              </div>
-            </CardContent>
-          </Card>
+        {/* Aba 1: Perfil (Clerk UserProfile - sem box em cima de box) */}
+        <TabsContent value="profile" className="space-y-4 pt-1">
+          <div className="w-full flex justify-center">
+            <UserProfile
+              appearance={{
+                theme: isDark ? (dark as never) : undefined,
+                elements: {
+                  card: "border border-zinc-800/80 shadow-none bg-zinc-950/80 rounded-2xl w-full max-w-4xl",
+                  navbar: "border-r border-zinc-800/60",
+                  headerTitle: "text-white text-base font-bold",
+                  headerSubtitle: "text-zinc-400 text-xs",
+                  profileSectionTitleText: "text-zinc-200 text-sm font-semibold",
+                },
+              }}
+            />
+          </div>
         </TabsContent>
 
         {/* Aba 2: Assinatura & Faturamento (Stripe) */}
