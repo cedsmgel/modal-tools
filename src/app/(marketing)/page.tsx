@@ -1,317 +1,344 @@
 import Link from "next/link";
 import {
-  ShieldCheck,
-  Database,
-  ArrowRight,
   TrendingUp,
-  Lock,
-  ChevronRight,
+  Receipt,
+  Building2,
+  ShieldCheck,
+  ArrowRight,
   CheckCircle2,
+  FileText,
+  Clock,
+  PieChart,
+  Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function MarketingPage() {
   return (
-    <>
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-24 sm:py-32">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,rgba(120,119,198,0.1),transparent)] dark:bg-[radial-gradient(45rem_50rem_at_top,rgba(255,255,255,0.03),transparent)]" />
-        <div className="mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs font-medium text-zinc-700 shadow-2xs dark:border-zinc-800 dark:bg-zinc-900/80 dark:text-zinc-300">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Engenharia de Borda Cloudflare & Next.js 16
-            <ChevronRight className="h-3 w-3 text-zinc-400" />
+    <div className="space-y-24 py-16 sm:py-24">
+      {/* Hero Section — Foco Exclusivo nos Serviços e Benefícios ao Cliente */}
+      <section className="relative overflow-hidden px-4 sm:px-6 lg:px-8 text-center max-w-5xl mx-auto">
+        <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3.5 py-1 text-xs font-medium text-zinc-700 shadow-2xs dark:border-zinc-800 dark:bg-zinc-900/90 dark:text-zinc-300">
+          <Sparkles className="h-3.5 w-3.5 text-zinc-900 dark:text-zinc-100" />
+          <span>Gestão Patrimonial & Inteligência Fiscal Integrada</span>
+        </div>
+
+        <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-6xl dark:text-white">
+          Controle total sobre seus investimentos, imóveis e{" "}
+          <span className="bg-gradient-to-r from-zinc-700 via-zinc-900 to-zinc-500 bg-clip-text text-transparent dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500">
+            obrigações fiscais
+          </span>
+        </h1>
+
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
+          Uma plataforma inteligente e centralizada para pessoas físicas e empresas consolidarem ativos financeiros, gerenciarem locações imobiliárias e automatizarem a apuração de impostos sem burocracia.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+          <Link href="/platform">
+            <Button size="lg" className="h-11 px-7 shadow-md gap-2 font-semibold">
+              <span>Acessar Plataforma</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <Link href="#servicos">
+            <Button size="lg" variant="outline" className="h-11 px-7">
+              Conhecer Nossos Módulos
+            </Button>
+          </Link>
+        </div>
+
+        {/* Indicadores de Valor para o Cliente */}
+        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 border-t border-zinc-200/80 pt-10 dark:border-zinc-800/80 text-left">
+          <div>
+            <p className="text-xs uppercase font-medium tracking-wider text-zinc-500">Patrimônio Consolidado</p>
+            <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">Visão 360°</p>
+            <span className="text-xs text-zinc-500">Ações, Renda Fixa e Imóveis</span>
           </div>
+          <div>
+            <p className="text-xs uppercase font-medium tracking-wider text-zinc-500">Apuração Tributária</p>
+            <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">100% Automatizada</p>
+            <span className="text-xs text-zinc-500">Cálculo de DARFs e relatórios</span>
+          </div>
+          <div>
+            <p className="text-xs uppercase font-medium tracking-wider text-zinc-500">Gestão Imobiliária</p>
+            <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">Contratos & Aluguéis</p>
+            <span className="text-xs text-zinc-500">Controle de rendimentos e FIIs</span>
+          </div>
+          <div>
+            <p className="text-xs uppercase font-medium tracking-wider text-zinc-500">Privacidade de Dados</p>
+            <p className="mt-1 text-xl font-bold text-zinc-900 dark:text-zinc-100">Nível Institucional</p>
+            <span className="text-xs text-zinc-500">Isolamento e controle de acesso</span>
+          </div>
+        </div>
+      </section>
 
-          <h1 className="mt-8 text-4xl font-extrabold tracking-tight text-zinc-950 sm:text-6xl dark:text-white">
-            Plataforma Financeira & Gestão de Ativos em{" "}
-            <span className="bg-gradient-to-r from-zinc-700 via-zinc-900 to-zinc-500 bg-clip-text text-transparent dark:from-zinc-100 dark:via-zinc-300 dark:to-zinc-500">
-              Escala Global
-            </span>
-          </h1>
-
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
-            Segurança de borda instantânea com validação estrita Zod, banco de dados serverless Cloudflare D1 e autenticação empresarial Clerk integrada.
+      {/* Seção de Módulos & Serviços */}
+      <section id="servicos" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <Badge variant="outline" className="mb-3">Nossos Produtos</Badge>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-950 dark:text-white">
+            Soluções completas para cada pilar do seu patrimônio
+          </h2>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+            Tudo o que você precisa para gerenciar suas finanças pessoais ou corporativas em um único ecossistema integrado.
           </p>
-
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link href="/platform">
-              <Button size="lg" className="h-11 px-6 shadow-md gap-2 font-semibold">
-                Abrir App Shell
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="#preview">
-              <Button size="lg" variant="outline" className="h-11 px-6">
-                Ver Demonstração
-              </Button>
-            </Link>
-          </div>
-
-          {/* Quick Metrics Bar */}
-          <div className="mt-16 grid grid-cols-2 gap-4 border-t border-zinc-200/80 pt-10 sm:grid-cols-4 dark:border-zinc-800/80 text-left">
-            <div>
-              <p className="text-xs uppercase font-medium tracking-wider text-zinc-500 dark:text-zinc-400">Latência de Borda</p>
-              <p className="mt-1 text-2xl font-bold font-mono tabular-nums text-zinc-900 dark:text-zinc-50">&lt; 35ms</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase font-medium tracking-wider text-zinc-500 dark:text-zinc-400">Banco de Dados</p>
-              <p className="mt-1 text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-50">Cloudflare D1</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase font-medium tracking-wider text-zinc-500 dark:text-zinc-400">Validação Zod</p>
-              <p className="mt-1 text-2xl font-bold font-mono text-zinc-900 dark:text-zinc-50">Strict / Zero-Trust</p>
-            </div>
-            <div>
-              <p className="text-xs uppercase font-medium tracking-wider text-zinc-500 dark:text-zinc-400">Precisão Numérica</p>
-              <p className="mt-1 text-2xl font-bold font-mono tabular-nums text-zinc-900 dark:text-zinc-50">tabular-nums</p>
-            </div>
-          </div>
         </div>
-      </section>
 
-      {/* Bento Grid Section */}
-      <section id="bento" className="py-20 border-t border-zinc-200/80 dark:border-zinc-800/80">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <Badge variant="outline" className="mb-3">Arquitetura Moderna</Badge>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Construído com padrões Linear & Stripe
-            </h2>
-            <p className="mt-4 text-zinc-600 dark:text-zinc-400">
-              Cards com cantos arredondados rounded-xl, separadores sutis e alta densidade de informação limpa.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Bento 1: Cloudflare D1 (Span 2 cols) */}
-            <Card className="md:col-span-2 relative overflow-hidden bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-950">
-              <div className="absolute right-0 top-0 translate-x-12 -translate-y-8 opacity-10 dark:opacity-20 pointer-events-none">
-                <Database className="h-64 w-64" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Módulo 1: Gestão Financeira */}
+          <Card className="flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200">
+            <CardHeader>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 mb-2">
+                <TrendingUp className="h-5 w-5" />
               </div>
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
-                    <Database className="h-5 w-5" />
-                  </div>
-                  <Badge variant="outline">Cloudflare D1 SQL</Badge>
-                </div>
-                <CardTitle className="text-2xl mt-4">Banco de Dados Serverless com D1</CardTitle>
-                <CardDescription>
-                  Base SQLite nativa distribuída na rede global da Cloudflare com isolamento total e consistência ACID.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-lg border border-zinc-200/80 bg-zinc-100/50 p-4 font-mono text-xs dark:border-zinc-800 dark:bg-zinc-950/80">
-                  <div className="flex justify-between text-zinc-500 mb-2 border-b border-zinc-200 dark:border-zinc-800 pb-1">
-                    <span>DATABASE ID</span>
-                    <span className="text-emerald-500">ACTIVE (ENAM)</span>
-                  </div>
-                  <div className="text-zinc-900 dark:text-zinc-100 tabular-nums">
-                    44e6555f-3c0e-4e8b-b376-7b91acc17b76 • modal-tools-db
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
-                    <p className="text-xs text-zinc-500">Replicação</p>
-                    <p className="font-semibold text-sm">Edge Read</p>
-                  </div>
-                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
-                    <p className="text-xs text-zinc-500">Tamanho Atual</p>
-                    <p className="font-semibold font-mono tabular-nums text-sm">8.00 KB</p>
-                  </div>
-                  <div className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/50">
-                    <p className="text-xs text-zinc-500">Compliance</p>
-                    <p className="font-semibold text-sm">ACID SQLite</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bento 2: Zod Edge Security */}
-            <Card className="bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-950">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
-                    <ShieldCheck className="h-5 w-5" />
-                  </div>
-                  <Badge variant="outline">Zero-Trust</Badge>
-                </div>
-                <CardTitle className="text-xl mt-4">Validação Estrita Zod</CardTitle>
-                <CardDescription>
-                  Rejeição imediata na borda com HTTP 400/401 antes de tocar o backend.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+              <CardTitle className="text-xl">Gestão Financeira & Investimentos</CardTitle>
+              <CardDescription>
+                Acompanhe todo o seu portfólio de ações, títulos de renda fixa, fundos de investimento e moedas em tempo real.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+                <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span>Schema estrito (.strict()) contra mass assignment</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+                  <span>Cálculo automático de rentabilidade ponderada e retorno real</span>
+                </li>
+                <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span>Sanitização e regex alfanumérica</span>
-                </div>
-                <div className="flex items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+                  <span>Consolidação de extratos e históricos de transações financeiras</span>
+                </li>
+                <li className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span>Enum tipado para ativos financeiros</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bento 3: Clerk Enterprise Auth */}
-            <Card className="bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-950">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
-                    <Lock className="h-5 w-5" />
-                  </div>
-                  <Badge variant="outline">Clerk Auth</Badge>
-                </div>
-                <CardTitle className="text-xl mt-4">Identidade & Organizações</CardTitle>
-                <CardDescription>
-                  Autenticação corporativa, sessões criptografadas e suporte a multi-tenancy.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                  <span className="text-zinc-600 dark:text-zinc-300">Provedor Conectado</span>
-                  <Badge variant="success">Modal Tools</Badge>
-                </div>
-                <div className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                  <span className="text-zinc-600 dark:text-zinc-300">Controles Visuais</span>
-                  <span className="font-mono text-zinc-900 dark:text-zinc-100">UserButton / Show</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bento 4: Typography & Tabular Nums (Span 2 cols) */}
-            <Card className="md:col-span-2 bg-gradient-to-br from-white to-zinc-50/50 dark:from-zinc-900 dark:to-zinc-950">
-              <CardHeader>
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100">
-                    <TrendingUp className="h-5 w-5" />
-                  </div>
-                  <Badge variant="outline">Geist Mono • tabular-nums</Badge>
-                </div>
-                <CardTitle className="text-2xl mt-4">Exibições Monetárias e Fiscais de Alta Precisão</CardTitle>
-                <CardDescription>
-                  Alinhamento numérico perfeito em tabelas financeiras através das fontes Geist Sans e Geist Mono.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/60">
-                    <span className="text-xs text-zinc-500 font-medium">Patrimônio Líquido</span>
-                    <p className="text-2xl font-bold font-mono tabular-nums text-zinc-900 dark:text-zinc-50 mt-1">
-                      R$ 2.458.190,40
-                    </p>
-                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium font-mono tabular-nums">
-                      +14,2% neste mês
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/60">
-                    <span className="text-xs text-zinc-500 font-medium">Imposto Retido Estimado</span>
-                    <p className="text-2xl font-bold font-mono tabular-nums text-zinc-900 dark:text-zinc-50 mt-1">
-                      R$ 38.742,15
-                    </p>
-                    <span className="text-xs text-zinc-500 font-medium">
-                      Aliq. Efetiva: 15.0%
-                    </span>
-                  </div>
-                  <div className="p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/70 dark:bg-zinc-950/60">
-                    <span className="text-xs text-zinc-500 font-medium">Transações Validadas</span>
-                    <p className="text-2xl font-bold font-mono tabular-nums text-zinc-900 dark:text-zinc-50 mt-1">
-                      1.849 ops
-                    </p>
-                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                      100% Edge Verified
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Live Preview Component Showcase */}
-      <section id="preview" className="py-20 bg-zinc-100/40 dark:bg-zinc-900/30 border-t border-zinc-200/80 dark:border-zinc-800/80">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-xl mx-auto mb-10">
-            <Badge variant="outline">Live Preview</Badge>
-            <h2 className="text-3xl font-bold tracking-tight mt-3">Componentes Base em Ação</h2>
-            <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-2">
-              Demonstração dos componentes Card, Table, Tabs, Badge e Button com formatação tabular-nums.
-            </p>
-          </div>
-
-          <Card className="shadow-lg">
-            <CardHeader className="border-b border-zinc-200/80 dark:border-zinc-800/80 pb-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <CardTitle className="text-lg">Carteira de Ativos Monitorados</CardTitle>
-                  <CardDescription>Dados sanitizados validados pelo schema Zod</CardDescription>
-                </div>
+                  <span>Análise de diversificação por classe de ativo e risco</span>
+                </li>
+              </ul>
+              <div className="pt-2">
                 <Link href="/platform">
-                  <Button size="sm" className="gap-2">
-                    Abrir Plataforma
+                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+                    <span>Acessar Módulo Financeiro</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Button>
                 </Link>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Módulo 2: Inteligência Fiscal */}
+          <Card className="flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200">
+            <CardHeader>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 mb-2">
+                <Receipt className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-xl">Inteligência Fiscal & Tributos</CardTitle>
+              <CardDescription>
+                Elimine o estresse da declaração de impostos e apuração mensal de ganhos de capital de forma precisa.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Ticker</TableHead>
-                    <TableHead>Classe</TableHead>
-                    <TableHead className="text-right">Quantidade</TableHead>
-                    <TableHead className="text-right">Preço Médio</TableHead>
-                    <TableHead className="text-right">Total (BRL)</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell className="font-semibold font-mono text-zinc-900 dark:text-zinc-100">
-                      PETR4
-                    </TableCell>
-                    <TableCell><Badge variant="secondary">STOCK</Badge></TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">1.500</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">R$ 36,40</TableCell>
-                    <TableCell className="text-right font-mono font-bold tabular-nums">R$ 54.600,00</TableCell>
-                    <TableCell className="text-center"><Badge variant="success">Auditado</Badge></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-semibold font-mono text-zinc-900 dark:text-zinc-100">
-                      BTC
-                    </TableCell>
-                    <TableCell><Badge variant="secondary">CRYPTO</Badge></TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">0,45000000</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">R$ 380.000,00</TableCell>
-                    <TableCell className="text-right font-mono font-bold tabular-nums">R$ 171.000,00</TableCell>
-                    <TableCell className="text-center"><Badge variant="success">Auditado</Badge></TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell className="font-semibold font-mono text-zinc-900 dark:text-zinc-100">
-                      VALE3
-                    </TableCell>
-                    <TableCell><Badge variant="secondary">STOCK</Badge></TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">800</TableCell>
-                    <TableCell className="text-right font-mono tabular-nums">R$ 58,20</TableCell>
-                    <TableCell className="text-right font-mono font-bold tabular-nums">R$ 46.560,00</TableCell>
-                    <TableCell className="text-center"><Badge variant="success">Auditado</Badge></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Apuração automática de lucros e compensação de prejuízos</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Emissão e controle simplificado de guias de recolhimento (DARFs)</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Relatórios prontos para exportação direta ao contador</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <Link href="/platform#tax">
+                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+                    <span>Acessar Módulo Fiscal</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Módulo 3: Gestão Imobiliária */}
+          <Card className="flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200">
+            <CardHeader>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100 mb-2">
+                <Building2 className="h-5 w-5" />
+              </div>
+              <CardTitle className="text-xl">Gestão Imobiliária & Locações</CardTitle>
+              <CardDescription>
+                Controle integral de imóveis físicos, contratos de locação, taxa de vacância e rendimentos de FIIs.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2.5 text-xs text-zinc-600 dark:text-zinc-300">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Gestão de contratos com alertas de vencimento e reajuste por índices</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Fluxo financeiro de aluguéis recebidos versus custos de manutenção</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Acompanhamento consolidado de dividendos de Fundos Imobiliários</span>
+                </li>
+              </ul>
+              <div className="pt-2">
+                <Link href="/platform#assets">
+                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
+                    <span>Acessar Módulo Imobiliário</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Button>
+                </Link>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
-    </>
+
+      {/* Seção de Planos & Preços */}
+      <section id="precos" className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-zinc-200/80 dark:border-zinc-800/80 pt-20">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <Badge variant="outline" className="mb-3">Planos & Preços</Badge>
+          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-950 dark:text-white">
+            Planos sob medida para o seu momento patrimonial
+          </h2>
+          <p className="mt-4 text-zinc-600 dark:text-zinc-400">
+            Sem taxas escondidas. Cancele ou altere seu plano quando desejar.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Plano Básico */}
+          <Card className="flex flex-col justify-between">
+            <CardHeader>
+              <CardTitle className="text-lg">Iniciante</CardTitle>
+              <CardDescription>Para quem está organizando os primeiros investimentos.</CardDescription>
+              <div className="mt-4">
+                <span className="text-3xl font-extrabold text-zinc-950 dark:text-white">Grátis</span>
+                <span className="text-xs text-zinc-500 ml-1">/ para sempre</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Até 10 ativos monitorados</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Painel básico de rentabilidade</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Exportação mensal em planilha</span>
+                </li>
+              </ul>
+              <Link href="/platform">
+                <Button variant="outline" className="w-full text-xs">Começar Grátis</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Plano Pro (Destaque) */}
+          <Card className="flex flex-col justify-between border-zinc-900 dark:border-zinc-100 shadow-md relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+              <Badge className="bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">Mais Escolhido</Badge>
+            </div>
+            <CardHeader>
+              <CardTitle className="text-lg">Profissional</CardTitle>
+              <CardDescription>Para investidores com carteiras ativas e imóveis.</CardDescription>
+              <div className="mt-4">
+                <span className="text-3xl font-extrabold text-zinc-950 dark:text-white">R$ 59</span>
+                <span className="text-xs text-zinc-500 ml-1">/ mês</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Ativos e locações ilimitadas</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Módulo Fiscal com apuração de DARF e IR</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Gestão de contratos imobiliários e reajustes</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Suporte prioritário via chat</span>
+                </li>
+              </ul>
+              <Link href="/platform">
+                <Button className="w-full text-xs shadow-xs">Assinar Plano Pro</Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          {/* Plano Corporate */}
+          <Card className="flex flex-col justify-between">
+            <CardHeader>
+              <CardTitle className="text-lg">Corporate & Family</CardTitle>
+              <CardDescription>Para consultorias, holdings e multi-family offices.</CardDescription>
+              <div className="mt-4">
+                <span className="text-3xl font-extrabold text-zinc-950 dark:text-white">R$ 189</span>
+                <span className="text-xs text-zinc-500 ml-1">/ mês</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <ul className="space-y-2 text-xs text-zinc-600 dark:text-zinc-400">
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Multi-usuários com controle de permissões</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Consolidação de múltiplos CNPJs e CPFs</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Exportações contábeis avançadas</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Gerente de contas dedicado</span>
+                </li>
+              </ul>
+              <Link href="/platform">
+                <Button variant="outline" className="w-full text-xs">Falar com Consultor</Button>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* CTA Final */}
+      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-8 sm:p-12 text-center shadow-xs dark:border-zinc-800 dark:bg-zinc-900/60">
+          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-950 dark:text-white">
+            Pronto para transformar a gestão do seu patrimônio?
+          </h2>
+          <p className="mt-3 text-sm text-zinc-600 dark:text-zinc-400 max-w-xl mx-auto">
+            Junte-se a investidores e gestores que utilizam a Modal Tools para controlar ativos e simplificar suas rotinas fiscais.
+          </p>
+          <div className="mt-6 flex justify-center gap-4">
+            <Link href="/platform">
+              <Button size="lg" className="h-10 px-6 gap-2 font-medium">
+                <span>Criar Conta Gratuita</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
   );
 }
