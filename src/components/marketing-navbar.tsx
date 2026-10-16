@@ -51,12 +51,6 @@ function AuthButtons() {
         </SignUpButton>
       </Show>
       <Show when="signed-in">
-        <Link href="/platform">
-          <Button size="sm" variant="outline" className="gap-2 text-xs sm:text-sm">
-            <span>Acessar Plataforma</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
-        </Link>
         <UserButton />
       </Show>
     </div>
@@ -98,7 +92,7 @@ export function MarketingNavbar() {
                 {/* Módulo Financeiro */}
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/platform"
+                    href="/#servicos"
                     className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
@@ -118,7 +112,7 @@ export function MarketingNavbar() {
                 {/* Módulo Fiscal */}
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/platform#tax"
+                    href="/#servicos"
                     className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
@@ -138,7 +132,7 @@ export function MarketingNavbar() {
                 {/* Módulo Imobiliário */}
                 <DropdownMenuItem asChild>
                   <Link
-                    href="/platform#assets"
+                    href="/#servicos"
                     className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">

@@ -15,8 +15,8 @@ export default function MarketingLayout({
         <span className="inline-flex items-center gap-2">
           <Badge variant="secondary" className="px-1.5 py-0 text-[10px]">Novidade</Badge>
           <span>Conheça a plataforma completa de Gestão Financeira, Imobiliária e Fiscal.</span>
-          <Link href="/platform" className="underline underline-offset-2 hover:text-zinc-950 dark:hover:text-white transition-colors">
-            Experimentar agora
+          <Link href="/#precos" className="underline underline-offset-2 hover:text-zinc-950 dark:hover:text-white transition-colors">
+            Ver planos
           </Link>
         </span>
       </div>
@@ -36,9 +36,9 @@ export default function MarketingLayout({
             <div>
               <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Módulos</h4>
               <ul className="space-y-2 text-zinc-500">
-                <li><Link href="/platform" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Financeiro</Link></li>
-                <li><Link href="/platform#tax" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Fiscal & IR</Link></li>
-                <li><Link href="/platform#assets" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Imobiliário</Link></li>
+                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Financeiro</Link></li>
+                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Fiscal & IR</Link></li>
+                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Imobiliário</Link></li>
               </ul>
             </div>
             <div>
@@ -55,7 +55,6 @@ export default function MarketingLayout({
               <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Empresa</h4>
               <ul className="space-y-2 text-zinc-500">
                 <li><Link href="/#precos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Planos & Preços</Link></li>
-                <li><Link href="/platform" className="hover:text-zinc-900 dark:hover:text-zinc-100">Painel do Cliente</Link></li>
                 <li><a href="mailto:contato@modaltools.com" className="hover:text-zinc-900 dark:hover:text-zinc-100">Suporte ao Cliente</a></li>
               </ul>
             </div>

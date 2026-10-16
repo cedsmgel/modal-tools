@@ -37,15 +37,15 @@ export default function MarketingPage() {
         </p>
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-          <Link href="/platform">
+          <Link href="#servicos">
             <Button size="lg" className="h-11 px-7 shadow-md gap-2 font-semibold">
-              <span>Acessar Plataforma</span>
+              <span>Conhecer Nossos Serviços</span>
               <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <Link href="#servicos">
+          <Link href="#precos">
             <Button size="lg" variant="outline" className="h-11 px-7">
-              Conhecer Nossos Módulos
+              Ver Planos & Preços
             </Button>
           </Link>
         </div>
@@ -114,14 +114,6 @@ export default function MarketingPage() {
                   <span>Análise de diversificação por classe de ativo e risco</span>
                 </li>
               </ul>
-              <div className="pt-2">
-                <Link href="/platform">
-                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
-                    <span>Acessar Módulo Financeiro</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </Link>
-              </div>
             </CardContent>
           </Card>
 
@@ -151,14 +143,6 @@ export default function MarketingPage() {
                   <span>Relatórios prontos para exportação direta ao contador</span>
                 </li>
               </ul>
-              <div className="pt-2">
-                <Link href="/platform#tax">
-                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
-                    <span>Acessar Módulo Fiscal</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </Link>
-              </div>
             </CardContent>
           </Card>
 
@@ -188,14 +172,6 @@ export default function MarketingPage() {
                   <span>Acompanhamento consolidado de dividendos de Fundos Imobiliários</span>
                 </li>
               </ul>
-              <div className="pt-2">
-                <Link href="/platform#assets">
-                  <Button variant="outline" size="sm" className="w-full gap-2 text-xs">
-                    <span>Acessar Módulo Imobiliário</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Button>
-                </Link>
-              </div>
             </CardContent>
           </Card>
         </div>
@@ -239,7 +215,7 @@ export default function MarketingPage() {
                   <span>Exportação mensal em planilha</span>
                 </li>
               </ul>
-              <Link href="/platform">
+              <Link href="/sign-up">
                 <Button variant="outline" className="w-full text-xs">Começar Grátis</Button>
               </Link>
             </CardContent>
@@ -277,7 +253,7 @@ export default function MarketingPage() {
                   <span>Suporte prioritário via chat</span>
                 </li>
               </ul>
-              <Link href="/platform">
+              <Link href="/sign-up">
                 <Button className="w-full text-xs shadow-xs">Assinar Plano Pro</Button>
               </Link>
             </CardContent>
@@ -312,9 +288,9 @@ export default function MarketingPage() {
                   <span>Gerente de contas dedicado</span>
                 </li>
               </ul>
-              <Link href="/platform">
+              <a href="mailto:contato@modaltools.com">
                 <Button variant="outline" className="w-full text-xs">Falar com Consultor</Button>
-              </Link>
+              </a>
             </CardContent>
           </Card>
         </div>
@@ -330,7 +306,7 @@ export default function MarketingPage() {
             Junte-se a investidores e gestores que utilizam a Modal Tools para controlar ativos e simplificar suas rotinas fiscais.
           </p>
           <div className="mt-6 flex justify-center gap-4">
-            <Link href="/platform">
+            <Link href="/sign-up">
               <Button size="lg" className="h-10 px-6 gap-2 font-medium">
                 <span>Criar Conta Gratuita</span>
                 <ArrowRight className="h-4 w-4" />
