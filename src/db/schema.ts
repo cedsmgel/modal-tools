@@ -8,6 +8,10 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(), // ID único vindo do Clerk (ex: user_2xxx)
   email: text("email"),
   name: text("name"),
+  plan: text("plan", { enum: ["FREE", "PRO", "CORPORATE"] })
+    .notNull()
+    .default("FREE"),
+  stripeCustomerId: text("stripe_customer_id"),
   createdAt: text("created_at")
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),

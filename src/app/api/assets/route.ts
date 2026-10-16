@@ -70,9 +70,18 @@ export async function POST(request: Request) {
 
     const sanitizedAsset = validationResult.data;
 
-    // Obtém o usuário autenticado do Clerk se disponível
-    const { userId: clerkUserId } = await auth();
-    const resolvedUserId = clerkUserId || 'user_guest_edge';
+    // Obtém o usuário autenticado do Clerk estritamente (sem fallback inseguro)
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: 'Unauthorized',
+          message: 'Usuário não autenticado. Acesso negado.',
+        },
+        { status: 401 }
+      );
+    }
 
     const db = getDb();
     const assetId = crypto.randomUUID();
@@ -82,7 +91,7 @@ export async function POST(request: Request) {
       await db
         .insert(users)
         .values({
-          id: resolvedUserId,
+          id: userId,
           email: 'user@modaltools.com',
           name: 'Usuário Conectado',
         })
@@ -91,7 +100,7 @@ export async function POST(request: Request) {
       // Insere o ativo usando Drizzle ORM no Cloudflare D1
       await db.insert(assets).values({
         id: assetId,
-        userId: resolvedUserId,
+        userId: userId,
         ticker: sanitizedAsset.ticker,
         amount: sanitizedAsset.amount,
         assetType: sanitizedAsset.assetType,
@@ -105,7 +114,7 @@ export async function POST(request: Request) {
         message: 'Ativo validado e persistido via Drizzle no Cloudflare D1.',
         data: {
           id: assetId,
-          userId: resolvedUserId,
+          userId: userId,
           ...sanitizedAsset,
         },
       },
@@ -126,17 +135,26 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json(
+        {
+          error: 'Unauthorized',
+          message: 'Usuário não autenticado. Acesso negado.',
+        },
+        { status: 401 }
+      );
+    }
+
     const db = getDb();
     if (!db) {
       return NextResponse.json({ assets: [] }, { status: 200 });
     }
 
-    const { userId } = await auth();
-    const allAssets = userId
-      ? await db.query.assets.findMany({
-          where: (items, { eq }) => eq(items.userId, userId),
-        })
-      : await db.select().from(assets).limit(50);
+    const allAssets = await db.query.assets.findMany({
+      where: (items, { eq }) => eq(items.userId, userId),
+    });
 
     return NextResponse.json({ assets: allAssets }, { status: 200 });
   } catch (err: unknown) {

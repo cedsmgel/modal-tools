@@ -79,25 +79,14 @@ export default function ArquiteturaAPIsPage() {
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
-  // Intercepta e protege endpoints de API
-  if (request.nextUrl.pathname.startsWith("/api/")) {
-    const authHeader = request.headers.get("Authorization");
-
-    // Validação estrita do token Bearer
-    if (!authHeader || authHeader !== "Bearer mock-token") {
-      return NextResponse.json(
-        { error: "Acesso não autorizado. Header Authorization inválido ou ausente." },
-        { status: 401 }
-      );
-    }
+export default clerkMiddleware(async (auth, request) => {
+  if (request.nextUrl.pathname.startsWith('/api')) {
+    await auth.protect();
   }
-
-  return NextResponse.next();
-}
+});
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ['/(api|trpc)(.*)'],
 };`}</pre>
           </div>
         </section>
