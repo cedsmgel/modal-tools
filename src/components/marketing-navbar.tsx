@@ -34,12 +34,12 @@ function AuthButtons() {
   return (
     <div className="flex items-center gap-3">
       <Show when="signed-out">
-        <SignInButton mode="modal">
+        <SignInButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
           <Button variant="ghost" size="sm" className="font-medium text-xs sm:text-sm">
             Entrar
           </Button>
         </SignInButton>
-        <SignUpButton mode="modal">
+        <SignUpButton mode="modal" forceRedirectUrl="/dashboard" fallbackRedirectUrl="/dashboard">
           <Button size="sm" className="font-medium text-xs sm:text-sm shadow-xs">
             Cadastrar
           </Button>

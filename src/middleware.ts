@@ -9,7 +9,10 @@ export default clerkMiddleware(async (auth, request) => {
     pathname.startsWith('/api') ||
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/account') ||
-    pathname.startsWith('/hub-matematico')
+    pathname.startsWith('/hub-matematico') ||
+    pathname.startsWith('/financeiro') ||
+    pathname.startsWith('/imobiliario') ||
+    pathname.startsWith('/fiscal')
   ) {
     await auth.protect();
   }
