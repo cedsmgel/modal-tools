@@ -1,105 +1,21 @@
 import Link from "next/link";
-import { Suspense } from "react";
-import {
-  SignInButton,
-  SignUpButton,
-  Show,
-  UserButton,
-} from "@clerk/nextjs";
 import {
   ShieldCheck,
   Database,
   ArrowRight,
   TrendingUp,
-  Cpu,
   Lock,
-  Layers,
   ChevronRight,
   CheckCircle2,
-  Sliders,
-  DollarSign,
-  Activity,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ThemeToggle } from "@/components/theme-toggle";
 
-function HeaderAuth() {
+export default function MarketingPage() {
   return (
-    <div className="flex items-center gap-3">
-      <Show when="signed-out">
-        <SignInButton mode="modal">
-          <Button variant="ghost" size="sm" className="font-medium">
-            Entrar
-          </Button>
-        </SignInButton>
-        <SignUpButton mode="modal">
-          <Button size="sm" className="font-medium shadow-xs">
-            Começar Agora
-          </Button>
-        </SignUpButton>
-      </Show>
-      <Show when="signed-in">
-        <Link href="/platform">
-          <Button size="sm" variant="outline" className="gap-2">
-            Acessar Plataforma
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Button>
-        </Link>
-        <UserButton />
-      </Show>
-    </div>
-  );
-}
-
-export default function Home() {
-  return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 font-sans text-zinc-950 antialiased dark:bg-zinc-950 dark:text-zinc-50">
-      {/* Top Banner */}
-      <div className="border-b border-zinc-200/80 bg-zinc-100/50 py-2 text-center text-xs font-medium text-zinc-600 dark:border-zinc-800/80 dark:bg-zinc-900/40 dark:text-zinc-400">
-        <span className="inline-flex items-center gap-1.5">
-          <Badge variant="success" className="px-1.5 py-0 text-[10px]">Cloudflare Edge</Badge>
-          Infraestrutura distribuída com SQLite D1 e validação estrita Zod
-        </span>
-      </div>
-
-      {/* Navigation Bar */}
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/80 backdrop-blur-md dark:border-zinc-800/80 dark:bg-zinc-950/80">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="flex items-center gap-2.5 font-bold tracking-tight text-zinc-950 dark:text-white">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-zinc-950 text-white dark:bg-white dark:text-zinc-950 shadow-xs">
-                <Layers className="h-4 w-4" />
-              </div>
-              <span>Modal Tools</span>
-            </Link>
-            <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              <Link href="#recursos" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-                Recursos
-              </Link>
-              <Link href="#bento" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-                Arquitetura
-              </Link>
-              <Link href="#preview" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-                Live Preview
-              </Link>
-              <Link href="/platform" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-                App Shell
-              </Link>
-            </nav>
-          </div>
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
-            <Suspense fallback={<div className="h-8 w-24 animate-pulse rounded bg-zinc-200 dark:bg-zinc-800" />}>
-              <HeaderAuth />
-            </Suspense>
-          </div>
-        </div>
-      </header>
-
+    <>
       {/* Hero Section */}
       <section className="relative overflow-hidden py-24 sm:py-32">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_50rem_at_top,rgba(120,119,198,0.1),transparent)] dark:bg-[radial-gradient(45rem_50rem_at_top,rgba(255,255,255,0.03),transparent)]" />
@@ -396,17 +312,6 @@ export default function Home() {
           </Card>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="mt-auto border-t border-zinc-200/80 bg-white py-12 dark:border-zinc-800/80 dark:bg-zinc-950">
-        <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span>Todos os sistemas operacionais • Cloudflare Edge & D1</span>
-          </div>
-          <p>© 2026 Modal Tools. Linear/Stripe design system com shadcn/ui.</p>
-        </div>
-      </footer>
-    </div>
+    </>
   );
 }
