@@ -10,9 +10,23 @@ import {
   Layers,
   ArrowUpRight,
   Calculator,
+  ChevronDown,
+  Wrench,
+  Binary,
+  TrendingUp,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function PlatformLayout({
   children,
@@ -115,10 +129,84 @@ export default function PlatformLayout({
               </div>
               <span className="text-sm">Modal Tools</span>
             </div>
-            <div className="hidden sm:flex items-center gap-2 text-xs text-zinc-500">
+            <div className="hidden sm:flex items-center gap-3 text-xs text-zinc-500">
               <Link href="/" className="hover:text-zinc-300 transition-colors">Home</Link>
               <span>/</span>
               <span className="text-zinc-200 font-medium">Área Logada</span>
+
+              {/* Dropdown "Ferramentas" Categorizado no Header */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2.5 text-xs text-zinc-300 hover:text-white hover:bg-zinc-900 gap-1.5 cursor-pointer font-medium"
+                  >
+                    <Wrench className="h-3 w-3 text-cyan-400" />
+                    <span>Ferramentas</span>
+                    <ChevronDown className="h-3 w-3 opacity-60" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-60 p-1.5 rounded-xl bg-zinc-950 border-zinc-800 shadow-2xl">
+                  {/* Matemático */}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1.5 px-2 py-1">
+                      <Binary className="h-3 w-3" />
+                      <span>Matemático</span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/hub-matematico" className="cursor-pointer text-xs rounded-lg px-2 py-1.5 text-zinc-300 hover:text-white hover:bg-zinc-900 block">
+                        Hub Matemático & Conversores
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+
+                  <DropdownMenuSeparator className="bg-zinc-800/80 my-1" />
+
+                  {/* Fiscal */}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5 px-2 py-1">
+                      <Receipt className="h-3 w-3" />
+                      <span>Fiscal</span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/hub-matematico" className="cursor-pointer text-xs rounded-lg px-2 py-1.5 text-zinc-300 hover:text-white hover:bg-zinc-900 block">
+                        Simulador de DARF & IRPF
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+
+                  <DropdownMenuSeparator className="bg-zinc-800/80 my-1" />
+
+                  {/* Imobiliário */}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5 px-2 py-1">
+                      <Building2 className="h-3 w-3" />
+                      <span>Imobiliário</span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/hub-matematico" className="cursor-pointer text-xs rounded-lg px-2 py-1.5 text-zinc-300 hover:text-white hover:bg-zinc-900 block">
+                        Yield de Locação & Reajuste IGP-M
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+
+                  <DropdownMenuSeparator className="bg-zinc-800/80 my-1" />
+
+                  {/* Financeiro */}
+                  <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-1.5 px-2 py-1">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Financeiro</span>
+                    </DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/hub-matematico" className="cursor-pointer text-xs rounded-lg px-2 py-1.5 text-zinc-300 hover:text-white hover:bg-zinc-900 block">
+                        Juros Compostos & Aportes Mensais
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
 
