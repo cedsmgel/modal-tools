@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "modal-tools",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-16",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "modal-tools-db",
+      "database_id": "44e6555f-3c0e-4e8b-b376-7b91acc17b76",
+      "migrations_dir": "drizzle"
+    }
+  ]
+}
