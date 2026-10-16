@@ -56,6 +56,7 @@ export default function AccountPage() {
         <TabsContent value="profile" className="space-y-4 pt-1">
           <div className="w-full flex justify-center">
             <UserProfile
+              routing="hash"
               appearance={{
                 theme: isDark ? (dark as never) : undefined,
                 elements: {
