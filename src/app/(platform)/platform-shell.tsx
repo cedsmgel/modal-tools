@@ -16,9 +16,9 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white">
-      {/* Barra Superior Minimalista das Demais Rotas */}
-      <header className="sticky top-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+    <div className="h-screen w-full overflow-hidden flex flex-col bg-zinc-950 font-sans text-zinc-100 antialiased selection:bg-zinc-800 selection:text-white">
+      {/* Barra Superior Minimalista Estática */}
+      <header className="shrink-0 z-40 w-full border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo à esquerda */}
           <Link
@@ -54,9 +54,11 @@ export function PlatformShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      {/* Conteúdo Principal do Sistema Logado */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        {children}
+      {/* Conteúdo Principal Rolável com custom-scrollbar nativo */}
+      <main className="flex-1 min-h-0 w-full overflow-y-auto custom-scrollbar">
+        <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
     </div>
   );

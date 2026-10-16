@@ -277,7 +277,7 @@ export default function FinanceiroPage() {
   const btcCrypto = brapiCrypto.find((c) => c.coin === "BTC") || { regularMarketPrice: 382450, regularMarketChangePercent: 3.12 };
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
+    <div className="h-screen w-full overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
       {/* 1. SIDEBAR ESQUERDA ESTILO APP NATIVO (W-20) */}
       <aside className="w-20 border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 flex flex-col items-center py-6 justify-between shrink-0 z-30 select-none shadow-xs">
         {/* Topo: Logo Arredondada Roxa Nubank */}
@@ -347,7 +347,7 @@ export default function FinanceiroPage() {
       </aside>
 
       {/* ÁREA PRINCIPAL DO APLICATIVO */}
-      <div className="flex-1 flex flex-col h-full overflow-hidden">
+      <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
         {/* 2. HEADER INTERNO LIMPO */}
         <header className="h-16 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-4">
@@ -392,7 +392,7 @@ export default function FinanceiroPage() {
         </header>
 
         {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS */}
-        <main className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 sm:p-8">
           <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto pb-10">
             {/* 4. COLUNA ESQUERDA (col-span-12 lg:col-span-3) */}
             <section className="col-span-12 lg:col-span-3 space-y-6">
@@ -410,7 +410,7 @@ export default function FinanceiroPage() {
                   <BarChart3 className="h-4 w-4 text-zinc-400" />
                 </div>
 
-                <div className="space-y-2.5 max-h-[360px] overflow-y-auto pr-1">
+                <div className="space-y-2.5 max-h-[360px] overflow-y-auto custom-scrollbar pr-1">
                   {filteredAssets.map((asset) => {
                     const isSelected = activeAssetIds.includes(asset.id);
                     return (

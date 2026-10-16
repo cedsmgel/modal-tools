@@ -77,3 +77,63 @@ body {
   color: hsl(var(--foreground));
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
 }
+
+/* =========================================================================
+   SCROLLBAR UTILITIES (ESTILO APLICATIVO DESKTOP NATIVO)
+   ========================================================================= */
+
+/* Barra ultrafina de 5px com track transparente e thumb discreto revelado no hover */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease-in-out;
+}
+
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(161, 161, 170, 0.35) transparent;
+}
+
+.dark .custom-scrollbar:hover {
+  scrollbar-color: rgba(113, 113, 122, 0.45) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(161, 161, 170, 0.35);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 170, 0.6);
+}
+
+.dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(113, 113, 122, 0.45);
+}
+
+.dark .custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(161, 161, 170, 0.7);
+}
+
+/* Oculta visualmente a barra mantendo o scroll funcional */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
