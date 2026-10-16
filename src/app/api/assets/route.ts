@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { z } from 'zod';
 import { getDb, assets, users } from '@/db';
 
@@ -84,34 +84,42 @@ export async function POST(request: Request) {
     }
 
     const db = getDb();
+    if (!db) {
+      return NextResponse.json(
+        {
+          error: 'Service Unavailable',
+          message: 'Conexão com o banco de dados Cloudflare D1 indisponível no ambiente de execução.',
+        },
+        { status: 503 }
+      );
+    }
+
     const assetId = crypto.randomUUID();
 
-    if (db) {
-      // Garante que o usuário existe na tabela users antes de vincular a foreign key
-      await db
-        .insert(users)
-        .values({
-          id: userId,
-          email: 'user@modaltools.com',
-          name: 'Usuário Conectado',
-        })
-        .onConflictDoNothing();
+    // Garante que o usuário existe na tabela users antes de vincular a foreign key
+    await db
+      .insert(users)
+      .values({
+        id: userId,
+        email: 'user@modaltools.com',
+        name: 'Usuário Conectado',
+      })
+      .onConflictDoNothing();
 
-      // Insere o ativo usando Drizzle ORM no Cloudflare D1
-      await db.insert(assets).values({
-        id: assetId,
-        userId: userId,
-        ticker: sanitizedAsset.ticker,
-        amount: sanitizedAsset.amount,
-        assetType: sanitizedAsset.assetType,
-        averagePrice: sanitizedAsset.averagePrice,
-        notes: sanitizedAsset.notes || null,
-      });
-    }
+    // Insere o ativo usando Drizzle ORM no Cloudflare D1
+    await db.insert(assets).values({
+      id: assetId,
+      userId: userId,
+      ticker: sanitizedAsset.ticker,
+      amount: sanitizedAsset.amount,
+      assetType: sanitizedAsset.assetType,
+      averagePrice: sanitizedAsset.averagePrice,
+      notes: sanitizedAsset.notes || null,
+    });
 
     return NextResponse.json(
       {
-        message: 'Ativo validado e persistido via Drizzle no Cloudflare D1.',
+        message: 'Ativo validado e persistido com sucesso via Drizzle no Cloudflare D1.',
         data: {
           id: assetId,
           userId: userId,
@@ -149,7 +157,13 @@ export async function GET() {
 
     const db = getDb();
     if (!db) {
-      return NextResponse.json({ assets: [] }, { status: 200 });
+      return NextResponse.json(
+        {
+          error: 'Service Unavailable',
+          message: 'Conexão com o banco de dados Cloudflare D1 indisponível no ambiente de execução.',
+        },
+        { status: 503 }
+      );
     }
 
     const allAssets = await db.query.assets.findMany({

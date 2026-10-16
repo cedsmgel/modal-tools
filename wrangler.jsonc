@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "modal-tools",
-  "main": ".open-next/worker.js",
+  // "main": ".open-next/worker.js", // Ativar quando o adapter de deploy (OpenNext/vinext) for configurado
   "compatibility_date": "2026-10-16",
   "compatibility_flags": [
     "nodejs_compat"

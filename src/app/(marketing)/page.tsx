@@ -3,12 +3,8 @@ import {
   TrendingUp,
   Receipt,
   Building2,
-  ShieldCheck,
   ArrowRight,
   CheckCircle2,
-  FileText,
-  Clock,
-  PieChart,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

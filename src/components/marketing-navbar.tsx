@@ -15,16 +15,13 @@ import {
   Receipt,
   Building2,
   TrendingUp,
-  ArrowRight,
   Database,
   ShieldCheck,
   Lock,
   Binary,
   Cpu,
-  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   DropdownMenu,

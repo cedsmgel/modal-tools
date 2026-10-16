@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, Binary, Type, Table as TableIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -126,7 +126,7 @@ const geistMono = Geist_Mono({
             O JavaScript utiliza a representação de 64 bits em conformidade com o padrão IEEE 754. Cálculos simples como <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">0.1 + 0.2</code> produzem <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800">0.30000000000000004</code>, o que acarretaria divergência de centavos na apuração de DARFs da Receita Federal.
           </p>
           <div className="p-4 rounded-xl bg-zinc-950 text-zinc-100 font-mono text-xs overflow-x-auto border border-zinc-800 space-y-3">
-            <div className="text-zinc-400">// Regra de Ouro da Modal Tools: Armazenamento em Inteiros (Cents)</div>
+            <div className="text-zinc-400">{"// Regra de Ouro da Modal Tools: Armazenamento em Inteiros (Cents)"}</div>
             <pre>{`function formatarMoeda(centavos: number): string {
   const reais = centavos / 100;
   return new Intl.NumberFormat("pt-BR", {

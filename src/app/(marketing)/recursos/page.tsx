@@ -6,7 +6,6 @@ import {
   Binary,
   Cpu,
   ArrowRight,
-  BookOpen,
   CheckCircle2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
