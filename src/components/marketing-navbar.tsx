@@ -27,8 +27,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
@@ -72,7 +70,7 @@ export function MarketingNavbar() {
 
           {/* Links de Navegação */}
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-            {/* Dropdown 'Produtos' (Foco no Cliente / Serviços) */}
+            {/* Dropdown 'Produtos' */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 transition-colors hover:text-zinc-950 focus:outline-none dark:hover:text-white cursor-pointer select-none">
@@ -80,75 +78,43 @@ export function MarketingNavbar() {
                   <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-80 p-2 shadow-xl">
-                <DropdownMenuLabel className="text-[11px] text-zinc-400">
-                  Módulos de Gestão
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-
-                {/* Módulo Financeiro */}
+              <DropdownMenuContent align="start" className="w-56 p-2 shadow-xl rounded-xl">
+                {/* Financeiro */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/#servicos"
-                    className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
-                      <TrendingUp className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-                        <span>Gestão Financeira</span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                        Controle unificado de ações, renda fixa e criptoativos.
-                      </p>
-                    </div>
+                    <TrendingUp className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Financeiro</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Módulo Fiscal */}
+                {/* Fiscal */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/#servicos"
-                    className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
-                      <Receipt className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-                        <span>Inteligência Fiscal</span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                        Apuração automatizada de ganhos e cálculo de tributos.
-                      </p>
-                    </div>
+                    <Receipt className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Fiscal</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Módulo Imobiliário */}
+                {/* Imóveis */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/#servicos"
-                    className="flex items-start gap-3 p-2.5 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
-                      <Building2 className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5 font-semibold text-sm text-zinc-900 dark:text-zinc-100">
-                        <span>Gestão Imobiliária</span>
-                      </div>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-1 mt-0.5">
-                        Controle de locações, contratos e rendimentos de FIIs.
-                      </p>
-                    </div>
+                    <Building2 className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Imóveis</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Dropdown 'Recursos' (Documentação Técnica Discreta com Nome Próprio) */}
+            {/* Dropdown 'Recursos' */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-1.5 transition-colors hover:text-zinc-950 focus:outline-none dark:hover:text-white cursor-pointer select-none">
@@ -156,104 +122,59 @@ export function MarketingNavbar() {
                   <ChevronDown className="h-3.5 w-3.5 opacity-60" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-88 p-2 shadow-xl">
-                <div className="flex items-center justify-between px-2 py-1.5">
-                  <DropdownMenuLabel className="p-0 text-[11px] text-zinc-400">
-                    Documentação & Especificações
-                  </DropdownMenuLabel>
-                  <Link href="/recursos" className="text-[11px] text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium">
-                    Ver índice →
-                  </Link>
-                </div>
-                <DropdownMenuSeparator />
-
-                {/* Recurso 1: D1 */}
+              <DropdownMenuContent align="start" className="w-56 p-2 shadow-xl rounded-xl">
+                {/* Banco */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/recursos/banco-de-dados-d1"
-                    className="flex items-start gap-2.5 p-2 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <Database className="h-4 w-4 mt-0.5 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 block">
-                        Banco de Dados Distribuído (D1)
-                      </span>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">
-                        Persistência SQLite serverless e replicação de leitura global.
-                      </p>
-                    </div>
+                    <Database className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Banco</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Recurso 2: Zod */}
+                {/* Segurança */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/recursos/seguranca-e-validacao-zod"
-                    className="flex items-start gap-2.5 p-2 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <ShieldCheck className="h-4 w-4 mt-0.5 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 block">
-                        Segurança & Validação na Borda (Zod)
-                      </span>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">
-                        Filtros de borda, rejeição fail-fast e proteção contra mass assignment.
-                      </p>
-                    </div>
+                    <ShieldCheck className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Segurança</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Recurso 3: Clerk */}
+                {/* Autenticação */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/recursos/autenticacao-e-governanca-clerk"
-                    className="flex items-start gap-2.5 p-2 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <Lock className="h-4 w-4 mt-0.5 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 block">
-                        Autenticação & Governança (Clerk)
-                      </span>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">
-                        Sessões seguras com JWT, autenticação corporativa e MFA.
-                      </p>
-                    </div>
+                    <Lock className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Autenticação</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Recurso 4: Tabular Nums */}
+                {/* Tipografia */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/recursos/precisao-numerica-e-tipografia"
-                    className="flex items-start gap-2.5 p-2 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <Binary className="h-4 w-4 mt-0.5 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 block">
-                        Precisão Numérica & Tipografia
-                      </span>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">
-                        Fontes Geist Mono e tabular-nums para cálculos fiscais exatos.
-                      </p>
-                    </div>
+                    <Binary className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Tipografia</span>
                   </Link>
                 </DropdownMenuItem>
 
-                {/* Recurso 5: APIs */}
+                {/* APIs */}
                 <DropdownMenuItem asChild>
                   <Link
                     href="/recursos/arquitetura-de-apis"
-                    className="flex items-start gap-2.5 p-2 cursor-pointer rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-850"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
                   >
-                    <Cpu className="h-4 w-4 mt-0.5 text-zinc-500 shrink-0" />
-                    <div>
-                      <span className="font-semibold text-xs text-zinc-900 dark:text-zinc-100 block">
-                        Arquitetura de APIs de Borda
-                      </span>
-                      <p className="text-[11px] text-zinc-500 line-clamp-1">
-                        Endpoints RESTful protegidos e middlewares de interceptação.
-                      </p>
-                    </div>
+                    <Cpu className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>APIs</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
