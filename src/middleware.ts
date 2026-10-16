@@ -1,15 +1,12 @@
+import { clerkMiddleware } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
 
 /**
- * Middleware de borda (Edge) para segurança de APIs.
- * Intercepta requisições destinadas a /api/* e valida autenticação antes de alcançar os Route Handlers.
+ * Middleware Clerk combinado com proteção de rotas de API na borda.
  */
-export function middleware(request: NextRequest) {
+export default clerkMiddleware(async (auth, request) => {
   if (request.nextUrl.pathname.startsWith('/api')) {
     const authHeader = request.headers.get('authorization');
-
-    // Simulação de validação de token na borda (Edge Authentication)
     if (!authHeader || authHeader !== 'Bearer mock-token') {
       return NextResponse.json(
         {
@@ -20,13 +17,13 @@ export function middleware(request: NextRequest) {
       );
     }
   }
-
-  return NextResponse.next();
-}
-
-// Compatibilidade com convenção Proxy do Next.js 16+
-export const proxy = middleware;
+});
 
 export const config = {
-  matcher: ['/api/:path*'],
+  matcher: [
+    // Pula rotas internas do Next.js e arquivos estáticos
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    // Executa sempre para rotas de API
+    '/(api|trpc)(.*)',
+  ],
 };
