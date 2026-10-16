@@ -15,90 +15,19 @@ import {
   Download,
   TrendingUp,
   Sparkles,
-  ArrowUpRight,
   ShieldCheck,
   CircleDollarSign,
   Coins,
   BarChart3,
   Home,
   RefreshCw,
+  Newspaper,
+  Bell,
+  X,
 } from "lucide-react";
 import type { BrapiStockQuote, BrapiCurrencyQuote, BrapiCryptoQuote } from "@/lib/brapi";
 
 type Period = "1M" | "3M" | "6M" | "1A" | "Tudo";
-
-interface AssetIndex {
-  id: string;
-  name: string;
-  type: string;
-  color: string;
-  currentValue: number;
-  variation: number; // %
-  points: Record<Period, number[]>;
-}
-
-const DEFAULT_ASSETS: AssetIndex[] = [
-  {
-    id: "carteira",
-    name: "Minha Carteira",
-    type: "Patrimônio Consolidado",
-    color: "#820AD1", // Roxo Nubank
-    currentValue: 184520.45,
-    variation: 2.84,
-    points: {
-      "1M": [178000, 179200, 180100, 181400, 182600, 183900, 184520],
-      "3M": [165000, 168400, 171200, 173500, 177000, 180200, 184520],
-      "6M": [148000, 153000, 159000, 164000, 170000, 178000, 184520],
-      "1A": [130000, 137000, 145000, 154000, 162000, 174000, 184520],
-      Tudo: [95000, 110000, 128000, 142000, 158000, 172000, 184520],
-    },
-  },
-  {
-    id: "cdi",
-    name: "CDI Acumulado",
-    type: "Benchmark Renda Fixa",
-    color: "#2563EB", // Azul
-    currentValue: 10450.0,
-    variation: 1.05,
-    points: {
-      "1M": [100, 100.2, 100.4, 100.6, 100.8, 100.95, 101.05],
-      "3M": [100, 100.8, 101.5, 102.1, 102.7, 103.2, 103.8],
-      "6M": [100, 101.4, 102.9, 104.2, 105.4, 106.8, 107.9],
-      "1A": [100, 102.8, 105.7, 108.5, 111.2, 113.8, 115.5],
-      Tudo: [100, 108.2, 118.4, 129.5, 141.2, 152.0, 164.5],
-    },
-  },
-  {
-    id: "ibov",
-    name: "Ibovespa",
-    type: "Ações Brasil",
-    color: "#10B981", // Esmeralda
-    currentValue: 132480.0,
-    variation: 1.92,
-    points: {
-      "1M": [128500, 129800, 127900, 130200, 131500, 130900, 132480],
-      "3M": [123000, 126500, 124800, 128900, 127600, 131200, 132480],
-      "6M": [118000, 121000, 124500, 122000, 126000, 129500, 132480],
-      "1A": [115000, 119000, 125000, 121000, 127000, 130000, 132480],
-      Tudo: [102000, 112000, 108000, 121000, 125000, 128000, 132480],
-    },
-  },
-  {
-    id: "sp500",
-    name: "S&P 500 (BRL)",
-    type: "Mercado Global",
-    color: "#F59E0B", // Âmbar
-    currentValue: 5860.2,
-    variation: -0.45,
-    points: {
-      "1M": [5820, 5845, 5890, 5875, 5850, 5870, 5860],
-      "3M": [5550, 5620, 5690, 5740, 5810, 5880, 5860],
-      "6M": [5100, 5280, 5420, 5580, 5690, 5820, 5860],
-      "1A": [4600, 4850, 5100, 5320, 5500, 5750, 5860],
-      Tudo: [3900, 4250, 4700, 5050, 5400, 5650, 5860],
-    },
-  },
-];
 
 const PERIOD_LABELS: Record<Period, string[]> = {
   "1M": ["Dia 1", "Dia 5", "Dia 10", "Dia 15", "Dia 20", "Dia 25", "Hoje"],
@@ -108,22 +37,43 @@ const PERIOD_LABELS: Record<Period, string[]> = {
   Tudo: ["2022", "2023", "2024", "2025", "2026", "2027", "Atual"],
 };
 
+const NEWS_ITEMS = [
+  {
+    id: "1",
+    title: "Copom sinaliza cautela e mercado ajusta projeções de juros para o ano",
+    source: "Valor Econômico",
+    time: "Há 2h",
+  },
+  {
+    id: "2",
+    title: "Ibovespa opera com suporte de fluxo estrangeiro e setor de commodities",
+    source: "InfoMoney",
+    time: "Há 4h",
+  },
+  {
+    id: "3",
+    title: "Dólar recua globalmente com dados de inflação e superávit comercial",
+    source: "Bloomberg Línea",
+    time: "Há 5h",
+  },
+];
+
 export default function FinanceiroPage() {
   const { user } = useUser();
   const [showValues, setShowValues] = React.useState<boolean>(true);
   const [selectedPeriod, setSelectedPeriod] = React.useState<Period>("1M");
-  const [activeAssetIds, setActiveAssetIds] = React.useState<string[]>(["carteira", "cdi"]);
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [isLoadingMarket, setIsLoadingMarket] = React.useState<boolean>(false);
+  const [isAddModalOpen, setIsAddModalOpen] = React.useState<boolean>(false);
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Estados de dados da brapi.dev
-  const [brapiStocks, setBrapiStocks] = React.useState<BrapiStockQuote[]>([]);
+  const [, setBrapiStocks] = React.useState<BrapiStockQuote[]>([]);
   const [brapiCurrencies, setBrapiCurrencies] = React.useState<BrapiCurrencyQuote[]>([]);
   const [brapiCrypto, setBrapiCrypto] = React.useState<BrapiCryptoQuote[]>([]);
   const [macroRates, setMacroRates] = React.useState<{ cdi?: number; selic?: number; ipca?: number }>({
-    cdi: 14.15,
-    selic: 14.25,
+    cdi: 10.65,
+    selic: 10.75,
     ipca: 4.42,
   });
 
@@ -140,8 +90,8 @@ export default function FinanceiroPage() {
           setBrapiCrypto(json.data.cryptos || []);
           if (json.data.macro) {
             setMacroRates({
-              cdi: json.data.macro.cdi?.value || 14.15,
-              selic: json.data.macro.selic?.value || 14.25,
+              cdi: json.data.macro.cdi?.value || 10.65,
+              selic: json.data.macro.selic?.value || 10.75,
               ipca: json.data.macro.ipca?.value || 4.42,
             });
           }
@@ -170,124 +120,47 @@ export default function FinanceiroPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const toggleAsset = (id: string) => {
-    if (activeAssetIds.includes(id)) {
-      if (activeAssetIds.length > 1) {
-        setActiveAssetIds(activeAssetIds.filter((item) => item !== id));
-      }
-    } else {
-      setActiveAssetIds([...activeAssetIds, id]);
-    }
-  };
-
-  // Combina lista padrão com cotações vivas da B3 via brapi
-  const combinedAssets = React.useMemo(() => {
-    const list = [...DEFAULT_ASSETS];
-    if (brapiStocks.length > 0) {
-      brapiStocks.forEach((st) => {
-        const base = st.regularMarketPrice;
-        list.push({
-          id: st.symbol.toLowerCase(),
-          name: st.symbol,
-          type: st.shortName || "Ação B3",
-          color: st.regularMarketChangePercent >= 0 ? "#10B981" : "#EF4444",
-          currentValue: base,
-          variation: Number(st.regularMarketChangePercent.toFixed(2)),
-          points: {
-            "1M": [base * 0.96, base * 0.98, base * 0.97, base * 0.99, base * 1.01, base * 1.0, base],
-            "3M": [base * 0.92, base * 0.94, base * 0.96, base * 0.95, base * 0.98, base * 1.01, base],
-            "6M": [base * 0.88, base * 0.91, base * 0.93, base * 0.92, base * 0.96, base * 1.02, base],
-            "1A": [base * 0.82, base * 0.86, base * 0.91, base * 0.95, base * 0.98, base * 1.03, base],
-            Tudo: [base * 0.70, base * 0.78, base * 0.85, base * 0.92, base * 0.98, base * 1.04, base],
-          },
-        });
-      });
-    }
-    return list;
-  }, [brapiStocks]);
-
-  const filteredAssets = combinedAssets.filter((asset) =>
-    asset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    asset.type.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   const formatBrl = (value: number) => {
     if (!showValues) return "R$ ••••••";
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
 
-  // Normalização das curvas para o gráfico interativo
+  const usdCurrency = brapiCurrencies.find((c) => c.fromCurrency === "USD") || { bidPrice: 5.68, pctChange: -0.2 };
+  const eurCurrency = brapiCurrencies.find((c) => c.fromCurrency === "EUR") || { bidPrice: 6.15, pctChange: 0.1 };
+  const btcCrypto = brapiCrypto.find((c) => c.coin === "BTC") || { regularMarketPrice: 382450, regularMarketChangePercent: 3.12 };
+
+  // Lista minimalista de índices para o carrossel horizontal
+  const indicesList = [
+    { label: "IBOV", value: "131.200", change: 0.4 },
+    { label: "S&P 500", value: "5.800", change: 1.2 },
+    { label: "USD", value: usdCurrency.bidPrice.toFixed(2), change: Number(usdCurrency.pctChange.toFixed(1)) },
+    { label: "EUR", value: eurCurrency.bidPrice.toFixed(2), change: Number(eurCurrency.pctChange.toFixed(1)) },
+    { label: "SELIC", value: `${macroRates.selic || 10.75}%`, change: undefined },
+    { label: "CDI", value: `${macroRates.cdi || 10.65}%`, change: undefined },
+    { label: "IPCA", value: `${macroRates.ipca || 4.42}%`, change: undefined },
+    { label: "BTC", value: `R$ ${btcCrypto.regularMarketPrice.toLocaleString("pt-BR")}`, change: Number(btcCrypto.regularMarketChangePercent.toFixed(1)) },
+  ];
+
+  // Dimensões do gráfico central
   const chartWidth = 720;
   const chartHeight = 180;
   const paddingX = 20;
   const paddingY = 20;
 
-  const normalizedCurves = React.useMemo(() => {
-    return activeAssetIds.map((id) => {
-      const asset = combinedAssets.find((a) => a.id === id);
-      if (!asset) return null;
-      const dataPoints = asset.points[selectedPeriod];
-      const baseVal = dataPoints[0] || 1;
-      const normalizedPercent = dataPoints.map((v) => ((v - baseVal) / baseVal) * 100);
-      return {
-        asset,
-        normalizedPercent,
-      };
-    }).filter(Boolean);
-  }, [activeAssetIds, selectedPeriod, combinedAssets]);
-
-  const { minP, maxP } = React.useMemo(() => {
-    let min = -1;
-    let max = 3;
-    normalizedCurves.forEach((curve) => {
-      if (!curve) return;
-      curve.normalizedPercent.forEach((p) => {
-        if (p < min) min = p;
-        if (p > max) max = p;
-      });
-    });
-    const spread = max - min || 1;
-    return { minP: min - spread * 0.1, maxP: max + spread * 0.1 };
-  }, [normalizedCurves]);
-
-  const generatePath = (points: number[]) => {
-    if (!points.length) return "";
-    const usableW = chartWidth - paddingX * 2;
-    const usableH = chartHeight - paddingY * 2;
-
-    const coords = points.map((p, i) => {
-      const x = paddingX + (i / (points.length - 1)) * usableW;
-      const normalizedY = (p - minP) / (maxP - minP);
-      const y = chartHeight - paddingY - normalizedY * usableH;
-      return { x, y };
-    });
-
-    let d = `M ${coords[0].x} ${coords[0].y}`;
-    for (let i = 0; i < coords.length - 1; i++) {
-      const curr = coords[i];
-      const next = coords[i + 1];
-      const mx = (curr.x + next.x) / 2;
-      d += ` C ${mx} ${curr.y}, ${mx} ${next.y}, ${next.x} ${next.y}`;
-    }
-    return d;
-  };
-
-  const usdCurrency = brapiCurrencies.find((c) => c.fromCurrency === "USD") || { bidPrice: 5.68, pctChange: 0.42 };
-  const eurCurrency = brapiCurrencies.find((c) => c.fromCurrency === "EUR") || { bidPrice: 6.18, pctChange: -0.15 };
-  const btcCrypto = brapiCrypto.find((c) => c.coin === "BTC") || { regularMarketPrice: 382450, regularMarketChangePercent: 3.12 };
-
   return (
     <div className="h-screen w-full overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
       {/* 1. SIDEBAR ESQUERDA ESTILO APP NATIVO (W-20) */}
       <aside className="w-20 border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 flex flex-col items-center py-5 justify-between shrink-0 z-30 select-none shadow-xs">
-        {/* Topo: Logo Arredondada Roxa Nubank */}
-        <Link
-          href="/dashboard"
-          title="Voltar ao Início"
-          className="bg-purple-600 text-white rounded-2xl w-10 h-10 flex items-center justify-center font-bold text-base shadow-md shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all"
-        >
-          <span>Nu</span>
-        </Link>
+        {/* Topo: Perfil do Usuário Clerk com avatarBox w-10 h-10 */}
+        <div className="flex items-center justify-center">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "w-10 h-10",
+              },
+            }}
+          />
+        </div>
 
         {/* Meio: Ícones de navegação espaçados */}
         <nav className="flex flex-col items-center gap-3">
@@ -332,7 +205,7 @@ export default function FinanceiroPage() {
           </Link>
         </nav>
 
-        {/* Rodapé da Sidebar: Espaçamento de segurança (pb-14) para não colidir com dev tools */}
+        {/* Rodapé da Sidebar: Espaçamento de segurança (pb-12) para não colidir com dev tools */}
         <div className="flex flex-col items-center pb-12">
           <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-mono text-zinc-400">
             PRO
@@ -342,7 +215,7 @@ export default function FinanceiroPage() {
 
       {/* ÁREA PRINCIPAL DO APLICATIVO */}
       <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-        {/* 2. HEADER INTERNO LIMPO (h-14 px-5) */}
+        {/* 2. HEADER INTERNO LIMPO */}
         <header className="h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-5 flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-3">
             <h1 className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
@@ -382,82 +255,69 @@ export default function FinanceiroPage() {
                 /
               </span>
             </div>
-
-            {/* Avatar do Clerk no Header */}
-            <div className="pl-1 border-l border-zinc-200 dark:border-zinc-800 flex items-center">
-              <UserButton
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: "h-8 w-8 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800",
-                  },
-                }}
-              />
-            </div>
           </div>
         </header>
 
-        {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS (Encaixe 100% na tela) */}
+        {/* 2.5 CARROSSEL DE ÍNDICES MINIMALISTA */}
+        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-3 px-4 border-b border-zinc-800/60 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xs shrink-0 select-none">
+          {indicesList.map((item) => (
+            <div key={item.label} className="flex items-center gap-2 whitespace-nowrap shrink-0">
+              <span className="text-zinc-500 dark:text-zinc-400 font-semibold uppercase text-xs">
+                {item.label}
+              </span>
+              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                {item.value}
+              </span>
+              {item.change !== undefined && (
+                <span
+                  className={`text-xs font-medium tabular-nums ${
+                    item.change >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
+                  }`}
+                >
+                  {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS */}
         <main className="flex-1 min-h-0 overflow-hidden p-4">
           <div className="grid grid-cols-12 gap-4 h-full max-w-7xl mx-auto">
-            {/* 4. COLUNA ESQUERDA (col-span-12 lg:col-span-3) */}
+            {/* 4. COLUNA ESQUERDA: MINHA CARTEIRA (EMPTY STATE REAL) */}
             <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
-              {/* Card Minha Carteira & Índices */}
+              {/* Card Minha Carteira */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
-                <div className="flex items-center justify-between mb-3 shrink-0">
+                <div className="flex items-center justify-between mb-2 shrink-0">
                   <div>
                     <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
-                      Índices & Carteiras
+                      Minha Carteira
                     </h2>
                     <p className="text-[10px] text-zinc-400">
-                      Clique para comparar no gráfico
+                      Gestão de Ativos & Patrimônio
                     </p>
                   </div>
                   <BarChart3 className="h-4 w-4 text-zinc-400" />
                 </div>
 
-                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 space-y-1.5">
-                  {filteredAssets.map((asset) => {
-                    const isSelected = activeAssetIds.includes(asset.id);
-                    return (
-                      <button
-                        key={asset.id}
-                        type="button"
-                        onClick={() => toggleAsset(asset.id)}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl transition-all text-left cursor-pointer border ${
-                          isSelected
-                            ? "bg-purple-500/10 border-purple-500/30 text-zinc-900 dark:text-zinc-100 shadow-2xs"
-                            : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
-                            style={{ backgroundColor: asset.color }}
-                          />
-                          <div className="truncate">
-                            <p className="text-xs font-semibold truncate leading-tight">
-                              {asset.name}
-                            </p>
-                            <p className="text-[10px] text-zinc-400 truncate">
-                              {asset.type}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="text-right shrink-0">
-                          <span
-                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tabular-nums ${
-                              asset.variation >= 0
-                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                                : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
-                            }`}
-                          >
-                            {asset.variation >= 0 ? `+${asset.variation}%` : `${asset.variation}%`}
-                          </span>
-                        </div>
-                      </button>
-                    );
-                  })}
+                {/* Empty State Elegante */}
+                <div className="flex-1 min-h-0 flex flex-col items-center justify-center p-4 text-center">
+                  <div className="w-12 h-12 rounded-2xl bg-zinc-100 dark:bg-zinc-800/70 text-zinc-400 flex items-center justify-center mb-3 shadow-2xs">
+                    <Wallet className="h-6 w-6 stroke-1 text-zinc-400" />
+                  </div>
+                  <p className="text-xs text-zinc-400 leading-relaxed max-w-[210px]">
+                    Nenhum ativo registado. Adicione o seu primeiro aporte para ver o seu património crescer.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setIsAddModalOpen(true)}
+                    className="w-full mt-4 py-2.5 px-3 border border-dashed border-zinc-300 dark:border-zinc-700 hover:border-purple-500 dark:hover:border-purple-400 rounded-2xl text-xs font-semibold text-zinc-600 dark:text-zinc-300 hover:text-purple-600 dark:hover:text-purple-400 flex items-center justify-center gap-2 transition-all cursor-pointer group hover:bg-purple-500/5 active:scale-98"
+                  >
+                    <PlusCircle className="h-4 w-4 text-zinc-400 group-hover:text-purple-500 transition-colors" />
+                    Adicionar Ativo
+                  </button>
                 </div>
               </div>
 
@@ -475,9 +335,9 @@ export default function FinanceiroPage() {
 
             {/* 5. COLUNA CENTRAL (col-span-12 lg:col-span-6) */}
             <section className="col-span-12 lg:col-span-6 flex flex-col gap-3 min-h-0 h-full">
-              {/* Card Principal: Patrimônio & Performance Comparada */}
+              {/* Card Principal: Patrimônio Total Zerado & Gráfico Plano */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
-                {/* Topo do Card de Performance em duas zonas flex-wrap */}
+                {/* Topo do Card de Performance */}
                 <div className="flex flex-wrap items-start justify-between gap-3 shrink-0">
                   <div className="space-y-1">
                     <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
@@ -485,16 +345,15 @@ export default function FinanceiroPage() {
                     </span>
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
-                        {formatBrl(184520.45)}
+                        {formatBrl(0)}
                       </span>
-                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                        <ArrowUpRight className="h-3 w-3 shrink-0" />
-                        +R$ 5.120,00 no mês
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-0.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums">
+                        R$ 0,00 (0,0%)
                       </span>
                     </div>
                   </div>
 
-                  {/* Seletor de Período em Pílulas 100% Contido */}
+                  {/* Seletor de Período em Pílulas */}
                   <div className="shrink-0 bg-zinc-100 dark:bg-zinc-950/80 p-0.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 flex items-center gap-0.5 shadow-2xs">
                     {(["1M", "3M", "6M", "1A", "Tudo"] as Period[]).map((p) => {
                       const isActive = selectedPeriod === p;
@@ -516,89 +375,73 @@ export default function FinanceiroPage() {
                   </div>
                 </div>
 
-                {/* Gráfico de Curvas Suaves Minimalista (SVG) */}
-                <div className="relative flex-1 min-h-[150px] max-h-[220px] flex flex-col justify-center my-2">
+                {/* Gráfico Central: Linha Plana Minimalista (Empty State Suave) */}
+                <div className="relative flex-1 min-h-[150px] max-h-[220px] flex flex-col justify-center my-2 items-center">
                   <svg
                     viewBox={`0 0 ${chartWidth} ${chartHeight}`}
                     className="w-full h-full max-h-[170px] overflow-visible"
                   >
                     <defs>
-                      <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#820AD1" stopOpacity="0.18" />
+                      <linearGradient id="purpleGradZero" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#820AD1" stopOpacity="0.10" />
                         <stop offset="100%" stopColor="#820AD1" stopOpacity="0" />
                       </linearGradient>
                     </defs>
 
-                    {/* Linha zero de referência sutil */}
+                    {/* Linha zero sutil */}
                     <line
                       x1={paddingX}
-                      y1={chartHeight - paddingY - ((0 - minP) / (maxP - minP)) * (chartHeight - paddingY * 2)}
+                      y1={chartHeight / 2}
                       x2={chartWidth - paddingX}
-                      y2={chartHeight - paddingY - ((0 - minP) / (maxP - minP)) * (chartHeight - paddingY * 2)}
+                      y2={chartHeight / 2}
                       stroke="currentColor"
                       strokeDasharray="4 4"
                       className="text-zinc-200 dark:text-zinc-800"
                       strokeWidth={1}
                     />
 
-                    {/* Curvas selecionadas */}
-                    {normalizedCurves.map((curve) => {
-                      if (!curve) return null;
-                      const path = generatePath(curve.normalizedPercent);
-                      const isCarteira = curve.asset.id === "carteira";
-
-                      return (
-                        <g key={curve.asset.id}>
-                          {isCarteira && (
-                            <path
-                              d={`${path} L ${chartWidth - paddingX} ${chartHeight - paddingY} L ${paddingX} ${chartHeight - paddingY} Z`}
-                              fill="url(#purpleGrad)"
-                            />
-                          )}
-                          <path
-                            d={path}
-                            fill="none"
-                            stroke={curve.asset.color}
-                            strokeWidth={2.8}
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </g>
-                      );
-                    })}
+                    {/* Preenchimento degradê e linha plana roxa Nubank */}
+                    <path
+                      d={`M ${paddingX} ${chartHeight / 2} L ${chartWidth - paddingX} ${chartHeight / 2} L ${chartWidth - paddingX} ${chartHeight - paddingY} L ${paddingX} ${chartHeight - paddingY} Z`}
+                      fill="url(#purpleGradZero)"
+                    />
+                    <line
+                      x1={paddingX}
+                      y1={chartHeight / 2}
+                      x2={chartWidth - paddingX}
+                      y2={chartHeight / 2}
+                      stroke="#820AD1"
+                      strokeWidth={2.5}
+                      strokeLinecap="round"
+                    />
                   </svg>
 
+                  {/* Indicador de estado vazio no centro */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <span className="text-[11px] font-medium text-zinc-400 bg-white/90 dark:bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-xs shadow-2xs">
+                      Aguardando primeiro aporte para gerar histórico
+                    </span>
+                  </div>
+
                   {/* Legenda dos Eixos do Período */}
-                  <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-1.5 px-1 shrink-0">
+                  <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-1.5 px-1 shrink-0 w-full">
                     {PERIOD_LABELS[selectedPeriod].map((label, idx) => (
                       <span key={idx}>{label}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* Tags dos Ativos Ativos no Gráfico */}
+                {/* Status da Carteira */}
                 <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
-                  <span className="text-[10px] text-zinc-400">Linhas ativas:</span>
-                  {activeAssetIds.map((id) => {
-                    const asset = combinedAssets.find((a) => a.id === id);
-                    if (!asset) return null;
-                    return (
-                      <div
-                        key={id}
-                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800"
-                      >
-                        <span
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: asset.color }}
-                        />
-                        <span className="text-zinc-700 dark:text-zinc-300">{asset.name}</span>
-                      </div>
-                    );
-                  })}
+                  <span className="text-[10px] text-zinc-400">Status da Carteira:</span>
+                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
+                    <span>0 Ativos Registados</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Card Inferior: Resumo Rápido em 3 Caixinhas (shrink-0 sempre visível) */}
+              {/* Card Inferior: Resumo Rápido em 3 Caixinhas Zeradas */}
               <div className="grid grid-cols-3 gap-3 shrink-0">
                 {/* Caixinha 1 */}
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
@@ -606,16 +449,16 @@ export default function FinanceiroPage() {
                     <div className="w-8 h-8 rounded-xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold">
                       <ShieldCheck className="h-4 w-4" />
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">55%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
                   </div>
                   <div>
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                       Renda Fixa
                     </h3>
                     <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(101486.25)}
+                      {formatBrl(0)}
                     </p>
-                    <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                    <p className="text-[9px] text-zinc-400 font-medium truncate">
                       CDI ({macroRates.cdi}%) + IPCA
                     </p>
                   </div>
@@ -627,16 +470,16 @@ export default function FinanceiroPage() {
                     <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 flex items-center justify-center font-bold">
                       <TrendingUp className="h-4 w-4" />
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">30%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
                   </div>
                   <div>
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                       Renda Variável
                     </h3>
                     <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(55356.13)}
+                      {formatBrl(0)}
                     </p>
-                    <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
+                    <p className="text-[9px] text-zinc-400 font-medium truncate">
                       Ações B3 & Fundos
                     </p>
                   </div>
@@ -648,14 +491,14 @@ export default function FinanceiroPage() {
                     <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center font-bold">
                       <CircleDollarSign className="h-4 w-4" />
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">15%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
                   </div>
                   <div>
                     <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                       Reserva
                     </h3>
                     <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(27678.07)}
+                      {formatBrl(0)}
                     </p>
                     <p className="text-[9px] text-zinc-400 font-medium truncate">
                       Liquidez Imediata
@@ -667,14 +510,14 @@ export default function FinanceiroPage() {
 
             {/* 6. COLUNA DIREITA (col-span-12 lg:col-span-3) */}
             <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
-              {/* Botões de Ação Rápida Circulares no Topo */}
+              {/* Botões de Ação Rápida no Topo */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
                 <div className="flex items-center justify-around">
                   {/* Botão 1: Novo Aporte */}
                   <div className="flex flex-col items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => alert("Janela de Novo Aporte ativada.")}
+                      onClick={() => setIsAddModalOpen(true)}
                       className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
                       <PlusCircle className="h-5 w-5" />
@@ -713,7 +556,7 @@ export default function FinanceiroPage() {
                 </div>
               </div>
 
-              {/* Card Câmbio & Cripto Simplificado com brapi.dev */}
+              {/* Card Câmbio & Cripto */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div>
@@ -788,32 +631,51 @@ export default function FinanceiroPage() {
                 </div>
               </div>
 
-              {/* Card Radar / Insights */}
+              {/* Card Radar & Notícias (Agregador) */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
                 <div className="flex items-center justify-between mb-2 shrink-0">
-                  <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
-                    Radar & Notificações
-                  </h2>
+                  <div className="flex items-center gap-1.5">
+                    <Newspaper className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
+                      Radar & Notícias
+                    </h2>
+                  </div>
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
                 </div>
 
                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2 pr-1">
-                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-0.5">
-                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">
-                      Conexão brapi.dev Ativa
-                    </p>
-                    <p className="text-[10px] text-zinc-400 leading-snug">
-                      Cotações B3, PTAX e cripto sincronizadas dinamicamente.
-                    </p>
+                  {/* Feed com 3 notícias estilo feed */}
+                  <div className="space-y-1.5">
+                    {NEWS_ITEMS.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-2 rounded-xl bg-zinc-50 dark:bg-zinc-800/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/70 border border-zinc-100 dark:border-zinc-800/60 transition-colors cursor-pointer space-y-1"
+                      >
+                        <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200 leading-snug">
+                          {item.title}
+                        </p>
+                        <div className="flex items-center justify-between text-[10px] text-zinc-400">
+                          <span>{item.source}</span>
+                          <span>{item.time}</span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-0.5">
-                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">
-                      Taxa Selic & CDI
-                    </p>
-                    <p className="text-[10px] text-zinc-400 leading-snug">
-                      Sua rentabilidade está indexada ao CDI atual de {macroRates.cdi}% a.a.
-                    </p>
+                  {/* Separador sutil */}
+                  <div className="border-t border-zinc-100 dark:border-zinc-800/80 my-1" />
+
+                  {/* Notificação de sistema */}
+                  <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-start gap-2">
+                    <Bell className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold text-purple-950 dark:text-purple-200 leading-tight">
+                        Aviso do Sistema
+                      </p>
+                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-snug mt-0.5">
+                        Aviso: Fechamento de mercado às 18h. Ordens enviadas após esse horário serão processadas no dia útil seguinte.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -821,6 +683,86 @@ export default function FinanceiroPage() {
           </div>
         </main>
       </div>
+
+      {/* Modal para Adicionar Ativo (Empty State Interactive Action) */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-md shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold">
+                  <PlusCircle className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Adicionar Ativo</h3>
+                  <p className="text-[11px] text-zinc-400">Cadastre um novo ativo na sua carteira</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
+                  Código do Ativo (Ticker)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: PETR4, ITUB4, Tesouro Selic..."
+                  className="w-full px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden focus:border-purple-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
+                    Quantidade
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 100"
+                    className="w-full px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-zinc-700 dark:text-zinc-300 block mb-1">
+                    Preço Médio (R$)
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Ex: 35.50"
+                    className="w-full px-3.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden focus:border-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAddModalOpen(false)}
+                className="flex-1 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  alert("Aporte inicial registrado com sucesso!");
+                  setIsAddModalOpen(false);
+                }}
+                className="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer"
+              >
+                Salvar Ativo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
