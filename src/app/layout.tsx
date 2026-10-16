@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { ptBR } from "@clerk/localizations";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -33,7 +34,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-white font-sans text-zinc-950 antialiased selection:bg-zinc-900 selection:text-white dark:bg-zinc-950 dark:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900 flex flex-col">
-        <ClerkProvider>
+        <ClerkProvider localization={ptBR}>
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
