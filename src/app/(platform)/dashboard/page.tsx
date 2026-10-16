@@ -8,10 +8,6 @@ import {
   Building2,
   Scale,
   ArrowRight,
-  Calculator,
-  Settings,
-  Sparkles,
-  ShieldCheck,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -23,16 +19,6 @@ export default function DashboardPage() {
     <div className="flex flex-col justify-center min-h-[calc(100vh-10rem)] max-w-6xl mx-auto space-y-10 py-4">
       {/* Cabeçalho Centralizado de Boas-vindas */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2">
-          <Badge
-            variant="outline"
-            className="px-3 py-1 text-xs border-indigo-500/30 bg-indigo-500/10 text-indigo-300 gap-1.5 font-medium"
-          >
-            <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
-            <span>Plataforma Modal Tools</span>
-          </Badge>
-        </div>
-
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white">
           Olá, <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-zinc-200 to-zinc-400">{displayName}</span>
         </h1>
@@ -146,32 +132,7 @@ export default function DashboardPage() {
           </div>
         </Link>
       </div>
-
-      {/* Ações e Ferramentas Complementares no Rodapé */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-zinc-800/60 text-xs text-zinc-400">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="h-4 w-4 text-emerald-400" />
-          <span>Sessão corporativa autenticada com criptografia de ponta a ponta.</span>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <Link
-            href="/hub-matematico"
-            className="flex items-center gap-1.5 text-zinc-300 hover:text-white transition-colors"
-          >
-            <Calculator className="h-3.5 w-3.5 text-cyan-400" />
-            <span>Hub Matemático & Conversores</span>
-          </Link>
-          <span className="text-zinc-700">•</span>
-          <Link
-            href="/account"
-            className="flex items-center gap-1.5 text-zinc-300 hover:text-white transition-colors"
-          >
-            <Settings className="h-3.5 w-3.5 text-zinc-400" />
-            <span>Configurações & Assinatura</span>
-          </Link>
-        </div>
-      </div>
     </div>
   );
 }
+
