@@ -10,6 +10,8 @@ import {
   Plus,
   ArrowRight,
   Calendar,
+  Calculator,
+  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -213,7 +215,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Cards de Atalhos Rápidos */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-zinc-900/30 border-zinc-800/70 hover:border-zinc-700 transition-colors">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -272,6 +274,29 @@ export default function DashboardPage() {
           <CardContent className="pt-0">
             <Link href="/dashboard" className="inline-flex items-center gap-1.5 text-xs text-zinc-300 hover:text-white font-medium transition-colors">
               <span>Ver contratos</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-zinc-900/30 border-cyan-900/40 hover:border-cyan-700/60 transition-colors">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div className="h-8 w-8 rounded-lg bg-cyan-950/80 border border-cyan-800/50 flex items-center justify-center text-cyan-400">
+                <Calculator className="h-4 w-4" />
+              </div>
+              <Badge className="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 text-[10px]">
+                <Sparkles className="h-2.5 w-2.5 mr-1" /> Novo
+              </Badge>
+            </div>
+            <CardTitle className="text-base text-white mt-2">Hub Matemático</CardTitle>
+            <CardDescription className="text-xs text-zinc-400">
+              Conversores de bases numéricas, estatística, escalas físicas e LaTeX.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <Link href="/hub-matematico" className="inline-flex items-center gap-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
+              <span>Abrir ferramentas</span>
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </CardContent>

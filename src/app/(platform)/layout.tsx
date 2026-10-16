@@ -9,6 +9,7 @@ import {
   Settings,
   Layers,
   ArrowUpRight,
+  Calculator,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -67,6 +68,13 @@ export default function PlatformLayout({
           >
             <Building2 className="h-4 w-4 text-zinc-500" />
             <span>Gestão Imobiliária</span>
+          </Link>
+          <Link
+            href="/hub-matematico"
+            className="flex items-center gap-3 rounded-lg px-3 py-2 text-zinc-400 hover:bg-zinc-900/60 hover:text-white transition-colors"
+          >
+            <Calculator className="h-4 w-4 text-cyan-400" />
+            <span>Hub Matemático</span>
           </Link>
 
           <div className="pt-4 px-2 pb-1.5 text-[10px] uppercase font-semibold tracking-wider text-zinc-500">

@@ -8,7 +8,8 @@ export default clerkMiddleware(async (auth, request) => {
   if (
     pathname.startsWith('/api') ||
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/account')
+    pathname.startsWith('/account') ||
+    pathname.startsWith('/hub-matematico')
   ) {
     await auth.protect();
   }
