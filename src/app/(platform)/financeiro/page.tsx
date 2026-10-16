@@ -218,9 +218,9 @@ export default function FinanceiroPage() {
 
   // Normalização das curvas para o gráfico interativo
   const chartWidth = 720;
-  const chartHeight = 260;
+  const chartHeight = 180;
   const paddingX = 20;
-  const paddingY = 24;
+  const paddingY = 20;
 
   const normalizedCurves = React.useMemo(() => {
     return activeAssetIds.map((id) => {
@@ -279,22 +279,22 @@ export default function FinanceiroPage() {
   return (
     <div className="h-screen w-full overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
       {/* 1. SIDEBAR ESQUERDA ESTILO APP NATIVO (W-20) */}
-      <aside className="w-20 border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 flex flex-col items-center py-6 justify-between shrink-0 z-30 select-none shadow-xs">
+      <aside className="w-20 border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 flex flex-col items-center py-5 justify-between shrink-0 z-30 select-none shadow-xs">
         {/* Topo: Logo Arredondada Roxa Nubank */}
         <Link
           href="/dashboard"
-          title="Voltar à Visão Geral"
-          className="bg-purple-600 text-white rounded-2xl w-11 h-11 flex items-center justify-center font-bold text-lg shadow-md shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all"
+          title="Voltar ao Início"
+          className="bg-purple-600 text-white rounded-2xl w-10 h-10 flex items-center justify-center font-bold text-base shadow-md shadow-purple-600/30 hover:scale-105 active:scale-95 transition-all"
         >
           <span>Nu</span>
         </Link>
 
         {/* Meio: Ícones de navegação espaçados */}
-        <nav className="flex flex-col items-center gap-4">
+        <nav className="flex flex-col items-center gap-3">
           <Link
             href="/dashboard"
             title="Página Inicial do Sistema"
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
           >
             <Home className="h-5 w-5" />
           </Link>
@@ -302,7 +302,7 @@ export default function FinanceiroPage() {
           <button
             type="button"
             title="Módulo Financeiro (Ativo)"
-            className="w-12 h-12 rounded-2xl flex items-center justify-center bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 font-semibold shadow-xs"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 font-semibold shadow-xs"
           >
             <Wallet className="h-5 w-5" />
           </button>
@@ -310,7 +310,7 @@ export default function FinanceiroPage() {
           <Link
             href="/imobiliario"
             title="Módulo Imobiliário"
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
           >
             <Building2 className="h-5 w-5" />
           </Link>
@@ -318,7 +318,7 @@ export default function FinanceiroPage() {
           <Link
             href="/fiscal"
             title="Módulo Fiscal & DARF"
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
           >
             <Scale className="h-5 w-5" />
           </Link>
@@ -326,91 +326,96 @@ export default function FinanceiroPage() {
           <Link
             href="/hub-matematico"
             title="Hub de Ferramentas Matemáticas"
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
+            className="w-11 h-11 rounded-2xl flex items-center justify-center text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-all"
           >
             <Calculator className="h-5 w-5" />
           </Link>
         </nav>
 
-        {/* Rodapé da Sidebar: Perfil Clerk */}
-        <div className="flex flex-col items-center gap-3">
-          <div className="p-1 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800">
-            <UserButton
-              appearance={{
-                elements: {
-                  userButtonAvatarBox: "h-9 w-9 rounded-full",
-                },
-              }}
-            />
+        {/* Rodapé da Sidebar: Espaçamento de segurança (pb-14) para não colidir com dev tools */}
+        <div className="flex flex-col items-center pb-12">
+          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-mono text-zinc-400">
+            PRO
           </div>
         </div>
       </aside>
 
       {/* ÁREA PRINCIPAL DO APLICATIVO */}
       <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-        {/* 2. HEADER INTERNO LIMPO */}
-        <header className="h-16 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-6 sm:px-8 flex items-center justify-between shrink-0 z-20">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        {/* 2. HEADER INTERNO LIMPO (h-14 px-5) */}
+        <header className="h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-5 flex items-center justify-between shrink-0 z-20">
+          <div className="flex items-center gap-3">
+            <h1 className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
               Olá, {user?.firstName || "Investidor"}!
             </h1>
             <button
               onClick={() => setShowValues(!showValues)}
-              className="p-2 rounded-xl text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all"
+              className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer"
               title={showValues ? "Ocultar saldos" : "Mostrar saldos"}
             >
-              {showValues ? <Eye className="h-5 w-5" /> : <EyeOff className="h-5 w-5 text-purple-500" />}
+              {showValues ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4 text-purple-500" />}
             </button>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <button
               onClick={fetchMarketData}
               disabled={isLoadingMarket}
               title="Atualizar cotações via brapi.dev"
-              className="p-2 rounded-full text-zinc-400 hover:text-purple-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+              className="p-1.5 rounded-full text-zinc-400 hover:text-purple-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
             >
               <RefreshCw className={`h-4 w-4 ${isLoadingMarket ? "animate-spin text-purple-600" : ""}`} />
             </button>
 
-            {/* Barra de Pesquisa Arredondada com atalho '/' */}
+            {/* Barra de Pesquisa Arredondada */}
             <div className="relative hidden sm:block">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar ativo, B3, índice ou moeda..."
-                className="w-72 lg:w-80 pl-10 pr-9 py-2 rounded-full bg-zinc-100 dark:bg-zinc-800/90 border border-transparent focus:border-purple-500/50 text-xs sm:text-sm text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden transition-all shadow-2xs"
+                placeholder="Buscar ativo, B3, índice..."
+                className="w-64 pl-8.5 pr-8 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800/90 border border-transparent focus:border-purple-500/50 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden transition-all shadow-2xs"
               />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 rounded-md px-1.5 py-0.5 pointer-events-none">
+              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 rounded-md px-1 py-0.2 pointer-events-none">
                 /
               </span>
+            </div>
+
+            {/* Avatar do Clerk no Header */}
+            <div className="pl-1 border-l border-zinc-200 dark:border-zinc-800 flex items-center">
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonAvatarBox: "h-8 w-8 rounded-full ring-1 ring-zinc-200 dark:ring-zinc-800",
+                  },
+                }}
+              />
             </div>
           </div>
         </header>
 
-        {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS */}
-        <main className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-6 sm:p-8">
-          <div className="grid grid-cols-12 gap-6 max-w-7xl mx-auto pb-10">
+        {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS (Encaixe 100% na tela) */}
+        <main className="flex-1 min-h-0 overflow-hidden p-4">
+          <div className="grid grid-cols-12 gap-4 h-full max-w-7xl mx-auto">
             {/* 4. COLUNA ESQUERDA (col-span-12 lg:col-span-3) */}
-            <section className="col-span-12 lg:col-span-3 space-y-6">
+            <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
               {/* Card Minha Carteira & Índices */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs">
-                <div className="flex items-center justify-between mb-4">
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
+                <div className="flex items-center justify-between mb-3 shrink-0">
                   <div>
-                    <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                       Índices & Carteiras
                     </h2>
-                    <p className="text-[11px] text-zinc-400">
-                      Integrado com cotações B3 brapi.dev
+                    <p className="text-[10px] text-zinc-400">
+                      Clique para comparar no gráfico
                     </p>
                   </div>
                   <BarChart3 className="h-4 w-4 text-zinc-400" />
                 </div>
 
-                <div className="space-y-2.5 max-h-[360px] overflow-y-auto custom-scrollbar pr-1">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 space-y-1.5">
                   {filteredAssets.map((asset) => {
                     const isSelected = activeAssetIds.includes(asset.id);
                     return (
@@ -418,22 +423,19 @@ export default function FinanceiroPage() {
                         key={asset.id}
                         type="button"
                         onClick={() => toggleAsset(asset.id)}
-                        className={`w-full flex items-center justify-between p-3 rounded-2xl transition-all text-left ${
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-2xl transition-all text-left cursor-pointer border ${
                           isSelected
-                            ? "bg-zinc-100 dark:bg-zinc-800/90 ring-1"
-                            : "hover:bg-zinc-50 dark:hover:bg-zinc-800/40"
+                            ? "bg-purple-500/10 border-purple-500/30 text-zinc-900 dark:text-zinc-100 shadow-2xs"
+                            : "border-transparent hover:bg-zinc-100 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300"
                         }`}
-                        style={{
-                          borderColor: isSelected ? asset.color : "transparent",
-                        }}
                       >
-                        <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex items-center gap-2.5 min-w-0">
                           <span
-                            className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                            className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
                             style={{ backgroundColor: asset.color }}
                           />
                           <div className="truncate">
-                            <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                            <p className="text-xs font-semibold truncate leading-tight">
                               {asset.name}
                             </p>
                             <p className="text-[10px] text-zinc-400 truncate">
@@ -459,12 +461,12 @@ export default function FinanceiroPage() {
                 </div>
               </div>
 
-              {/* Dica / Status Macro via brapi */}
-              <div className="bg-purple-600/5 dark:bg-purple-900/10 rounded-3xl p-5 border border-purple-500/20 text-xs text-purple-900 dark:text-purple-200 flex items-start gap-3">
-                <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-semibold text-xs">Macroeconomia brapi.dev</p>
-                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400 leading-relaxed">
+              {/* Status Macro via brapi */}
+              <div className="bg-purple-600/5 dark:bg-purple-900/10 rounded-2xl p-3 border border-purple-500/20 text-xs text-purple-900 dark:text-purple-200 shrink-0 flex items-center gap-2.5">
+                <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                <div className="min-w-0 truncate">
+                  <p className="font-semibold text-[11px] leading-tight">Macroeconomia B3</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
                     CDI: <strong>{macroRates.cdi}%</strong> • Selic: <strong>{macroRates.selic}%</strong> • IPCA: <strong>{macroRates.ipca}%</strong>
                   </p>
                 </div>
@@ -472,28 +474,28 @@ export default function FinanceiroPage() {
             </section>
 
             {/* 5. COLUNA CENTRAL (col-span-12 lg:col-span-6) */}
-            <section className="col-span-12 lg:col-span-6 space-y-6">
+            <section className="col-span-12 lg:col-span-6 flex flex-col gap-3 min-h-0 h-full">
               {/* Card Principal: Patrimônio & Performance Comparada */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 sm:p-8 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-6">
-                {/* Topo do Card de Performance */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-zinc-400 uppercase tracking-wider">
-                      Patrimônio Total
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
+                {/* Topo do Card de Performance em duas zonas flex-wrap */}
+                <div className="flex flex-wrap items-start justify-between gap-3 shrink-0">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                      PATRIMÔNIO TOTAL
                     </span>
-                    <div className="flex items-baseline gap-3 mt-1">
-                      <span className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
                         {formatBrl(184520.45)}
                       </span>
-                      <span className="inline-flex items-center text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full tabular-nums">
-                        <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                        <ArrowUpRight className="h-3 w-3 shrink-0" />
                         +R$ 5.120,00 no mês
                       </span>
                     </div>
                   </div>
 
-                  {/* Seletor de Período em Pílulas Estilo Nubank */}
-                  <div className="rounded-full bg-zinc-100 dark:bg-zinc-800 p-1 inline-flex gap-1 self-start sm:self-center">
+                  {/* Seletor de Período em Pílulas 100% Contido */}
+                  <div className="shrink-0 bg-zinc-100 dark:bg-zinc-950/80 p-0.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 flex items-center gap-0.5 shadow-2xs">
                     {(["1M", "3M", "6M", "1A", "Tudo"] as Period[]).map((p) => {
                       const isActive = selectedPeriod === p;
                       return (
@@ -501,7 +503,7 @@ export default function FinanceiroPage() {
                           key={p}
                           type="button"
                           onClick={() => setSelectedPeriod(p)}
-                          className={`rounded-full px-3.5 py-1 text-xs font-semibold transition-all ${
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${
                             isActive
                               ? "bg-purple-600 text-white shadow-xs"
                               : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
@@ -515,10 +517,10 @@ export default function FinanceiroPage() {
                 </div>
 
                 {/* Gráfico de Curvas Suaves Minimalista (SVG) */}
-                <div className="relative pt-4">
+                <div className="relative flex-1 min-h-[150px] max-h-[220px] flex flex-col justify-center my-2">
                   <svg
                     viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                    className="w-full h-56 sm:h-64 overflow-visible"
+                    className="w-full h-full max-h-[170px] overflow-visible"
                   >
                     <defs>
                       <linearGradient id="purpleGrad" x1="0" y1="0" x2="0" y2="1">
@@ -557,7 +559,7 @@ export default function FinanceiroPage() {
                             d={path}
                             fill="none"
                             stroke={curve.asset.color}
-                            strokeWidth={3}
+                            strokeWidth={2.8}
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           />
@@ -567,7 +569,7 @@ export default function FinanceiroPage() {
                   </svg>
 
                   {/* Legenda dos Eixos do Período */}
-                  <div className="flex items-center justify-between text-[11px] text-zinc-400 pt-3 px-1">
+                  <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-1.5 px-1 shrink-0">
                     {PERIOD_LABELS[selectedPeriod].map((label, idx) => (
                       <span key={idx}>{label}</span>
                     ))}
@@ -575,15 +577,15 @@ export default function FinanceiroPage() {
                 </div>
 
                 {/* Tags dos Ativos Ativos no Gráfico */}
-                <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-zinc-100 dark:border-zinc-800/80">
-                  <span className="text-[11px] text-zinc-400">Linhas ativas:</span>
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
+                  <span className="text-[10px] text-zinc-400">Linhas ativas:</span>
                   {activeAssetIds.map((id) => {
                     const asset = combinedAssets.find((a) => a.id === id);
                     if (!asset) return null;
                     return (
                       <div
                         key={id}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-800"
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800"
                       >
                         <span
                           className="w-2 h-2 rounded-full"
@@ -596,66 +598,66 @@ export default function FinanceiroPage() {
                 </div>
               </div>
 
-              {/* Card Inferior: Resumo Rápido em 3 Caixinhas (Estilo Caixinhas do Nubank) */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Card Inferior: Resumo Rápido em 3 Caixinhas (shrink-0 sempre visível) */}
+              <div className="grid grid-cols-3 gap-3 shrink-0">
                 {/* Caixinha 1 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-3">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-2xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold">
-                      <ShieldCheck className="h-5 w-5" />
+                    <div className="w-8 h-8 rounded-xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold">
+                      <ShieldCheck className="h-4 w-4" />
                     </div>
-                    <span className="text-[11px] font-semibold text-zinc-400">55%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">55%</span>
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                       Renda Fixa
                     </h3>
-                    <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100 tabular-nums mt-0.5">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                       {formatBrl(101486.25)}
                     </p>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                    <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
                       CDI ({macroRates.cdi}%) + IPCA
                     </p>
                   </div>
                 </div>
 
                 {/* Caixinha 2 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-3">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 flex items-center justify-center font-bold">
-                      <TrendingUp className="h-5 w-5" />
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 flex items-center justify-center font-bold">
+                      <TrendingUp className="h-4 w-4" />
                     </div>
-                    <span className="text-[11px] font-semibold text-zinc-400">30%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">30%</span>
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
+                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
                       Renda Variável
                     </h3>
-                    <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100 tabular-nums mt-0.5">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                       {formatBrl(55356.13)}
                     </p>
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium mt-1">
+                    <p className="text-[9px] text-emerald-600 dark:text-emerald-400 font-medium truncate">
                       Ações B3 & Fundos
                     </p>
                   </div>
                 </div>
 
                 {/* Caixinha 3 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-3">
+                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
                   <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center font-bold">
-                      <CircleDollarSign className="h-5 w-5" />
+                    <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center font-bold">
+                      <CircleDollarSign className="h-4 w-4" />
                     </div>
-                    <span className="text-[11px] font-semibold text-zinc-400">15%</span>
+                    <span className="text-[10px] font-semibold text-zinc-400">15%</span>
                   </div>
                   <div>
-                    <h3 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
-                      Reserva de Emergência
+                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
+                      Reserva
                     </h3>
-                    <p className="text-lg font-bold text-zinc-900 dark:text-zinc-100 tabular-nums mt-0.5">
+                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
                       {formatBrl(27678.07)}
                     </p>
-                    <p className="text-[10px] text-zinc-400 font-medium mt-1">
+                    <p className="text-[9px] text-zinc-400 font-medium truncate">
                       Liquidez Imediata
                     </p>
                   </div>
@@ -664,20 +666,20 @@ export default function FinanceiroPage() {
             </section>
 
             {/* 6. COLUNA DIREITA (col-span-12 lg:col-span-3) */}
-            <section className="col-span-12 lg:col-span-3 space-y-6">
-              {/* Botões de Ação Rápida Circulares no Topo (Clássico Nubank) */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs">
+            <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
+              {/* Botões de Ação Rápida Circulares no Topo */}
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
                 <div className="flex items-center justify-around">
                   {/* Botão 1: Novo Aporte */}
-                  <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => alert("Janela de Novo Aporte ativada.")}
-                      className="w-13 h-13 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95"
+                      className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
-                      <PlusCircle className="h-6 w-6" />
+                      <PlusCircle className="h-5 w-5" />
                     </button>
-                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
                       Novo Aporte
                     </span>
                   </div>
@@ -685,26 +687,26 @@ export default function FinanceiroPage() {
                   {/* Botão 2: Simular */}
                   <Link
                     href="/hub-matematico"
-                    className="flex flex-col items-center gap-2 group"
+                    className="flex flex-col items-center gap-1.5 group cursor-pointer"
                   >
-                    <div className="w-13 h-13 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 group-hover:bg-purple-600/15 group-hover:text-purple-600 dark:group-hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95">
-                      <Calculator className="h-6 w-6" />
+                    <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 group-hover:bg-purple-600/15 group-hover:text-purple-600 dark:group-hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95">
+                      <Calculator className="h-5 w-5" />
                     </div>
-                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
                       Simular
                     </span>
                   </Link>
 
                   {/* Botão 3: Exportar */}
-                  <div className="flex flex-col items-center gap-2">
+                  <div className="flex flex-col items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => alert("Relatório consolidado exportado com sucesso!")}
-                      className="w-13 h-13 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95"
+                      className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
                     >
-                      <Download className="h-6 w-6" />
+                      <Download className="h-5 w-5" />
                     </button>
-                    <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
                       Exportar
                     </span>
                   </div>
@@ -712,29 +714,29 @@ export default function FinanceiroPage() {
               </div>
 
               {/* Card Câmbio & Cripto Simplificado com brapi.dev */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-4">
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0 space-y-2.5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                    <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                       Câmbio & Cripto
                     </h2>
-                    <p className="text-[10px] text-zinc-400">Tempo real brapi.dev</p>
+                    <p className="text-[9px] text-zinc-400">Tempo real brapi.dev</p>
                   </div>
                   <Coins className="h-4 w-4 text-zinc-400" />
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-1.5">
                   {/* Dólar */}
-                  <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                  <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">Dólar PTAX</p>
-                      <p className="text-[10px] text-zinc-400">USD / BRL</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Dólar PTAX</p>
+                      <p className="text-[9px] text-zinc-400">USD / BRL</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
                         {showValues ? `R$ ${usdCurrency.bidPrice.toFixed(2)}` : "R$ •••"}
                       </p>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums ${
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
                         usdCurrency.pctChange >= 0
                           ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
                           : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
@@ -745,16 +747,16 @@ export default function FinanceiroPage() {
                   </div>
 
                   {/* Euro */}
-                  <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                  <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">Euro PTAX</p>
-                      <p className="text-[10px] text-zinc-400">EUR / BRL</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Euro PTAX</p>
+                      <p className="text-[9px] text-zinc-400">EUR / BRL</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
                         {showValues ? `R$ ${eurCurrency.bidPrice.toFixed(2)}` : "R$ •••"}
                       </p>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums ${
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
                         eurCurrency.pctChange >= 0
                           ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
                           : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
@@ -765,16 +767,16 @@ export default function FinanceiroPage() {
                   </div>
 
                   {/* Bitcoin */}
-                  <div className="flex items-center justify-between p-2 rounded-2xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
+                  <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">Bitcoin</p>
-                      <p className="text-[10px] text-zinc-400">BTC / BRL</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Bitcoin</p>
+                      <p className="text-[9px] text-zinc-400">BTC / BRL</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+                      <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
                         {showValues ? `R$ ${btcCrypto.regularMarketPrice.toLocaleString("pt-BR")}` : "R$ •••••"}
                       </p>
-                      <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums ${
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
                         btcCrypto.regularMarketChangePercent >= 0
                           ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
                           : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
@@ -787,29 +789,29 @@ export default function FinanceiroPage() {
               </div>
 
               {/* Card Radar / Insights */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
+                <div className="flex items-center justify-between mb-2 shrink-0">
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                     Radar & Notificações
                   </h2>
-                  <span className="w-2 h-2 rounded-full bg-purple-600 animate-pulse" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-pulse" />
                 </div>
 
-                <div className="space-y-3">
-                  <div className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-1">
-                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-0.5">
+                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">
                       Conexão brapi.dev Ativa
                     </p>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    <p className="text-[10px] text-zinc-400 leading-snug">
                       Cotações B3, PTAX e cripto sincronizadas dinamicamente.
                     </p>
                   </div>
 
-                  <div className="p-3 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-1">
-                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">
+                  <div className="p-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800 space-y-0.5">
+                    <p className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200">
                       Taxa Selic & CDI
                     </p>
-                    <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    <p className="text-[10px] text-zinc-400 leading-snug">
                       Sua rentabilidade está indexada ao CDI atual de {macroRates.cdi}% a.a.
                     </p>
                   </div>
