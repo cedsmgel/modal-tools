@@ -22,12 +22,9 @@ import {
   Check,
   Search,
   Sparkles,
-  Sliders,
   BarChart3,
-  CandlestickChart,
-  LineChart as LineChartIcon,
-  Activity,
   Minus,
+  RefreshCw,
 } from "lucide-react";
 
 export type ChartPeriod = "1D" | "5D" | "1M" | "6M" | "1A" | "Tudo";
@@ -80,8 +77,9 @@ export interface FinancialChartProps {
   className?: string;
 }
 
-interface OHLCPoint {
+interface HistoricalCandle {
   time: string;
+  timestamp: number;
   open: number;
   high: number;
   low: number;
@@ -89,7 +87,7 @@ interface OHLCPoint {
   volume: number;
 }
 
-// Definição completa das 17 modalidades de gráfico conforme padrão B3 e TradingView
+// 17 modalidades de gráfico no padrão B3 e TradingView
 interface ChartTypeMeta {
   id: ChartType;
   label: string;
@@ -98,123 +96,26 @@ interface ChartTypeMeta {
 }
 
 const CHART_TYPES: ChartTypeMeta[] = [
-  // Velas e Barras
-  {
-    id: "velas",
-    label: "Velas (Candles)",
-    category: "Velas e Barras",
-    description: "Velas japonesas clássicas com corpo preenchido e sombras",
-  },
-  {
-    id: "velas_vazias",
-    label: "Velas Vazias (Hollow)",
-    category: "Velas e Barras",
-    description: "Velas vazias para alta e preenchidas para baixa",
-  },
-  {
-    id: "barras",
-    label: "Barras (OHLC)",
-    category: "Velas e Barras",
-    description: "Barras americanas com hastes de abertura e fechamento",
-  },
-  {
-    id: "colunas",
-    label: "Colunas",
-    category: "Velas e Barras",
-    description: "Histograma vertical a partir da linha base",
-  },
-  {
-    id: "heikin_ashi",
-    label: "Heikin Ashi",
-    category: "Velas e Barras",
-    description: "Velas com médias ponderadas para filtrar ruído de mercado",
-  },
+  { id: "velas", label: "Velas (Candles)", category: "Velas e Barras", description: "Velas japonesas clássicas com corpo e sombras" },
+  { id: "velas_vazias", label: "Velas Vazias (Hollow)", category: "Velas e Barras", description: "Velas vazias para alta e sólidas para baixa" },
+  { id: "barras", label: "Barras (OHLC)", category: "Velas e Barras", description: "Barras americanas com abertura e fechamento" },
+  { id: "colunas", label: "Colunas", category: "Velas e Barras", description: "Histograma vertical a partir da linha base" },
+  { id: "heikin_ashi", label: "Heikin Ashi", category: "Velas e Barras", description: "Velas suavizadas com médias ponderadas" },
 
-  // Linhas e Áreas
-  {
-    id: "linha",
-    label: "Linha",
-    category: "Linhas e Áreas",
-    description: "Linha contínua conectando os preços de fechamento",
-  },
-  {
-    id: "linha_marcadores",
-    label: "Linha com Marcadores",
-    category: "Linhas e Áreas",
-    description: "Linha contínua com nós em cada ponto de negociação",
-  },
-  {
-    id: "step_line",
-    label: "Step Line (Degraus)",
-    category: "Linhas e Áreas",
-    description: "Linha em formato de escada horizontal e vertical",
-  },
-  {
-    id: "area",
-    label: "Área",
-    category: "Linhas e Áreas",
-    description: "Linha com gradiente preenchido até a base",
-  },
-  {
-    id: "area_hlc",
-    label: "Área HLC",
-    category: "Linhas e Áreas",
-    description: "Faixa sombreada entre máxima e mínima com linha de fechamento",
-  },
-  {
-    id: "linha_base",
-    label: "Linha Base",
-    category: "Linhas e Áreas",
-    description: "Divisão em 0% (verde acima da base, vermelho abaixo)",
-  },
-  {
-    id: "maxima_minima",
-    label: "Máxima-Mínima (High-Low)",
-    category: "Linhas e Áreas",
-    description: "Cápsulas verticais unindo apenas a máxima e mínima",
-  },
+  { id: "linha", label: "Linha", category: "Linhas e Áreas", description: "Linha contínua conectando os fechamentos" },
+  { id: "linha_marcadores", label: "Linha com Marcadores", category: "Linhas e Áreas", description: "Linha contínua com nós em cada pregão" },
+  { id: "step_line", label: "Step Line (Degraus)", category: "Linhas e Áreas", description: "Linha em formato de escada horizontal e vertical" },
+  { id: "area", label: "Área", category: "Linhas e Áreas", description: "Linha com gradiente preenchido até a base" },
+  { id: "area_hlc", label: "Área HLC", category: "Linhas e Áreas", description: "Faixa sombreada entre máxima e mínima" },
+  { id: "linha_base", label: "Linha Base", category: "Linhas e Áreas", description: "Divisão em 0% (verde acima, vermelho abaixo)" },
+  { id: "maxima_minima", label: "Máxima-Mínima (High-Low)", category: "Linhas e Áreas", description: "Cápsulas verticais unindo apenas máxima e mínima" },
 
-  // Tendência e Baseados em Preço (Não-temporais)
-  {
-    id: "renko",
-    label: "Renko",
-    category: "Tendência e Preço",
-    description: "Tijolos diagonais baseados exclusivamente na variação de preço",
-  },
-  {
-    id: "quebra_linha",
-    label: "Quebra de Linha (Line Break)",
-    category: "Tendência e Preço",
-    description: "Blocos de reversão ao superar os 3 últimos fechamentos",
-  },
-  {
-    id: "kagi",
-    label: "Kagi",
-    category: "Tendência e Preço",
-    description: "Linhas verticais Yang (grossa) e Yin (fina) com inflexões",
-  },
-  {
-    id: "ponto_figura",
-    label: "Ponto e Figura (P&F)",
-    category: "Tendência e Preço",
-    description: "Colunas alternadas de X (alta) e O (baixa) clássicas",
-  },
-  {
-    id: "intervalo",
-    label: "Intervalo (Range Bars)",
-    category: "Tendência e Preço",
-    description: "Barras com amplitude fixa independente do tempo decorrido",
-  },
+  { id: "renko", label: "Renko", category: "Tendência e Preço", description: "Tijolos diagonais com base em variação de preço" },
+  { id: "quebra_linha", label: "Quebra de Linha (Line Break)", category: "Tendência e Preço", description: "Blocos de reversão ao romper 3 fechamentos" },
+  { id: "kagi", label: "Kagi", category: "Tendência e Preço", description: "Linhas verticais Yang (grossa) e Yin (fina)" },
+  { id: "ponto_figura", label: "Ponto e Figura (P&F)", category: "Tendência e Preço", description: "Colunas clássicas alternadas de X e O" },
+  { id: "intervalo", label: "Intervalo (Range Bars)", category: "Tendência e Preço", description: "Barras com amplitude fixa independente do tempo" },
 ];
-
-const PERIOD_LABELS: Record<ChartPeriod, string[]> = {
-  "1D": ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"],
-  "5D": ["Seg 10h", "Ter 12h", "Qua 14h", "Qui 16h", "Sex 18h"],
-  "1M": ["Semana 1", "Semana 2", "Semana 3", "Semana 4", "Hoje"],
-  "6M": ["Mês -5", "Mês -4", "Mês -3", "Mês -2", "Mês -1", "Hoje"],
-  "1A": ["1º Tri", "2º Tri", "3º Tri", "4º Tri", "Hoje"],
-  Tudo: ["2023", "2024", "2025", "2026", "Atual"],
-};
 
 const COLOR_MAP: Record<string, string> = {
   purple: "#820AD1",
@@ -227,7 +128,7 @@ const COLOR_MAP: Record<string, string> = {
   violet: "#8B5CF6",
 };
 
-// Ícone SVG personalizado para cada tipo de gráfico
+// Ícone SVG para cada modalidade de gráfico
 function ChartTypeIcon({ type, className = "h-3.5 w-3.5" }: { type: ChartType; className?: string }) {
   switch (type) {
     case "velas":
@@ -369,128 +270,133 @@ export function FinancialChart({
   onToggleExpand,
   className = "",
 }: FinancialChartProps) {
-  // Estados da interface e ferramentas
   const [internalPeriod, setInternalPeriod] = React.useState<ChartPeriod>(selectedPeriod);
   const [chartType, setChartType] = React.useState<ChartType>("velas");
   const [isTypeMenuOpen, setIsTypeMenuOpen] = React.useState(false);
   const [typeSearchQuery, setTypeSearchQuery] = React.useState("");
 
-  // Ferramentas de desenho TradingView (barra lateral esquerda)
+  // Integração Real Brapi (OHLC e Histórico)
+  const [candles, setCandles] = React.useState<HistoricalCandle[]>([]);
+  const [isLoadingCandles, setIsLoadingCandles] = React.useState(false);
+  const [livePrice, setLivePrice] = React.useState<number | null>(null);
+  const [liveChangePercent, setLiveChangePercent] = React.useState<number | null>(null);
+
+  // Ferramentas de Desenho TradingView
   const [activeTool, setActiveTool] = React.useState<DrawingTool>("crosshair");
   const [isDrawingsLocked, setIsDrawingsLocked] = React.useState(false);
   const [isDrawingsVisible, setIsDrawingsVisible] = React.useState(true);
   const [isMagnetActive, setIsMagnetActive] = React.useState(false);
-  const [hasDrawings, setHasDrawings] = React.useState(true);
 
-  // Indicadores técnicos adicionais (fx)
+  // Estado interativo das ferramentas de desenho
+  const [trendlines, setTrendlines] = React.useState<
+    { id: string; x1: number; y1: number; x2: number; y2: number; priceDiff: number; percentDiff: number }[]
+  >([]);
+  const [drawingStart, setDrawingStart] = React.useState<{ x: number; y: number; price: number } | null>(null);
+  const [brushPaths, setBrushPaths] = React.useState<{ id: string; points: { x: number; y: number }[] }[]>([]);
+  const [isDrawingBrush, setIsDrawingBrush] = React.useState(false);
+  const [currentBrushPath, setCurrentBrushPath] = React.useState<{ x: number; y: number }[]>([]);
+  const [textNotes, setTextNotes] = React.useState<{ id: string; x: number; y: number; text: string }[]>([]);
+  const [rulerPoints, setRulerPoints] = React.useState<
+    { x1: number; y1: number; x2: number; y2: number; barsCount: number; percentDiff: number; priceDiff: number } | null
+  >(null);
+  const [fibLevels, setFibLevels] = React.useState<{ high: number; low: number } | null>(null);
+
+  // Indicadores técnicos (fx)
   const [isIndicatorsMenuOpen, setIsIndicatorsMenuOpen] = React.useState(false);
   const [showVolume, setShowVolume] = React.useState(true);
-  const [showSMA20, setShowSMA20] = React.useState(false);
+  const [showSMA20, setShowSMA20] = React.useState(true);
   const [showEMA50, setShowEMA50] = React.useState(false);
   const [showBollinger, setShowBollinger] = React.useState(false);
   const [showGrid, setShowGrid] = React.useState(true);
   const [showWatermark, setShowWatermark] = React.useState(true);
 
-  // Escala e visualização
-  const [scaleMode, setScaleMode] = React.useState<"percent" | "log" | "auto">("percent");
+  // Escala & Notificação
+  const [scaleMode, setScaleMode] = React.useState<"percent" | "auto" | "log">("auto");
   const [snapshotToast, setSnapshotToast] = React.useState(false);
-
-  // Cursor e hover no canvas
   const [hoverIndex, setHoverIndex] = React.useState<number | null>(null);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [mousePos, setMousePos] = React.useState<{ x: number; y: number } | null>(null);
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const currentPeriod = onPeriodChange ? selectedPeriod : internalPeriod;
 
   const handlePeriodChange = (p: ChartPeriod) => {
-    if (onPeriodChange) {
-      onPeriodChange(p);
-    } else {
-      setInternalPeriod(p);
-    }
+    if (onPeriodChange) onPeriodChange(p);
+    else setInternalPeriod(p);
   };
 
-  const labels = PERIOD_LABELS[currentPeriod];
-
-  // Ativo principal do gráfico (o primeiro da seleção ou fallback para PETR4 / IBOV)
+  // Ativo principal selecionado ou fallback para PETR4
   const primaryAsset = React.useMemo(() => {
-    if (activeSeries.length > 0) {
-      return activeSeries[0];
-    }
+    if (activeSeries.length > 0) return activeSeries[0];
     return {
-      id: "IBOV",
-      ticker: "IBOV",
-      name: "Índice Bovespa",
+      id: "petr4",
+      ticker: "PETR4",
+      name: "Petrobras PN",
       color: "purple",
       colorHex: "#820AD1",
-      currentValue: 131250,
-      changePercent: 1.45,
+      currentValue: 38.45,
+      changePercent: 1.18,
     };
   }, [activeSeries]);
 
-  // Geração de dados de Candlestick / OHLC realistas para o período ativo
-  const ohlcData: OHLCPoint[] = React.useMemo(() => {
-    const totalBars = 26;
-    const basePrice = primaryAsset.currentValue && primaryAsset.currentValue > 0
-      ? primaryAsset.currentValue
-      : 38.5;
-    const change = primaryAsset.changePercent ?? 1.5;
+  // Carrega dados REAIS de Candlestick da API Brapi (/api/market/historical)
+  React.useEffect(() => {
+    let isCancelled = false;
+    async function loadBrapiHistoricalData() {
+      setIsLoadingCandles(true);
+      try {
+        const res = await fetch(`/api/market/historical?ticker=${primaryAsset.ticker}&period=${currentPeriod}`);
+        if (res.ok) {
+          const data: any = await res.json();
+          if (!isCancelled && Array.isArray(data.candles) && data.candles.length > 0) {
+            setCandles(data.candles);
+            setLivePrice(data.currentPrice);
+            setLiveChangePercent(data.changePercent);
 
-    let currentOpen = basePrice * (1 - (change / 100) * 0.8);
-    const data: OHLCPoint[] = [];
-
-    for (let i = 0; i < totalBars; i++) {
-      const progress = i / (totalBars - 1);
-      const wave = Math.sin(progress * Math.PI * 2.2 + 0.4) * (basePrice * 0.015);
-      const trend = (change / 100) * basePrice * progress;
-      const targetClose = currentOpen + (Math.sin(i * 1.7) * (basePrice * 0.012)) + (trend / totalBars);
-
-      const close = i === totalBars - 1 ? basePrice : Number(targetClose.toFixed(2));
-      const high = Number((Math.max(currentOpen, close) + Math.abs(Math.sin(i * 2.1)) * (basePrice * 0.01)).toFixed(2));
-      const low = Number((Math.min(currentOpen, close) - Math.abs(Math.cos(i * 1.9)) * (basePrice * 0.009)).toFixed(2));
-      const volume = Math.floor(1500000 + Math.abs(Math.sin(i * 2.5)) * 4200000);
-
-      const labelIdx = Math.floor((i / totalBars) * labels.length);
-      const time = labels[Math.min(labels.length - 1, labelIdx)];
-
-      data.push({
-        time,
-        open: Number(currentOpen.toFixed(2)),
-        high,
-        low,
-        close,
-        volume,
-      });
-
-      currentOpen = close + (Math.sin(i * 3) * (basePrice * 0.003));
+            // Ancoragem automática do Fibonacci e da Linha de Tendência inicial
+            const highs = data.candles.map((c: HistoricalCandle) => c.high);
+            const lows = data.candles.map((c: HistoricalCandle) => c.low);
+            const maxH = Math.max(...highs);
+            const minL = Math.min(...lows);
+            setFibLevels({ high: maxH, low: minL });
+          }
+        }
+      } catch (err) {
+        console.warn("Erro ao buscar dados históricos da Brapi:", err);
+      } finally {
+        if (!isCancelled) setIsLoadingCandles(false);
+      }
     }
 
-    return data;
-  }, [primaryAsset, labels]);
+    loadBrapiHistoricalData();
+    return () => {
+      isCancelled = true;
+    };
+  }, [primaryAsset.ticker, currentPeriod]);
 
-  // Médias Móveis (SMA 20 e EMA 50)
-  const sma20Points = React.useMemo(() => {
-    const period = 7;
-    return ohlcData.map((_, idx, arr) => {
+  // Médias Móveis SMA 20 e EMA 50 calculadas com os dados reais
+  const sma20Values = React.useMemo(() => {
+    const period = Math.min(10, Math.max(3, Math.floor(candles.length / 3)));
+    return candles.map((_, idx, arr) => {
       const start = Math.max(0, idx - period + 1);
       const slice = arr.slice(start, idx + 1);
       const avg = slice.reduce((acc, curr) => acc + curr.close, 0) / slice.length;
       return Number(avg.toFixed(2));
     });
-  }, [ohlcData]);
+  }, [candles]);
 
-  const ema50Points = React.useMemo(() => {
-    const k = 2 / (14 + 1);
-    let ema = ohlcData[0]?.close ?? 0;
-    return ohlcData.map((d) => {
+  const ema50Values = React.useMemo(() => {
+    const k = 2 / (Math.min(14, candles.length) + 1);
+    let ema = candles[0]?.close ?? 0;
+    return candles.map((d) => {
       ema = d.close * k + ema * (1 - k);
       return Number(ema.toFixed(2));
     });
-  }, [ohlcData]);
+  }, [candles]);
 
-  // Bandas de Bollinger
+  // Bandas de Bollinger (SMA ± 2 Desvios)
   const bollingerBands = React.useMemo(() => {
-    return ohlcData.map((d, idx) => {
-      const mid = sma20Points[idx];
+    return candles.map((d, idx) => {
+      const mid = sma20Values[idx];
       const diff = Math.abs(d.close - mid) * 1.5;
       return {
         upper: Number((mid + diff).toFixed(2)),
@@ -498,18 +404,19 @@ export function FinancialChart({
         lower: Number((mid - diff).toFixed(2)),
       };
     });
-  }, [ohlcData, sma20Points]);
+  }, [candles, sma20Values]);
 
-  // Heikin Ashi Transformation
-  const heikinAshiData = React.useMemo(() => {
-    const ha: OHLCPoint[] = [];
-    ohlcData.forEach((bar, i) => {
+  // Heikin Ashi com dados reais
+  const heikinAshiCandles = React.useMemo(() => {
+    const ha: HistoricalCandle[] = [];
+    candles.forEach((bar, i) => {
       const haClose = (bar.open + bar.high + bar.low + bar.close) / 4;
       const haOpen = i === 0 ? (bar.open + bar.close) / 2 : (ha[i - 1].open + ha[i - 1].close) / 2;
       const haHigh = Math.max(bar.high, haOpen, haClose);
       const haLow = Math.min(bar.low, haOpen, haClose);
       ha.push({
         time: bar.time,
+        timestamp: bar.timestamp,
         open: Number(haOpen.toFixed(2)),
         high: Number(haHigh.toFixed(2)),
         low: Number(haLow.toFixed(2)),
@@ -518,15 +425,17 @@ export function FinancialChart({
       });
     });
     return ha;
-  }, [ohlcData]);
+  }, [candles]);
 
-  // Renko Bricks
+  // Renko Bricks com dados reais
   const renkoBricks = React.useMemo(() => {
-    const brickSize = (primaryAsset.currentValue || 38) * 0.0075;
+    if (candles.length === 0) return [];
+    const base = candles[0].close || 38;
+    const brickSize = Math.max(0.2, base * 0.008);
     const bricks: { isUp: boolean; open: number; close: number }[] = [];
-    let currentLevel = ohlcData[0]?.close || 38;
+    let currentLevel = base;
 
-    ohlcData.forEach((bar) => {
+    candles.forEach((bar) => {
       const diff = bar.close - currentLevel;
       const count = Math.floor(Math.abs(diff) / brickSize);
       if (count > 0) {
@@ -538,82 +447,83 @@ export function FinancialChart({
         }
       }
     });
+    return bricks.slice(-26);
+  }, [candles]);
 
-    return bricks.slice(-24);
-  }, [ohlcData, primaryAsset]);
-
-  // Kagi Lines (Inflection Points)
+  // Kagi com dados reais
   const kagiLines = React.useMemo(() => {
-    const revThreshold = (primaryAsset.currentValue || 38) * 0.01;
+    if (candles.length === 0) return [];
+    const base = candles[0].close || 38;
+    const revThreshold = Math.max(0.3, base * 0.01);
     const lines: { yStart: number; yEnd: number; isYang: boolean }[] = [];
     let dir = 1;
-    let extreme = ohlcData[0]?.close || 38;
+    let extreme = base;
     let prevExtreme = extreme;
 
-    ohlcData.forEach((b) => {
+    candles.forEach((b) => {
       if (dir === 1) {
-        if (b.close > extreme) {
-          extreme = b.close;
-        } else if (extreme - b.close >= revThreshold) {
-          lines.push({ yStart: prevExtreme, yEnd: extreme, isYang: extreme > (primaryAsset.currentValue || 38) });
+        if (b.close > extreme) extreme = b.close;
+        else if (extreme - b.close >= revThreshold) {
+          lines.push({ yStart: prevExtreme, yEnd: extreme, isYang: extreme > base });
           prevExtreme = extreme;
           extreme = b.close;
           dir = -1;
         }
       } else {
-        if (b.close < extreme) {
-          extreme = b.close;
-        } else if (b.close - extreme >= revThreshold) {
-          lines.push({ yStart: prevExtreme, yEnd: extreme, isYang: prevExtreme > (primaryAsset.currentValue || 38) });
+        if (b.close < extreme) extreme = b.close;
+        else if (b.close - extreme >= revThreshold) {
+          lines.push({ yStart: prevExtreme, yEnd: extreme, isYang: prevExtreme > base });
           prevExtreme = extreme;
           extreme = b.close;
           dir = 1;
         }
       }
     });
+
     if (lines.length === 0) {
-      lines.push({ yStart: ohlcData[0]?.open || 38, yEnd: ohlcData[ohlcData.length - 1]?.close || 38, isYang: true });
+      lines.push({ yStart: candles[0].open, yEnd: candles[candles.length - 1].close, isYang: true });
     }
     return lines;
-  }, [ohlcData, primaryAsset]);
+  }, [candles]);
 
-  // Ponto e Figura (X e O)
+  // Ponto e Figura (P&F)
   const pnfColumns = React.useMemo(() => {
+    if (candles.length === 0) return [];
+    const base = candles[0].close || 38;
+    const boxSize = Math.max(0.2, base * 0.007);
     const cols: { type: "X" | "O"; values: number[] }[] = [];
-    const boxSize = (primaryAsset.currentValue || 38) * 0.006;
     let isX = true;
-    let colValues: number[] = [ohlcData[0]?.close || 38];
+    let colValues = [base];
 
-    ohlcData.slice(1).forEach((bar, idx) => {
-      if (idx % 3 === 0) {
+    candles.slice(1).forEach((bar, idx) => {
+      if (idx % 2 === 0) {
         cols.push({ type: isX ? "X" : "O", values: [...colValues] });
         isX = !isX;
-        colValues = [bar.close, bar.close + (isX ? boxSize : -boxSize), bar.close + (isX ? boxSize * 2 : -boxSize * 2)];
+        colValues = [bar.close, bar.close + (isX ? boxSize : -boxSize)];
       }
     });
-    return cols.slice(-14);
-  }, [ohlcData, primaryAsset]);
+    return cols.slice(-16);
+  }, [candles]);
 
-  // Escala de preços (mínimo e máximo global)
+  // Escala de preços e eixos
   const { minPrice, maxPrice, yTicks, maxVolume } = React.useMemo(() => {
+    if (candles.length === 0) {
+      return { minPrice: 35, maxPrice: 42, yTicks: [42, 40, 38, 36], maxVolume: 100 };
+    }
+
     let min = Infinity;
     let max = -Infinity;
     let maxVol = 100;
 
-    ohlcData.forEach((d) => {
+    candles.forEach((d) => {
       if (d.low < min) min = d.low;
       if (d.high > max) max = d.high;
       if (d.volume > maxVol) maxVol = d.volume;
     });
 
-    if (min === Infinity) {
-      min = 35;
-      max = 42;
-    }
-
-    const pad = (max - min) * 0.12;
-    const finalMin = min - pad;
-    const finalMax = max + pad;
+    const pad = Math.max(0.4, (max - min) * 0.12);
+    const finalMin = Number((min - pad).toFixed(2));
+    const finalMax = Number((max + pad).toFixed(2));
 
     const step = (finalMax - finalMin) / 4;
     const ticks = [finalMax, finalMax - step, finalMin + step * 2, finalMin + step, finalMin].map((v) =>
@@ -621,15 +531,15 @@ export function FinancialChart({
     );
 
     return { minPrice: finalMin, maxPrice: finalMax, yTicks: ticks, maxVolume: maxVol };
-  }, [ohlcData]);
+  }, [candles]);
 
-  // Dimensões do canvas SVG
-  const width = 860;
-  const height = isExpanded ? 410 : 255;
-  const padLeft = 45;
-  const padRight = 65;
-  const padTop = 18;
-  const padBottom = showVolume ? 52 : 28;
+  // Dimensões responsivas do canvas
+  const width = 1000;
+  const height = isExpanded ? 460 : 310;
+  const padLeft = 20;
+  const padRight = 75; // Espaço confortável para os valores no eixo Y
+  const padTop = 15;
+  const padBottom = showVolume ? 48 : 24;
 
   const chartW = width - padLeft - padRight;
   const chartH = height - padTop - padBottom;
@@ -639,34 +549,139 @@ export function FinancialChart({
     return padTop + (1 - norm) * chartH;
   };
 
-  const getX = (index: number, total: number = ohlcData.length) => {
-    return padLeft + (index / (total - 1 || 1)) * chartW;
+  const getPriceFromY = (y: number) => {
+    const norm = 1 - (y - padTop) / chartH;
+    return minPrice + norm * (maxPrice - minPrice);
   };
 
+  const getX = (index: number, total: number = candles.length) => {
+    return padLeft + (index / Math.max(1, total - 1)) * chartW;
+  };
+
+  // Interações de Mouse e Ferramentas TradingView
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const mouseX = ((e.clientX - rect.left) / rect.width) * width;
-    if (mouseX >= padLeft && mouseX <= width - padRight) {
-      const stepWidth = chartW / (ohlcData.length - 1);
+    const mouseY = ((e.clientY - rect.top) / rect.height) * height;
+
+    setMousePos({ x: mouseX, y: mouseY });
+
+    if (candles.length > 0 && mouseX >= padLeft && mouseX <= width - padRight) {
+      const stepWidth = chartW / (candles.length - 1 || 1);
       const index = Math.round((mouseX - padLeft) / stepWidth);
-      setHoverIndex(Math.max(0, Math.min(ohlcData.length - 1, index)));
+      setHoverIndex(Math.max(0, Math.min(candles.length - 1, index)));
+    }
+
+    // Pincel livre (Freehand Brush)
+    if (activeTool === "brush" && isDrawingBrush && !isDrawingsLocked) {
+      setCurrentBrushPath((prev) => [...prev, { x: mouseX, y: mouseY }]);
+    }
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (isDrawingsLocked || !mousePos) return;
+
+    if (activeTool === "brush") {
+      setIsDrawingBrush(true);
+      setCurrentBrushPath([{ x: mousePos.x, y: mousePos.y }]);
+      return;
+    }
+
+    if (activeTool === "trendline") {
+      const snappedPrice = isMagnetActive && hoverIndex !== null ? candles[hoverIndex].close : getPriceFromY(mousePos.y);
+      const snappedY = isMagnetActive && hoverIndex !== null ? getY(candles[hoverIndex].close) : mousePos.y;
+
+      if (!drawingStart) {
+        setDrawingStart({ x: mousePos.x, y: snappedY, price: snappedPrice });
+      } else {
+        const priceDiff = Number((snappedPrice - drawingStart.price).toFixed(2));
+        const percentDiff = Number(((priceDiff / drawingStart.price) * 100).toFixed(2));
+        setTrendlines((prev) => [
+          ...prev,
+          {
+            id: `line-${Date.now()}`,
+            x1: drawingStart.x,
+            y1: drawingStart.y,
+            x2: mousePos.x,
+            y2: snappedY,
+            priceDiff,
+            percentDiff,
+          },
+        ]);
+        setDrawingStart(null);
+      }
+    }
+
+    if (activeTool === "ruler") {
+      if (!drawingStart) {
+        setDrawingStart({ x: mousePos.x, y: mousePos.y, price: getPriceFromY(mousePos.y) });
+      } else {
+        const startIdx = Math.max(0, Math.min(candles.length - 1, Math.round(((drawingStart.x - padLeft) / chartW) * (candles.length - 1))));
+        const endIdx = hoverIndex ?? candles.length - 1;
+        const barsCount = Math.abs(endIdx - startIdx) + 1;
+        const p1 = drawingStart.price;
+        const p2 = getPriceFromY(mousePos.y);
+        const priceDiff = Number((p2 - p1).toFixed(2));
+        const percentDiff = Number(((priceDiff / p1) * 100).toFixed(2));
+
+        setRulerPoints({
+          x1: drawingStart.x,
+          y1: drawingStart.y,
+          x2: mousePos.x,
+          y2: mousePos.y,
+          barsCount,
+          percentDiff,
+          priceDiff,
+        });
+        setDrawingStart(null);
+      }
+    }
+
+    if (activeTool === "text") {
+      const text = prompt("Digite o texto para a anotação no gráfico:", "Alvo de Lucro");
+      if (text) {
+        setTextNotes((prev) => [...prev, { id: `text-${Date.now()}`, x: mousePos.x, y: mousePos.y, text }]);
+      }
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (activeTool === "brush" && isDrawingBrush) {
+      setIsDrawingBrush(false);
+      if (currentBrushPath.length > 1) {
+        setBrushPaths((prev) => [...prev, { id: `brush-${Date.now()}`, points: currentBrushPath }]);
+      }
+      setCurrentBrushPath([]);
     }
   };
 
   const handleMouseLeave = () => {
     setHoverIndex(null);
+    setMousePos(null);
+    if (isDrawingBrush) {
+      setIsDrawingBrush(false);
+      setCurrentBrushPath([]);
+    }
   };
 
-  // Bar no hover atual ou último dado
-  const activeHoverBar = hoverIndex !== null ? ohlcData[hoverIndex] : ohlcData[ohlcData.length - 1];
+  // Limpa todos os desenhos
+  const handleClearAllDrawings = () => {
+    setTrendlines([]);
+    setBrushPaths([]);
+    setTextNotes([]);
+    setRulerPoints(null);
+    setDrawingStart(null);
+  };
 
-  // Dispara Snapshot
+  // Snapshot
   const handleTakeSnapshot = () => {
     setSnapshotToast(true);
-    setTimeout(() => setSnapshotToast(false), 2600);
+    setTimeout(() => setSnapshotToast(false), 2400);
   };
 
-  // Filtro da busca de tipos de gráfico
+  // Barra de cotações em foco
+  const activeBar = hoverIndex !== null && candles[hoverIndex] ? candles[hoverIndex] : candles[candles.length - 1];
+
   const filteredTypes = React.useMemo(() => {
     if (!typeSearchQuery.trim()) return CHART_TYPES;
     return CHART_TYPES.filter(
@@ -679,29 +694,29 @@ export function FinancialChart({
   const activeMeta = CHART_TYPES.find((t) => t.id === chartType) || CHART_TYPES[0];
 
   return (
-    <div className={`flex flex-col h-full justify-between select-none relative ${className}`}>
+    <div className={`flex flex-col h-full justify-between select-none relative bg-zinc-950/20 rounded-2xl ${className}`}>
       {/* 1. BARRA DE FERRAMENTAS SUPERIOR (ESTILO TRADINGVIEW / B3) */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pb-2.5 border-b border-zinc-200/60 dark:border-zinc-800/80 shrink-0">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b border-zinc-200/60 dark:border-zinc-800/80 shrink-0">
         <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Badge do Ativo Principal */}
+          {/* Badge do Ativo Principal com Indicador Real da Brapi */}
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-800/90 border border-zinc-200/80 dark:border-zinc-700/80 text-zinc-900 dark:text-zinc-100 font-bold text-xs shadow-2xs">
             <span className="w-2 h-2 rounded-full bg-purple-600 dark:bg-purple-400 animate-pulse" />
             <span className="tracking-wide">{primaryAsset.ticker}</span>
             <span className="text-[10px] text-zinc-400 font-medium">B3</span>
             <span
               className={`text-[11px] tabular-nums font-bold ${
-                (primaryAsset.changePercent ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"
+                (liveChangePercent ?? primaryAsset.changePercent ?? 0) >= 0 ? "text-emerald-500" : "text-rose-500"
               }`}
             >
-              {(primaryAsset.changePercent ?? 0) >= 0 ? "+" : ""}
-              {(primaryAsset.changePercent ?? 0).toFixed(2)}%
+              {(liveChangePercent ?? primaryAsset.changePercent ?? 0) >= 0 ? "+" : ""}
+              {(liveChangePercent ?? primaryAsset.changePercent ?? 0).toFixed(2)}%
             </span>
           </div>
 
           <div className="h-4 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
 
-          {/* Seletor de Intervalos (TradingView: 1m, 5m, 15m, 1H, 1D, 1S, 1M) */}
-          <div className="bg-zinc-100 dark:bg-zinc-900/90 p-0.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex items-center gap-0.5">
+          {/* Timeframe Selector (1D, 5D, 1M, 6M, 1A, Tudo) */}
+          <div className="bg-zinc-100 dark:bg-zinc-900/90 p-0.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 flex items-center gap-0.5 shadow-2xs">
             {(["1D", "5D", "1M", "6M", "1A", "Tudo"] as ChartPeriod[]).map((period) => {
               const isActive = currentPeriod === period;
               return (
@@ -709,7 +724,7 @@ export function FinancialChart({
                   key={period}
                   type="button"
                   onClick={() => handlePeriodChange(period)}
-                  className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${
+                  className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold transition-all cursor-pointer ${
                     isActive
                       ? "bg-purple-600 text-white shadow-2xs"
                       : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -723,13 +738,13 @@ export function FinancialChart({
 
           <div className="h-4 w-[1px] bg-zinc-200 dark:bg-zinc-800 mx-0.5" />
 
-          {/* Seletor de Modo de Gráfico (Dropdown com os 17 Modos) */}
+          {/* Seletor de Modo de Gráfico (17 Modalidades TradingView / B3) */}
           <div className="relative">
             <button
               type="button"
               onClick={() => setIsTypeMenuOpen(!isTypeMenuOpen)}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-zinc-100 dark:bg-zinc-900/90 border border-zinc-200/80 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200/70 dark:hover:bg-zinc-800 transition-colors text-xs font-semibold cursor-pointer shadow-2xs"
-              title="Alterar modo de exibição do gráfico"
+              title="Mudar estilo de gráfico"
             >
               <ChartTypeIcon type={chartType} className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
               <span>{activeMeta.label}</span>
@@ -739,12 +754,8 @@ export function FinancialChart({
             {/* Menu Popover das 17 modalidades */}
             {isTypeMenuOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsTypeMenuOpen(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setIsTypeMenuOpen(false)} />
                 <div className="absolute left-0 top-full mt-1.5 z-50 w-72 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-150">
-                  {/* Busca Rápida */}
                   <div className="relative mb-2">
                     <Search className="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                     <input
@@ -756,7 +767,6 @@ export function FinancialChart({
                     />
                   </div>
 
-                  {/* Lista Categorizada */}
                   <div className="max-h-80 overflow-y-auto custom-scrollbar space-y-2 pr-0.5">
                     {["Velas e Barras", "Linhas e Áreas", "Tendência e Preço"].map((cat) => {
                       const items = filteredTypes.filter((t) => t.category === cat);
@@ -810,7 +820,7 @@ export function FinancialChart({
             )}
           </div>
 
-          {/* Botão de Indicadores Técnicos (fx Indicadores) */}
+          {/* Indicadores Técnicos (fx Indicadores) */}
           <div className="relative">
             <button
               type="button"
@@ -822,16 +832,12 @@ export function FinancialChart({
               <ChevronDown className="h-3 w-3 text-zinc-400" />
             </button>
 
-            {/* Menu Popover de Indicadores */}
             {isIndicatorsMenuOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-40"
-                  onClick={() => setIsIndicatorsMenuOpen(false)}
-                />
+                <div className="fixed inset-0 z-40" onClick={() => setIsIndicatorsMenuOpen(false)} />
                 <div className="absolute left-0 top-full mt-1.5 z-50 w-64 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shadow-2xl p-2.5 animate-in fade-in zoom-in-95 duration-150 space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">
-                    Estudos e Médias
+                    Estudos Técnicos (Brapi)
                   </p>
                   <label className="flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-xs cursor-pointer text-zinc-800 dark:text-zinc-200">
                     <span className="flex items-center gap-2">
@@ -872,7 +878,7 @@ export function FinancialChart({
                   <label className="flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-xs cursor-pointer text-zinc-800 dark:text-zinc-200">
                     <span className="flex items-center gap-2">
                       <BarChart3 className="h-3.5 w-3.5 text-zinc-400" />
-                      Volume Financeiro
+                      Volume B3
                     </span>
                     <input
                       type="checkbox"
@@ -885,7 +891,7 @@ export function FinancialChart({
                   <div className="border-t border-zinc-100 dark:border-zinc-800 my-1" />
 
                   <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 px-2 py-0.5">
-                    Canvas & Visual
+                    Exibição
                   </p>
                   <label className="flex items-center justify-between px-2 py-1.5 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/60 text-xs cursor-pointer text-zinc-800 dark:text-zinc-200">
                     <span>Grade (Grid Lines)</span>
@@ -911,9 +917,8 @@ export function FinancialChart({
           </div>
         </div>
 
-        {/* Lado Direito do Cabeçalho: Snapshot, Expandir */}
+        {/* Lado Direito do Topo: Snapshot e Expandir */}
         <div className="flex items-center gap-1.5">
-          {/* Captura / Snapshot */}
           <button
             type="button"
             onClick={handleTakeSnapshot}
@@ -923,13 +928,12 @@ export function FinancialChart({
             <Camera className="h-3.5 w-3.5" />
           </button>
 
-          {/* Botão de Expandir / Recolher o Gráfico */}
           {onToggleExpand && (
             <button
               type="button"
               onClick={onToggleExpand}
               className="p-1.5 rounded-xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-900/90 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors cursor-pointer shadow-2xs active:scale-95"
-              title={isExpanded ? "Recolher visualização do gráfico" : "Expandir gráfico e ocultar painéis"}
+              title={isExpanded ? "Recolher visualização do gráfico" : "Expandir gráfico em tela cheia"}
             >
               {isExpanded ? (
                 <Minimize2 className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
@@ -941,108 +945,166 @@ export function FinancialChart({
         </div>
       </div>
 
+      {/* 2. SUB-BARRA DEDICADA DE COTAÇÕES OHLC (ZERO SOBREPOSIÇÃO NO CANVAS) */}
+      <div className="h-8 px-3.5 bg-zinc-950/40 dark:bg-zinc-900/40 border-b border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-between text-xs overflow-x-auto no-scrollbar shrink-0">
+        <div className="flex items-center gap-3 font-mono text-[11px] text-zinc-400 shrink-0">
+          <span className="font-bold text-zinc-900 dark:text-zinc-100 font-sans">{primaryAsset.ticker}</span>
+          <span className="text-zinc-500 font-sans">{activeBar?.time || "Hoje"}</span>
+          <span>
+            A: <strong className="text-zinc-800 dark:text-zinc-200 font-bold">{activeBar ? activeBar.open.toFixed(2) : "••"}</strong>
+          </span>
+          <span>
+            M: <strong className="text-zinc-800 dark:text-zinc-200 font-bold">{activeBar ? activeBar.high.toFixed(2) : "••"}</strong>
+          </span>
+          <span>
+            m: <strong className="text-zinc-800 dark:text-zinc-200 font-bold">{activeBar ? activeBar.low.toFixed(2) : "••"}</strong>
+          </span>
+          <span>
+            F: <strong className="text-zinc-800 dark:text-zinc-200 font-bold">{activeBar ? activeBar.close.toFixed(2) : "••"}</strong>
+          </span>
+          {activeBar && (
+            <span
+              className={`px-1.5 py-0.2 rounded-full font-bold ${
+                activeBar.close >= activeBar.open
+                  ? "text-emerald-400 bg-emerald-500/10"
+                  : "text-rose-400 bg-rose-500/10"
+              }`}
+            >
+              {activeBar.close >= activeBar.open ? "+" : ""}
+              {(((activeBar.close - activeBar.open) / (activeBar.open || 1)) * 100).toFixed(2)}%
+            </span>
+          )}
+          {showVolume && activeBar && (
+            <span className="text-zinc-500 hidden sm:inline">
+              Vol: <strong className="text-zinc-300">{(activeBar.volume / 1000000).toFixed(1)}M</strong>
+            </span>
+          )}
+        </div>
+
+        {/* Indicador do Status da Ferramenta de Análise */}
+        <div className="text-[10px] text-purple-400 font-medium shrink-0 pl-2">
+          {activeTool === "crosshair" && "Mira Ativa"}
+          {activeTool === "trendline" && (drawingStart ? "Clique para concluir a linha" : "Clique para iniciar linha")}
+          {activeTool === "fibonacci" && "Retração Fibonacci 0% a 100%"}
+          {activeTool === "brush" && "Pincel Livre: arraste para desenhar"}
+          {activeTool === "ruler" && (drawingStart ? "Clique no ponto final para medir" : "Clique para iniciar régua")}
+          {activeTool === "text" && "Clique no gráfico para inserir texto"}
+        </div>
+      </div>
+
       {/* Toast de Captura Salva */}
       {snapshotToast && (
-        <div className="absolute top-12 right-4 z-50 bg-purple-600 text-white text-xs px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute top-16 right-4 z-50 bg-purple-600 text-white text-xs px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 animate-in fade-in slide-in-from-top-2 duration-200">
           <Check className="h-3.5 w-3.5" />
-          <span>Captura do gráfico copiada com sucesso!</span>
+          <span>Captura do gráfico salva com sucesso!</span>
         </div>
       )}
 
-      {/* ÁREA CENTRAL: BARRA LATERAL ESQUERDA (DESENHOS TRADINGVIEW) + CANVAS DO GRÁFICO */}
-      <div className="flex flex-1 min-h-0 w-full relative mt-1.5">
-        {/* 2. BARRA DE FERRAMENTAS LATERAL ESQUERDA (ESTILO TRADINGVIEW) */}
-        <div className="w-9 shrink-0 flex flex-col items-center justify-between py-1 border-r border-zinc-200/50 dark:border-zinc-800/80 pr-1.5 mr-1 z-10">
-          {/* Grupo de Ferramentas de Desenho */}
-          <div className="flex flex-col items-center gap-1">
-            {/* Mira / Crosshair */}
+      {/* 3. CORPO DO GRÁFICO: BARRA LATERAL ESQUERDA (TRADINGVIEW RAIL) + CANVAS */}
+      <div className="flex flex-1 min-h-0 w-full relative">
+        {/* Barra Vertical de Ferramentas de Desenho (Estilo TradingView) */}
+        <div className="w-10 shrink-0 bg-zinc-950/30 dark:bg-zinc-900/30 border-r border-zinc-200/50 dark:border-zinc-800/80 flex flex-col items-center justify-between py-2 z-10">
+          {/* Ferramentas Analíticas */}
+          <div className="flex flex-col items-center gap-1.5">
             <button
               type="button"
-              onClick={() => setActiveTool("crosshair")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              onClick={() => {
+                setActiveTool("crosshair");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeTool === "crosshair"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
               }`}
-              title="Mira / Crosshair (Cursor Padrão)"
+              title="Mira / Crosshair (Padrão TradingView)"
             >
-              <Crosshair className="h-3.5 w-3.5" />
+              <Crosshair className="h-4 w-4" />
             </button>
 
-            {/* Linha de Tendência */}
             <button
               type="button"
-              onClick={() => setActiveTool("trendline")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              onClick={() => {
+                setActiveTool("trendline");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeTool === "trendline"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
               }`}
-              title="Linha de Tendência"
+              title="Linha de Tendência com Variação %"
             >
-              <Minus className="h-3.5 w-3.5 -rotate-45" />
+              <Minus className="h-4 w-4 -rotate-45" />
             </button>
 
-            {/* Retração de Fibonacci */}
             <button
               type="button"
-              onClick={() => setActiveTool("fibonacci")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              onClick={() => {
+                setActiveTool("fibonacci");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeTool === "fibonacci"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
               }`}
               title="Retração de Fibonacci"
             >
-              <Layers className="h-3.5 w-3.5" />
+              <Layers className="h-4 w-4" />
             </button>
 
-            {/* Pincel / Anotação */}
             <button
               type="button"
-              onClick={() => setActiveTool("brush")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              onClick={() => {
+                setActiveTool("brush");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeTool === "brush"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
               }`}
               title="Pincel / Desenho Livre"
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Pencil className="h-4 w-4" />
             </button>
 
-            {/* Texto / Rótulo */}
             <button
               type="button"
-              onClick={() => setActiveTool("text")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+              onClick={() => {
+                setActiveTool("ruler");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
+                activeTool === "ruler"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
+              }`}
+              title="Régua de Medição (Barras, Dias e Variação %)"
+            >
+              <Ruler className="h-4 w-4" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveTool("text");
+                setDrawingStart(null);
+              }}
+              className={`p-2 rounded-xl transition-all cursor-pointer ${
                 activeTool === "text"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  ? "bg-purple-600 text-white shadow-xs"
+                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-200/60 dark:hover:bg-zinc-800"
               }`}
               title="Anotação de Texto"
             >
-              <Type className="h-3.5 w-3.5" />
-            </button>
-
-            {/* Régua de Medição */}
-            <button
-              type="button"
-              onClick={() => setActiveTool("ruler")}
-              className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTool === "ruler"
-                  ? "bg-purple-600 text-white shadow-2xs"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800"
-              }`}
-              title="Régua de Variação (%) e Barras"
-            >
-              <Ruler className="h-3.5 w-3.5" />
+              <Type className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Grupo de Ações Inferior: Ímã, Bloquear, Ocultar, Limpar */}
-          <div className="flex flex-col items-center gap-1 pt-1 border-t border-zinc-200/50 dark:border-zinc-800/80">
-            {/* Ímã (Snap to OHLC) */}
+          {/* Ferramentas de Gerenciamento: Ímã, Travar, Visibilidade, Lixeira */}
+          <div className="flex flex-col items-center gap-1.5 pt-2 border-t border-zinc-200/50 dark:border-zinc-800/80">
             <button
               type="button"
               onClick={() => setIsMagnetActive(!isMagnetActive)}
@@ -1051,140 +1113,95 @@ export function FinancialChart({
                   ? "text-purple-600 dark:text-purple-400 bg-purple-500/10"
                   : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
-              title="Modo Ímã (ancora nos topos e fundos)"
+              title="Modo Ímã (Snap automático nos topos e fundos)"
             >
               <Magnet className="h-3.5 w-3.5" />
             </button>
 
-            {/* Travar Desenhos */}
             <button
               type="button"
               onClick={() => setIsDrawingsLocked(!isDrawingsLocked)}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                isDrawingsLocked
-                  ? "text-amber-500 bg-amber-500/10"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                isDrawingsLocked ? "text-amber-500 bg-amber-500/10" : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
               title={isDrawingsLocked ? "Desenhos Travados" : "Travar todas as ferramentas"}
             >
               {isDrawingsLocked ? <Lock className="h-3.5 w-3.5" /> : <Unlock className="h-3.5 w-3.5" />}
             </button>
 
-            {/* Ocultar/Exibir Desenhos */}
             <button
               type="button"
               onClick={() => setIsDrawingsVisible(!isDrawingsVisible)}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                !isDrawingsVisible
-                  ? "text-rose-500 bg-rose-500/10"
-                  : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                !isDrawingsVisible ? "text-rose-500 bg-rose-500/10" : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
-              title={isDrawingsVisible ? "Ocultar Desenhos" : "Mostrar Desenhos"}
+              title={isDrawingsVisible ? "Ocultar Desenhos" : "Exibir Desenhos"}
             >
               {isDrawingsVisible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
             </button>
 
-            {/* Limpar Canvas */}
             <button
               type="button"
-              onClick={() => setHasDrawings(false)}
+              onClick={handleClearAllDrawings}
               className="p-1.5 rounded-lg text-zinc-400 hover:text-rose-500 hover:bg-rose-500/10 transition-colors cursor-pointer"
-              title="Limpar todos os desenhos"
+              title="Limpar todos os desenhos do gráfico"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
 
-        {/* CANVAS CENTRAL COM O GRÁFICO */}
-        <div ref={containerRef} className="relative flex-1 h-full min-h-[200px] flex flex-col justify-between">
-          {/* Barra de Leitura OHLC Dinâmica no Topo do Gráfico (Padrão TradingView) */}
-          <div className="absolute top-1 left-2 z-10 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[10px] font-mono select-none">
-            <span className="font-bold text-zinc-900 dark:text-zinc-100">{primaryAsset.ticker}</span>
-            <span className="text-zinc-400 font-sans">{activeHoverBar.time}</span>
-            <span className="text-zinc-400">
-              O: <strong className="text-zinc-800 dark:text-zinc-200">{activeHoverBar.open.toFixed(2)}</strong>
-            </span>
-            <span className="text-zinc-400">
-              H: <strong className="text-zinc-800 dark:text-zinc-200">{activeHoverBar.high.toFixed(2)}</strong>
-            </span>
-            <span className="text-zinc-400">
-              L: <strong className="text-zinc-800 dark:text-zinc-200">{activeHoverBar.low.toFixed(2)}</strong>
-            </span>
-            <span className="text-zinc-400">
-              C: <strong className="text-zinc-800 dark:text-zinc-200">{activeHoverBar.close.toFixed(2)}</strong>
-            </span>
-            <span
-              className={`font-bold ${
-                activeHoverBar.close >= activeHoverBar.open ? "text-emerald-500" : "text-rose-500"
-              }`}
-            >
-              {activeHoverBar.close >= activeHoverBar.open ? "+" : ""}
-              {(((activeHoverBar.close - activeHoverBar.open) / activeHoverBar.open) * 100).toFixed(2)}%
-            </span>
-            {showVolume && (
-              <span className="text-zinc-500">
-                Vol: <strong className="text-zinc-400">{(activeHoverBar.volume / 1000000).toFixed(2)}M</strong>
-              </span>
-            )}
-            {showSMA20 && hoverIndex !== null && (
-              <span className="text-amber-500">
-                SMA(20): <strong>{sma20Points[hoverIndex]?.toFixed(2)}</strong>
-              </span>
-            )}
-            {showEMA50 && hoverIndex !== null && (
-              <span className="text-cyan-400">
-                EMA(50): <strong>{ema50Points[hoverIndex]?.toFixed(2)}</strong>
-              </span>
-            )}
-          </div>
+        {/* Canvas SVG de Alta Precisão */}
+        <div
+          ref={containerRef}
+          className="relative flex-1 h-full min-h-[220px] flex items-center justify-center cursor-crosshair overflow-hidden"
+        >
+          {/* Skeleton durante recarregamento da Brapi */}
+          {isLoadingCandles && (
+            <div className="absolute inset-0 z-20 bg-zinc-950/40 backdrop-blur-[1px] flex items-center justify-center">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-zinc-700 text-xs text-zinc-300 shadow-xl">
+                <RefreshCw className="h-3.5 w-3.5 animate-spin text-purple-400" />
+                <span>Atualizando dados Brapi...</span>
+              </div>
+            </div>
+          )}
 
-          {/* Gráfico SVG de Alta Precisão */}
           <svg
             viewBox={`0 0 ${width} ${height}`}
-            className="w-full h-full overflow-visible"
+            className="w-full h-full"
+            preserveAspectRatio="none"
             onMouseMove={handleMouseMove}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseLeave}
           >
             <defs>
-              {/* Gradiente da Linha de Área */}
               <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#820AD1" stopOpacity="0.35" />
+                <stop offset="0%" stopColor="#820AD1" stopOpacity="0.32" />
                 <stop offset="100%" stopColor="#820AD1" stopOpacity="0.0" />
-              </linearGradient>
-
-              {/* Gradiente da Linha Base (Alta / Baixa) */}
-              <linearGradient id="baselineUp" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#10B981" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
-              </linearGradient>
-              <linearGradient id="baselineDown" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#F43F5E" stopOpacity="0.3" />
-                <stop offset="100%" stopColor="#F43F5E" stopOpacity="0.0" />
               </linearGradient>
             </defs>
 
-            {/* Marca d'água no fundo (Watermark) */}
+            {/* Marca d'água B3 no fundo */}
             {showWatermark && (
               <text
-                x={width / 2}
-                y={height / 2 + 10}
+                x={chartW / 2 + padLeft}
+                y={chartH / 2 + padTop + 15}
                 textAnchor="middle"
-                fontSize={isExpanded ? "64" : "44"}
+                fontSize={isExpanded ? "64" : "46"}
                 fontWeight="900"
                 fontFamily="system-ui, sans-serif"
                 fill="currentColor"
-                className="text-zinc-200 dark:text-zinc-800/40 select-none pointer-events-none"
+                className="text-zinc-200 dark:text-zinc-800/30 select-none pointer-events-none"
               >
-                {primaryAsset.ticker}
+                {primaryAsset.ticker} • B3
               </text>
             )}
 
-            {/* Linhas de Grade Horizontais e Ticks do Eixo Y */}
+            {/* Linhas de Grade e Ticks do Eixo Y */}
             {showGrid &&
               yTicks.map((tick, i) => {
                 const y = getY(tick);
-                const isZero = Math.abs(tick - ohlcData[0].open) < 0.08;
                 return (
                   <g key={`ytick-${i}`}>
                     <line
@@ -1192,55 +1209,56 @@ export function FinancialChart({
                       y1={y}
                       x2={width - padRight}
                       y2={y}
-                      stroke={isZero ? "rgba(255, 255, 255, 0.22)" : "rgba(255, 255, 255, 0.06)"}
-                      strokeDasharray={isZero ? undefined : "3 3"}
+                      stroke="rgba(255, 255, 255, 0.06)"
+                      strokeDasharray="3 3"
                       strokeWidth={1}
                     />
                     <text
-                      x={width - padRight + 8}
+                      x={width - padRight + 10}
                       y={y + 3.5}
                       textAnchor="start"
-                      fill="#e4e4e7"
+                      fill="#f4f4f5"
                       fontSize="10"
-                      fontFamily="system-ui, sans-serif"
+                      fontFamily="ui-monospace, monospace"
                       fontWeight="500"
                       className="select-none"
                     >
-                      {scaleMode === "percent"
-                        ? `${(((tick - ohlcData[0].open) / ohlcData[0].open) * 100).toFixed(1)}%`
-                        : tick.toFixed(2)}
+                      {scaleMode === "percent" && candles[0]
+                        ? `${(((tick - candles[0].close) / candles[0].close) * 100).toFixed(1)}%`
+                        : `R$ ${tick.toFixed(2)}`}
                     </text>
                   </g>
                 );
               })}
 
-            {/* Rótulos do Eixo X (Tempo) */}
-            {labels.map((lbl, idx) => {
-              const x = getX(Math.floor((idx / (labels.length - 1)) * (ohlcData.length - 1)));
+            {/* Rótulos do Eixo X (Datas / Horários) */}
+            {candles.map((c, idx) => {
+              if (idx % Math.ceil(candles.length / 7) !== 0 && idx !== candles.length - 1) return null;
+              const x = getX(idx);
               return (
                 <text
                   key={`xlabel-${idx}`}
                   x={x}
-                  y={height - 6}
-                  textAnchor={idx === 0 ? "start" : idx === labels.length - 1 ? "end" : "middle"}
+                  y={height - 8}
+                  textAnchor={idx === 0 ? "start" : idx === candles.length - 1 ? "end" : "middle"}
                   fill="#a1a1aa"
                   fontSize="10"
                   fontFamily="system-ui, sans-serif"
                   fontWeight="500"
                   className="select-none"
                 >
-                  {lbl}
+                  {c.time}
                 </text>
               );
             })}
 
-            {/* Histograma de Volume (Rodapé) */}
+            {/* Histograma de Volume (B3) */}
             {showVolume &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
-                const barW = Math.max(2, (chartW / ohlcData.length) * 0.65);
-                const volHeight = (d.volume / maxVolume) * 36;
-                const y = height - 20 - volHeight;
+                const barW = Math.max(3, (chartW / candles.length) * 0.65);
+                const volHeight = (d.volume / (maxVolume || 1)) * 38;
+                const y = height - 22 - volHeight;
                 const isUp = d.close >= d.open;
                 return (
                   <rect
@@ -1250,24 +1268,23 @@ export function FinancialChart({
                     width={barW}
                     height={volHeight}
                     fill={isUp ? "#10B981" : "#F43F5E"}
-                    fillOpacity="0.25"
+                    fillOpacity="0.28"
                     rx="0.5"
                   />
                 );
               })}
 
             {/* Bandas de Bollinger */}
-            {showBollinger && (
+            {showBollinger && candles.length > 0 && (
               <g>
-                {/* Área entre bandas */}
                 <path
                   d={
-                    ohlcData.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].upper)}`).join(" ") +
+                    candles.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].upper)}`).join(" ") +
                     " " +
-                    ohlcData
+                    candles
                       .slice()
                       .reverse()
-                      .map((_, i) => `L ${getX(ohlcData.length - 1 - i)} ${getY(bollingerBands[ohlcData.length - 1 - i].lower)}`)
+                      .map((_, i) => `L ${getX(candles.length - 1 - i)} ${getY(bollingerBands[candles.length - 1 - i].lower)}`)
                       .join(" ") +
                     " Z"
                   }
@@ -1275,7 +1292,7 @@ export function FinancialChart({
                   fillOpacity="0.08"
                 />
                 <path
-                  d={ohlcData.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].upper)}`).join(" ")}
+                  d={candles.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].upper)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeOpacity="0.4"
@@ -1283,7 +1300,7 @@ export function FinancialChart({
                   strokeDasharray="2 2"
                 />
                 <path
-                  d={ohlcData.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].lower)}`).join(" ")}
+                  d={candles.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(bollingerBands[i].lower)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeOpacity="0.4"
@@ -1293,10 +1310,10 @@ export function FinancialChart({
               </g>
             )}
 
-            {/* Média Móvel SMA 20 */}
-            {showSMA20 && (
+            {/* SMA 20 */}
+            {showSMA20 && candles.length > 0 && (
               <path
-                d={ohlcData.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(sma20Points[i])}`).join(" ")}
+                d={candles.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(sma20Values[i])}`).join(" ")}
                 fill="none"
                 stroke="#F59E0B"
                 strokeWidth="1.8"
@@ -1304,10 +1321,10 @@ export function FinancialChart({
               />
             )}
 
-            {/* Média Móvel EMA 50 */}
-            {showEMA50 && (
+            {/* EMA 50 */}
+            {showEMA50 && candles.length > 0 && (
               <path
-                d={ohlcData.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(ema50Points[i])}`).join(" ")}
+                d={candles.map((_, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(ema50Values[i])}`).join(" ")}
                 fill="none"
                 stroke="#06B6D4"
                 strokeWidth="1.8"
@@ -1315,23 +1332,19 @@ export function FinancialChart({
               />
             )}
 
-            {/* RENDERIZAÇÃO DAS 17 MODALIDADES DE GRÁFICO */}
-
-            {/* 1. VELAS CLÁSSICAS (CANDLESTICKS) */}
+            {/* 1. VELAS (CANDLESTICKS JAPONESAS) */}
             {chartType === "velas" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
                 const candleColor = isUp ? "#10B981" : "#F43F5E";
-                const barW = Math.max(3, (chartW / ohlcData.length) * 0.7);
+                const barW = Math.max(4, (chartW / candles.length) * 0.72);
                 const bodyY = getY(Math.max(d.open, d.close));
                 const bodyH = Math.max(2, Math.abs(getY(d.close) - getY(d.open)));
 
                 return (
                   <g key={`candle-${i}`}>
-                    {/* Sombra / Pavio (High to Low) */}
-                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={candleColor} strokeWidth="1.4" />
-                    {/* Corpo */}
+                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={candleColor} strokeWidth="1.5" />
                     <rect x={x - barW / 2} y={bodyY} width={barW} height={bodyH} fill={candleColor} rx="1" />
                   </g>
                 );
@@ -1339,23 +1352,16 @@ export function FinancialChart({
 
             {/* 2. VELAS VAZIAS (HOLLOW CANDLES) */}
             {chartType === "velas_vazias" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const barW = Math.max(3, (chartW / ohlcData.length) * 0.7);
+                const barW = Math.max(4, (chartW / candles.length) * 0.72);
                 const bodyY = getY(Math.max(d.open, d.close));
                 const bodyH = Math.max(2, Math.abs(getY(d.close) - getY(d.open)));
 
                 return (
                   <g key={`hollow-${i}`}>
-                    <line
-                      x1={x}
-                      y1={getY(d.high)}
-                      x2={x}
-                      y2={getY(d.low)}
-                      stroke={isUp ? "#10B981" : "#F43F5E"}
-                      strokeWidth="1.4"
-                    />
+                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={isUp ? "#10B981" : "#F43F5E"} strokeWidth="1.5" />
                     <rect
                       x={x - barW / 2}
                       y={bodyY}
@@ -1370,42 +1376,40 @@ export function FinancialChart({
                 );
               })}
 
-            {/* 3. BARRAS (OHLC BARS) */}
+            {/* 3. BARRAS AMERICANAS (OHLC) */}
             {chartType === "barras" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const barColor = isUp ? "#10B981" : "#F43F5E";
-                const tickW = (chartW / ohlcData.length) * 0.35;
+                const color = isUp ? "#10B981" : "#F43F5E";
+                const tickW = (chartW / candles.length) * 0.35;
 
                 return (
                   <g key={`bar-${i}`}>
-                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={barColor} strokeWidth="1.8" />
-                    <line x1={x - tickW} y1={getY(d.open)} x2={x} y2={getY(d.open)} stroke={barColor} strokeWidth="1.8" />
-                    <line x1={x} y1={getY(d.close)} x2={x + tickW} y2={getY(d.close)} stroke={barColor} strokeWidth="1.8" />
+                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={color} strokeWidth="2" />
+                    <line x1={x - tickW} y1={getY(d.open)} x2={x} y2={getY(d.open)} stroke={color} strokeWidth="2" />
+                    <line x1={x} y1={getY(d.close)} x2={x + tickW} y2={getY(d.close)} stroke={color} strokeWidth="2" />
                   </g>
                 );
               })}
 
             {/* 4. COLUNAS */}
             {chartType === "colunas" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const colW = Math.max(3, (chartW / ohlcData.length) * 0.7);
+                const colW = Math.max(3, (chartW / candles.length) * 0.7);
                 const baseY = getY(minPrice);
                 const topY = getY(d.close);
-                const colH = Math.max(2, baseY - topY);
-
                 return (
                   <rect
                     key={`col-${i}`}
                     x={x - colW / 2}
                     y={topY}
                     width={colW}
-                    height={colH}
+                    height={Math.max(2, baseY - topY)}
                     fill={isUp ? "#10B981" : "#F43F5E"}
-                    rx="1.5"
+                    rx="1"
                   />
                 );
               })}
@@ -1413,7 +1417,7 @@ export function FinancialChart({
             {/* 5. LINHA */}
             {chartType === "linha" && (
               <path
-                d={ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
+                d={candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
                 fill="none"
                 stroke="#820AD1"
                 strokeWidth="2.5"
@@ -1426,23 +1430,15 @@ export function FinancialChart({
             {chartType === "linha_marcadores" && (
               <g>
                 <path
-                  d={ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
+                  d={candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeWidth="2.4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
-                {ohlcData.map((d, i) => (
-                  <circle
-                    key={`dot-${i}`}
-                    cx={getX(i)}
-                    cy={getY(d.close)}
-                    r={3}
-                    fill="#820AD1"
-                    stroke="#ffffff"
-                    strokeWidth="1.5"
-                  />
+                {candles.map((d, i) => (
+                  <circle key={`pt-${i}`} cx={getX(i)} cy={getY(d.close)} r={3} fill="#820AD1" stroke="#ffffff" strokeWidth="1.5" />
                 ))}
               </g>
             )}
@@ -1450,10 +1446,9 @@ export function FinancialChart({
             {/* 7. STEP LINE (DEGRAUS) */}
             {chartType === "step_line" && (
               <path
-                d={ohlcData
-                  .map((d, i, arr) => {
+                d={candles
+                  .map((d, i) => {
                     if (i === 0) return `M ${getX(0)} ${getY(d.close)}`;
-                    const prevX = getX(i - 1);
                     const currX = getX(i);
                     const currY = getY(d.close);
                     return `H ${currX} V ${currY}`;
@@ -1470,13 +1465,13 @@ export function FinancialChart({
               <g>
                 <path
                   d={
-                    ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ") +
-                    ` L ${getX(ohlcData.length - 1)} ${getY(minPrice)} L ${getX(0)} ${getY(minPrice)} Z`
+                    candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ") +
+                    ` L ${getX(candles.length - 1)} ${getY(minPrice)} L ${getX(0)} ${getY(minPrice)} Z`
                   }
                   fill="url(#areaGrad)"
                 />
                 <path
-                  d={ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
+                  d={candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeWidth="2.4"
@@ -1489,20 +1484,20 @@ export function FinancialChart({
               <g>
                 <path
                   d={
-                    ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.high)}`).join(" ") +
+                    candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.high)}`).join(" ") +
                     " " +
-                    ohlcData
+                    candles
                       .slice()
                       .reverse()
-                      .map((d, i) => `L ${getX(ohlcData.length - 1 - i)} ${getY(d.low)}`)
+                      .map((d, i) => `L ${getX(candles.length - 1 - i)} ${getY(d.low)}`)
                       .join(" ") +
                     " Z"
                   }
                   fill="#820AD1"
-                  fillOpacity="0.22"
+                  fillOpacity="0.2"
                 />
                 <path
-                  d={ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
+                  d={candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeWidth="2.2"
@@ -1513,18 +1508,17 @@ export function FinancialChart({
             {/* 10. LINHA BASE */}
             {chartType === "linha_base" && (
               <g>
-                {/* Linha Zero de Referência */}
                 <line
                   x1={padLeft}
-                  y1={getY(ohlcData[0].open)}
+                  y1={getY(candles[0]?.open || 38)}
                   x2={width - padRight}
-                  y2={getY(ohlcData[0].open)}
+                  y2={getY(candles[0]?.open || 38)}
                   stroke="rgba(255, 255, 255, 0.4)"
                   strokeWidth="1.5"
                   strokeDasharray="4 4"
                 />
                 <path
-                  d={ohlcData.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
+                  d={candles.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(d.close)}`).join(" ")}
                   fill="none"
                   stroke="#820AD1"
                   strokeWidth="2.2"
@@ -1534,9 +1528,9 @@ export function FinancialChart({
 
             {/* 11. MÁXIMA-MÍNIMA (HIGH-LOW) */}
             {chartType === "maxima_minima" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
-                const barW = (chartW / ohlcData.length) * 0.5;
+                const barW = (chartW / candles.length) * 0.5;
                 const topY = getY(d.high);
                 const botY = getY(d.low);
                 return (
@@ -1548,25 +1542,25 @@ export function FinancialChart({
                     height={Math.max(3, botY - topY)}
                     rx={barW / 2}
                     fill="#820AD1"
-                    fillOpacity="0.8"
+                    fillOpacity="0.85"
                   />
                 );
               })}
 
             {/* 12. HEIKIN ASHI */}
             {chartType === "heikin_ashi" &&
-              heikinAshiData.map((d, i) => {
+              heikinAshiCandles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const candleColor = isUp ? "#10B981" : "#F43F5E";
-                const barW = Math.max(3, (chartW / heikinAshiData.length) * 0.7);
+                const color = isUp ? "#10B981" : "#F43F5E";
+                const barW = Math.max(4, (chartW / heikinAshiCandles.length) * 0.72);
                 const bodyY = getY(Math.max(d.open, d.close));
                 const bodyH = Math.max(2, Math.abs(getY(d.close) - getY(d.open)));
 
                 return (
                   <g key={`ha-${i}`}>
-                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={candleColor} strokeWidth="1.4" />
-                    <rect x={x - barW / 2} y={bodyY} width={barW} height={bodyH} fill={candleColor} rx="1" />
+                    <line x1={x} y1={getY(d.high)} x2={x} y2={getY(d.low)} stroke={color} strokeWidth="1.5" />
+                    <rect x={x - barW / 2} y={bodyY} width={barW} height={bodyH} fill={color} rx="1" />
                   </g>
                 );
               })}
@@ -1574,7 +1568,7 @@ export function FinancialChart({
             {/* 13. RENKO */}
             {chartType === "renko" &&
               renkoBricks.map((b, i) => {
-                const x = padLeft + (i / (renkoBricks.length - 1 || 1)) * chartW;
+                const x = padLeft + (i / Math.max(1, renkoBricks.length - 1)) * chartW;
                 const brickW = (chartW / renkoBricks.length) * 0.85;
                 const topY = getY(Math.max(b.open, b.close));
                 const brickH = Math.max(4, Math.abs(getY(b.close) - getY(b.open)));
@@ -1597,10 +1591,10 @@ export function FinancialChart({
 
             {/* 14. QUEBRA DE LINHA (LINE BREAK) */}
             {chartType === "quebra_linha" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const blockW = (chartW / ohlcData.length) * 0.75;
+                const blockW = (chartW / candles.length) * 0.75;
                 const topY = getY(Math.max(d.open, d.close));
                 const blockH = Math.max(3, Math.abs(getY(d.close) - getY(d.open)));
                 const color = isUp ? "#10B981" : "#F43F5E";
@@ -1623,25 +1617,18 @@ export function FinancialChart({
             {/* 15. KAGI */}
             {chartType === "kagi" &&
               kagiLines.map((line, i) => {
-                const x = padLeft + (i / (kagiLines.length - 1 || 1)) * chartW;
+                const x = padLeft + (i / Math.max(1, kagiLines.length - 1)) * chartW;
                 const color = line.isYang ? "#10B981" : "#F43F5E";
                 const strokeW = line.isYang ? 3 : 1.5;
 
                 return (
                   <g key={`kagi-${i}`}>
-                    <line
-                      x1={x}
-                      y1={getY(line.yStart)}
-                      x2={x}
-                      y2={getY(line.yEnd)}
-                      stroke={color}
-                      strokeWidth={strokeW}
-                    />
+                    <line x1={x} y1={getY(line.yStart)} x2={x} y2={getY(line.yEnd)} stroke={color} strokeWidth={strokeW} />
                     {i < kagiLines.length - 1 && (
                       <line
                         x1={x}
                         y1={getY(line.yEnd)}
-                        x2={padLeft + ((i + 1) / (kagiLines.length - 1 || 1)) * chartW}
+                        x2={padLeft + ((i + 1) / Math.max(1, kagiLines.length - 1)) * chartW}
                         y2={getY(line.yEnd)}
                         stroke={color}
                         strokeWidth={strokeW}
@@ -1654,7 +1641,7 @@ export function FinancialChart({
             {/* 16. PONTO E FIGURA (POINT & FIGURE) */}
             {chartType === "ponto_figura" &&
               pnfColumns.map((col, colIdx) => {
-                const x = padLeft + (colIdx / (pnfColumns.length - 1 || 1)) * chartW;
+                const x = padLeft + (colIdx / Math.max(1, pnfColumns.length - 1)) * chartW;
                 const isX = col.type === "X";
                 const color = isX ? "#10B981" : "#F43F5E";
 
@@ -1677,82 +1664,165 @@ export function FinancialChart({
 
             {/* 17. INTERVALO (RANGE BARS) */}
             {chartType === "intervalo" &&
-              ohlcData.map((d, i) => {
+              candles.map((d, i) => {
                 const x = getX(i);
                 const isUp = d.close >= d.open;
-                const barW = (chartW / ohlcData.length) * 0.7;
+                const barW = (chartW / candles.length) * 0.7;
                 const topY = getY(d.high);
-                const fixedH = Math.max(12, getY(d.low) - getY(d.high));
+                const fixedH = Math.max(14, getY(d.low) - getY(d.high));
                 const color = isUp ? "#10B981" : "#F43F5E";
 
-                return (
-                  <rect
-                    key={`range-${i}`}
-                    x={x - barW / 2}
-                    y={topY}
-                    width={barW}
-                    height={fixedH}
-                    fill={color}
-                    rx="1.5"
-                  />
-                );
+                return <rect key={`range-${i}`} x={x - barW / 2} y={topY} width={barW} height={fixedH} fill={color} rx="1" />;
               })}
 
-            {/* SÉRIES SECUNDÁRIAS ATIVAS (LINHAS DE COMPARAÇÃO NORMALIZADA ESTILO KOYFIN) */}
+            {/* SÉRIES SECUNDÁRIAS (CURVAS DE COMPARAÇÃO NORMALIZADA ESTILO KOYFIN) */}
             {activeSeries.length > 1 &&
               activeSeries.slice(1).map((series, sIndex) => {
                 const hex = series.colorHex || COLOR_MAP[series.color] || "#2563EB";
                 const targetPercent = series.changePercent ?? 1.2;
-                const points = ohlcData.map((_, idx) => {
-                  const p = idx / (ohlcData.length - 1);
-                  const wave = Math.sin(p * Math.PI * 1.8 + sIndex) * 0.01;
+                const pts = candles.map((_, idx) => {
+                  const p = idx / (candles.length - 1 || 1);
+                  const wave = Math.sin(p * Math.PI * 1.8 + sIndex) * 0.012;
                   const ratio = 1 + (targetPercent / 100) * p + wave;
-                  return ohlcData[0].open * ratio;
+                  return (candles[0]?.close || 38) * ratio;
                 });
 
                 return (
                   <g key={`comp-${series.id}`}>
                     <path
-                      d={points.map((pt, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(pt)}`).join(" ")}
+                      d={pts.map((pt, i) => `${i === 0 ? "M" : "L"} ${getX(i)} ${getY(pt)}`).join(" ")}
                       fill="none"
                       stroke={hex}
                       strokeWidth="2"
                       strokeDasharray="4 2"
                     />
-                    <circle
-                      cx={getX(points.length - 1)}
-                      cy={getY(points[points.length - 1])}
-                      r={3}
-                      fill={hex}
-                      stroke="#ffffff"
-                      strokeWidth="1.5"
-                    />
+                    <circle cx={getX(pts.length - 1)} cy={getY(pts[pts.length - 1])} r={3} fill={hex} stroke="#ffffff" strokeWidth="1.5" />
                   </g>
                 );
               })}
 
-            {/* OVERLAY DE DESENHOS ATIVOS (QUANDO VISÍVEIS) */}
-            {isDrawingsVisible && hasDrawings && (
-              <g className="pointer-events-none">
-                {/* Linha de Tendência de Exemplo */}
-                <line
-                  x1={getX(2)}
-                  y1={getY(ohlcData[2]?.low || 37)}
-                  x2={getX(ohlcData.length - 4)}
-                  y2={getY(ohlcData[ohlcData.length - 4]?.close || 38.5)}
-                  stroke="#820AD1"
-                  strokeWidth="1.8"
-                  strokeDasharray="4 2"
-                />
-                <circle cx={getX(2)} cy={getY(ohlcData[2]?.low || 37)} r="3" fill="#820AD1" />
-                <circle cx={getX(ohlcData.length - 4)} cy={getY(ohlcData[ohlcData.length - 4]?.close || 38.5)} r="3" fill="#820AD1" />
+            {/* FERRAMENTA TRADINGVIEW: LINHAS DE TENDÊNCIA DESENHADAS */}
+            {isDrawingsVisible &&
+              trendlines.map((tl) => (
+                <g key={tl.id}>
+                  <line x1={tl.x1} y1={tl.y1} x2={tl.x2} y2={tl.y2} stroke="#820AD1" strokeWidth="2.2" />
+                  <circle cx={tl.x1} cy={tl.y1} r="4" fill="#820AD1" stroke="#ffffff" strokeWidth="1.5" />
+                  <circle cx={tl.x2} cy={tl.y2} r="4" fill="#820AD1" stroke="#ffffff" strokeWidth="1.5" />
+                  {/* Badge na linha de tendência */}
+                  <g transform={`translate(${(tl.x1 + tl.x2) / 2}, ${(tl.y1 + tl.y2) / 2 - 14})`}>
+                    <rect x="-35" y="-10" width="70" height="18" rx="4" fill="#18181b" stroke="#820AD1" strokeWidth="1" />
+                    <text x="0" y="3" textAnchor="middle" fill="#f4f4f5" fontSize="9" fontWeight="600" fontFamily="sans-serif">
+                      {tl.percentDiff >= 0 ? `+${tl.percentDiff}%` : `${tl.percentDiff}%`}
+                    </text>
+                  </g>
+                </g>
+              ))}
+
+            {/* PREVIEW DA LINHA DE TENDÊNCIA EM ANDAMENTO */}
+            {isDrawingsVisible && drawingStart && activeTool === "trendline" && mousePos && (
+              <line
+                x1={drawingStart.x}
+                y1={drawingStart.y}
+                x2={mousePos.x}
+                y2={mousePos.y}
+                stroke="#820AD1"
+                strokeWidth="2"
+                strokeDasharray="4 3"
+              />
+            )}
+
+            {/* FERRAMENTA TRADINGVIEW: RETRAÇÃO DE FIBONACCI */}
+            {isDrawingsVisible && fibLevels && (
+              <g opacity={activeTool === "fibonacci" ? "1" : "0.75"}>
+                {[
+                  { ratio: 0.0, color: "#f43f5e", label: "0.0%" },
+                  { ratio: 0.236, color: "#f59e0b", label: "23.6%" },
+                  { ratio: 0.382, color: "#10b981", label: "38.2%" },
+                  { ratio: 0.5, color: "#06b6d4", label: "50.0%" },
+                  { ratio: 0.618, color: "#820ad1", label: "61.8% (Golden)" },
+                  { ratio: 0.786, color: "#a855f7", label: "78.6%" },
+                  { ratio: 1.0, color: "#10b981", label: "100.0%" },
+                ].map((lvl) => {
+                  const p = fibLevels.high - (fibLevels.high - fibLevels.low) * lvl.ratio;
+                  const y = getY(p);
+                  return (
+                    <g key={`fib-${lvl.ratio}`}>
+                      <line x1={padLeft} y1={y} x2={width - padRight} y2={y} stroke={lvl.color} strokeWidth="1" strokeDasharray="3 3" />
+                      <text x={padLeft + 4} y={y - 3} fill={lvl.color} fontSize="9" fontWeight="600" fontFamily="sans-serif">
+                        Fib {lvl.label} (R$ {p.toFixed(2)})
+                      </text>
+                    </g>
+                  );
+                })}
               </g>
             )}
 
-            {/* LINHA GUIA VERTICAL NO HOVER (CROSSHAIR) */}
-            {hoverIndex !== null && (
+            {/* FERRAMENTA TRADINGVIEW: PINCEL LIVRE (BRUSH STROKES) */}
+            {isDrawingsVisible &&
+              brushPaths.map((bp) => (
+                <path
+                  key={bp.id}
+                  d={bp.points.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ")}
+                  fill="none"
+                  stroke="#820AD1"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              ))}
+
+            {currentBrushPath.length > 1 && (
+              <path
+                d={currentBrushPath.map((pt, i) => `${i === 0 ? "M" : "L"} ${pt.x} ${pt.y}`).join(" ")}
+                fill="none"
+                stroke="#820AD1"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            )}
+
+            {/* FERRAMENTA TRADINGVIEW: ANOTAÇÕES DE TEXTO */}
+            {isDrawingsVisible &&
+              textNotes.map((note) => (
+                <g key={note.id} transform={`translate(${note.x}, ${note.y})`}>
+                  <rect x="-4" y="-14" width={note.text.length * 7 + 14} height="20" rx="6" fill="#18181b" stroke="#820AD1" strokeWidth="1.2" />
+                  <text x="3" y="0" fill="#f4f4f5" fontSize="10" fontWeight="600" fontFamily="sans-serif">
+                    {note.text}
+                  </text>
+                </g>
+              ))}
+
+            {/* FERRAMENTA TRADINGVIEW: RÉGUA DE MEDIÇÃO */}
+            {isDrawingsVisible && rulerPoints && (
               <g>
-                {/* Linha Vertical */}
+                <rect
+                  x={Math.min(rulerPoints.x1, rulerPoints.x2)}
+                  y={Math.min(rulerPoints.y1, rulerPoints.y2)}
+                  width={Math.abs(rulerPoints.x2 - rulerPoints.x1)}
+                  height={Math.abs(rulerPoints.y2 - rulerPoints.y1)}
+                  fill="#820AD1"
+                  fillOpacity="0.15"
+                  stroke="#820AD1"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 2"
+                />
+                <g transform={`translate(${(rulerPoints.x1 + rulerPoints.x2) / 2 - 45}, ${(rulerPoints.y1 + rulerPoints.y2) / 2 - 20})`}>
+                  <rect x="0" y="0" width="95" height="36" rx="6" fill="#18181b" stroke="#820AD1" strokeWidth="1" />
+                  <text x="47" y="14" textAnchor="middle" fill="#10B981" fontSize="10" fontWeight="bold" fontFamily="sans-serif">
+                    {rulerPoints.percentDiff >= 0 ? `+${rulerPoints.percentDiff}%` : `${rulerPoints.percentDiff}%`} ({rulerPoints.priceDiff >= 0 ? `+R$ ${rulerPoints.priceDiff}` : `R$ ${rulerPoints.priceDiff}`})
+                  </text>
+                  <text x="47" y="27" textAnchor="middle" fill="#a1a1aa" fontSize="9" fontFamily="sans-serif">
+                    {rulerPoints.barsCount} barras
+                  </text>
+                </g>
+              </g>
+            )}
+
+            {/* MIRA / CROSSHAIR INTERATIVO COM LINHAS GUIA E MARCADORES NOS EIXOS */}
+            {hoverIndex !== null && activeBar && (
+              <g>
+                {/* Linha Vertical ao Eixo de Tempo */}
                 <line
                   x1={getX(hoverIndex)}
                   y1={padTop}
@@ -1762,53 +1832,53 @@ export function FinancialChart({
                   strokeDasharray="3 3"
                   strokeWidth="1"
                 />
-                {/* Linha Horizontal na cotação */}
+                {/* Linha Horizontal ao Eixo de Preço */}
                 <line
                   x1={padLeft}
-                  y1={getY(activeHoverBar.close)}
+                  y1={getY(activeBar.close)}
                   x2={width - padRight}
-                  y2={getY(activeHoverBar.close)}
+                  y2={getY(activeBar.close)}
                   stroke="rgba(255, 255, 255, 0.45)"
                   strokeDasharray="3 3"
                   strokeWidth="1"
                 />
 
-                {/* Marcador no eixo Y direito */}
-                <g transform={`translate(${width - padRight}, ${getY(activeHoverBar.close) - 9})`}>
+                {/* Marcador Dinâmico no Eixo Y Direito (Cotação Exata) */}
+                <g transform={`translate(${width - padRight}, ${getY(activeBar.close) - 10})`}>
                   <rect
                     x="0"
                     y="0"
-                    width="60"
-                    height="18"
+                    width="70"
+                    height="20"
                     rx="4"
-                    fill={activeHoverBar.close >= activeHoverBar.open ? "#10B981" : "#F43F5E"}
+                    fill={activeBar.close >= activeBar.open ? "#10B981" : "#F43F5E"}
                   />
                   <text
-                    x="30"
-                    y="12.5"
+                    x="35"
+                    y="13.5"
                     textAnchor="middle"
                     fill="#ffffff"
                     fontSize="10"
-                    fontWeight="700"
-                    fontFamily="system-ui, sans-serif"
+                    fontWeight="bold"
+                    fontFamily="ui-monospace, monospace"
                   >
-                    R$ {activeHoverBar.close.toFixed(2)}
+                    R$ {activeBar.close.toFixed(2)}
                   </text>
                 </g>
 
-                {/* Marcador no eixo X inferior */}
-                <g transform={`translate(${getX(hoverIndex) - 25}, ${height - 18})`}>
-                  <rect x="0" y="0" width="50" height="15" rx="3" fill="#27272a" />
+                {/* Marcador Dinâmico no Eixo X Inferior (Data/Hora) */}
+                <g transform={`translate(${getX(hoverIndex) - 30}, ${height - 20})`}>
+                  <rect x="0" y="0" width="60" height="16" rx="4" fill="#27272a" />
                   <text
-                    x="25"
-                    y="11"
+                    x="30"
+                    y="11.5"
                     textAnchor="middle"
                     fill="#ffffff"
                     fontSize="9"
                     fontWeight="600"
                     fontFamily="system-ui, sans-serif"
                   >
-                    {activeHoverBar.time}
+                    {activeBar.time}
                   </text>
                 </g>
               </g>
@@ -1817,22 +1887,22 @@ export function FinancialChart({
         </div>
       </div>
 
-      {/* 3. BARRA INFERIOR DE CONTROLE E ESCALA (TRADINGVIEW BOTTOM RAIL) */}
-      <div className="pt-2 border-t border-zinc-200/60 dark:border-zinc-800/80 shrink-0 flex flex-wrap items-center justify-between gap-2 text-xs">
+      {/* 4. BARRA INFERIOR DE CONTROLE E ESCALA */}
+      <div className="px-3.5 py-2 border-t border-zinc-200/60 dark:border-zinc-800/80 shrink-0 flex flex-wrap items-center justify-between gap-2 text-xs">
         {/* Chips dos Ativos Selecionados */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[10px] text-zinc-400 mr-1 font-semibold uppercase tracking-wider">
+          <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
             Séries:
           </span>
           {activeSeries.length === 0 ? (
-            <span className="text-[10px] text-zinc-500 italic">Nenhuma ação marcada (exibindo {primaryAsset.ticker})</span>
+            <span className="text-[10px] text-zinc-500 italic">Exibindo {primaryAsset.ticker}</span>
           ) : (
             activeSeries.map((series) => {
               const hex = series.colorHex || COLOR_MAP[series.color] || "#820AD1";
               return (
                 <div
                   key={series.id}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-2xs"
+                  className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 shadow-2xs"
                 >
                   <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: hex }} />
                   <span className="font-semibold text-[11px]">{series.ticker}</span>
@@ -1842,9 +1912,7 @@ export function FinancialChart({
                         series.changePercent >= 0 ? "text-emerald-500" : "text-rose-500"
                       }`}
                     >
-                      {series.changePercent >= 0
-                        ? `+${series.changePercent.toFixed(1)}%`
-                        : `${series.changePercent.toFixed(1)}%`}
+                      {series.changePercent >= 0 ? `+${series.changePercent.toFixed(1)}%` : `${series.changePercent.toFixed(1)}%`}
                     </span>
                   )}
                   {onRemoveSeries && (
@@ -1863,18 +1931,14 @@ export function FinancialChart({
           )}
         </div>
 
-        {/* Status de Mercado & Seletor de Escala */}
-        <div className="flex items-center gap-3 text-[11px] text-zinc-400">
-          <span className="hidden sm:inline-flex items-center gap-1 font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            B3 Fechamento 18:00 (UTC-3)
-          </span>
-
+        {/* Alternador de Escala (%) Auto Log */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] text-zinc-400 font-medium">Escala:</span>
           <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-lg border border-zinc-200 dark:border-zinc-800">
             <button
               type="button"
               onClick={() => setScaleMode("percent")}
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
+              className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
                 scaleMode === "percent"
                   ? "bg-purple-600 text-white shadow-2xs"
                   : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -1885,7 +1949,7 @@ export function FinancialChart({
             <button
               type="button"
               onClick={() => setScaleMode("auto")}
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
+              className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
                 scaleMode === "auto"
                   ? "bg-purple-600 text-white shadow-2xs"
                   : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -1896,7 +1960,7 @@ export function FinancialChart({
             <button
               type="button"
               onClick={() => setScaleMode("log")}
-              className={`px-1.5 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
+              className={`px-2 py-0.5 rounded text-[10px] font-bold cursor-pointer transition-colors ${
                 scaleMode === "log"
                   ? "bg-purple-600 text-white shadow-2xs"
                   : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"

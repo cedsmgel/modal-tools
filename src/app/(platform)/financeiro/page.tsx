@@ -384,6 +384,18 @@ export default function FinanceiroPage() {
             >
               {showValues ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4 text-purple-500" />}
             </button>
+
+            {/* Status e Horário do Pregão B3 no Header */}
+            <div className="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 text-xs shadow-2xs">
+              <span className="relative flex h-2 w-2">
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold text-zinc-900 dark:text-zinc-100">B3</span>
+              <span className="text-zinc-300 dark:text-zinc-600">•</span>
+              <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-medium">
+                Pregão: <strong className="font-semibold text-zinc-900 dark:text-zinc-100">10:00 às 18:00</strong> (UTC-3)
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -450,11 +462,11 @@ export default function FinanceiroPage() {
           </div>
         </div>
 
-        {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS */}
-        <main className="flex-1 min-h-0 overflow-hidden p-4">
-          <div className="grid grid-cols-12 gap-4 h-full max-w-7xl mx-auto">
+        {/* 3. LAYOUT RESPIRÁVEL EM COLUNAS DINÂMICAS (MAIOR LARGURA PARA O GRÁFICO) */}
+        <main className="flex-1 min-h-0 overflow-hidden p-3 sm:p-4">
+          <div className="flex flex-col lg:flex-row gap-3.5 h-full w-full max-w-[1780px] mx-auto">
             {/* 4. COLUNA ESQUERDA: ÍNDICES & CARTEIRAS (COBERTURA MULTI-ATIVOS) */}
-            <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
+            <section className="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-3 min-h-0 h-full">
               {/* Card Índices & Carteiras */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
                 <div className="flex items-center justify-between mb-2.5 shrink-0">
@@ -592,12 +604,8 @@ export default function FinanceiroPage() {
               </div>
             </section>
 
-            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO (PERFORMANCE NORMALIZADA %) */}
-            <section
-              className={`col-span-12 ${
-                isChartExpanded ? "lg:col-span-9" : "lg:col-span-6"
-              } flex flex-col gap-3 min-h-0 h-full transition-all duration-300`}
-            >
+            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO (LARGURA MAXIMIZADA E RESPIRÁVEL) */}
+            <section className="flex-1 min-w-0 flex flex-col gap-3 min-h-0 h-full transition-all duration-300">
               {/* Card Principal com FinancialChart */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
                 {/* Topo do Card: Patrimônio Total */}
@@ -698,9 +706,9 @@ export default function FinanceiroPage() {
               )}
             </section>
 
-            {/* 6. COLUNA DIREITA (col-span-12 lg:col-span-3) - Oculta ao Expandir */}
+            {/* 6. COLUNA DIREITA (w-72 / w-80) - Oculta ao Expandir */}
             {!isChartExpanded && (
-              <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full animate-in fade-in duration-200">
+              <section className="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-3 min-h-0 h-full animate-in fade-in duration-200">
                 {/* Botões de Ação Rápida no Topo */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
                   <div className="flex items-center justify-around">
