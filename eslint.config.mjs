@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "worker-configuration.d.ts",
     "drizzle/**",
+    ".open-next/**",
   ]),
 ]);
 

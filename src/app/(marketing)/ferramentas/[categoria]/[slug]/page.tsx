@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -57,18 +58,47 @@ export async function generateMetadata({
   };
 }
 
-export default async function ToolPage({ params }: ToolPageProps) {
+function ToolContentSkeleton() {
+  return (
+    <div className="space-y-12 animate-pulse">
+      <div className="flex items-center gap-2">
+        <div className="h-4 w-20 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-zinc-400">/</span>
+        <div className="h-4 w-24 rounded bg-zinc-200 dark:bg-zinc-800" />
+        <span className="text-zinc-400">/</span>
+        <div className="h-4 w-32 rounded bg-zinc-200 dark:bg-zinc-800" />
+      </div>
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <div className="h-5 w-24 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-5 w-28 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+        <div className="h-10 sm:h-12 w-3/4 max-w-xl rounded-xl bg-zinc-200 dark:bg-zinc-800" />
+        <div className="space-y-2 max-w-3xl">
+          <div className="h-4 w-full rounded bg-zinc-200 dark:bg-zinc-800" />
+          <div className="h-4 w-2/3 rounded bg-zinc-200 dark:bg-zinc-800" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="lg:col-span-7 h-96 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/40" />
+        <div className="lg:col-span-5 h-80 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-900/40" />
+      </div>
+    </div>
+  );
+}
+
+async function ToolContent({ params }: ToolPageProps) {
   const { categoria, slug } = await params;
   const match = getTool(categoria, slug);
 
-  // Apenas ferramentas 'available' possuem página pública ativa
   if (!match || match.tool.status !== "available") {
     notFound();
   }
 
   const { tool, category } = match;
 
-  // 3 outras ferramentas tiradas do registro para recomendação
   const otherTools: { category: ToolCategory; tool: Tool }[] = [];
   for (const cat of toolCategories) {
     for (const t of cat.tools) {
@@ -110,14 +140,13 @@ export default async function ToolPage({ params }: ToolPageProps) {
   };
 
   return (
-    <div className="py-12 sm:py-16">
+    <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {/* Navegação Breadcrumb Superior */}
+      <div className="space-y-12">
         <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
           <Link
             href="/ferramentas"
@@ -138,7 +167,6 @@ export default async function ToolPage({ params }: ToolPageProps) {
           </span>
         </div>
 
-        {/* 1. Título e Descrição da Ferramenta */}
         <div className="space-y-4">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline" className="text-xs">
@@ -164,10 +192,8 @@ export default async function ToolPage({ params }: ToolPageProps) {
           </p>
         </div>
 
-        {/* Componente Interativo da Calculadora */}
         {slug === "salario-liquido" && <SalarioLiquidoCalculator />}
 
-        {/* Seção 'Outras Ferramentas' */}
         <div className="border-t border-zinc-200/80 dark:border-zinc-800 pt-12 space-y-6">
           <div className="flex items-center justify-between">
             <div>
@@ -234,6 +260,18 @@ export default async function ToolPage({ params }: ToolPageProps) {
             })}
           </div>
         </div>
+      </div>
+    </>
+  );
+}
+
+export default function ToolPage({ params }: ToolPageProps) {
+  return (
+    <div className="py-12 sm:py-16">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Suspense fallback={<ToolContentSkeleton />}>
+          <ToolContent params={params} />
+        </Suspense>
       </div>
     </div>
   );

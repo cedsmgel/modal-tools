@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import * as schema from "./schema";
 
 let localD1Instance: D1Database | null = null;
@@ -9,9 +10,11 @@ function getLocalD1Database(): D1Database | null {
   try {
     // Apenas em ambiente Node.js de desenvolvimento local
     if (typeof process !== "undefined" && process.release?.name === "node") {
+      /* eslint-disable @typescript-eslint/no-require-imports */
       const fs = require("fs");
       const path = require("path");
       const { DatabaseSync } = require("node:sqlite");
+      /* eslint-enable @typescript-eslint/no-require-imports */
 
       const dir = path.join(process.cwd(), ".wrangler", "state", "v3", "d1", "miniflare-D1DatabaseObject");
       if (fs.existsSync(dir)) {
@@ -89,6 +92,15 @@ function getLocalD1Database(): D1Database | null {
 export function getDb(d1Database?: D1Database) {
   if (d1Database) {
     return drizzle(d1Database, { schema });
+  }
+
+  try {
+    const ctx = getCloudflareContext();
+    if (ctx?.env?.DB) {
+      return drizzle(ctx.env.DB, { schema });
+    }
+  } catch {
+    // Contexto indisponível fora do ambiente OpenNext
   }
 
   const envD1 = (process.env as unknown as { DB?: D1Database }).DB;
