@@ -24,9 +24,15 @@ import {
   Newspaper,
   Bell,
   X,
+  Check,
 } from "lucide-react";
+import {
+  FinancialChart,
+  type ActiveSeriesItem,
+  type ChartPeriod,
+} from "@/components/financial-chart";
+import type { Color } from "@tremor/react";
 
-type Period = "1M" | "3M" | "6M" | "1A" | "Tudo";
 export type AssetCategory = "todos" | "acoes" | "fiis" | "cripto" | "cambio" | "taxas";
 
 export interface MultiAssetItem {
@@ -48,14 +54,6 @@ const CATEGORY_TABS: { id: AssetCategory; label: string }[] = [
   { id: "cambio", label: "Câmbio" },
   { id: "taxas", label: "Taxas" },
 ];
-
-const PERIOD_LABELS: Record<Period, string[]> = {
-  "1M": ["Dia 1", "Dia 5", "Dia 10", "Dia 15", "Dia 20", "Dia 25", "Hoje"],
-  "3M": ["Mês -3", "Semana 2", "Mês -2", "Semana 4", "Mês -1", "Semana 6", "Hoje"],
-  "6M": ["Mês -6", "Mês -5", "Mês -4", "Mês -3", "Mês -2", "Mês -1", "Hoje"],
-  "1A": ["1º Tri", "2º Tri", "3º Tri", "4º Tri", "Nov", "Dez", "Hoje"],
-  Tudo: ["2022", "2023", "2024", "2025", "2026", "2027", "Atual"],
-};
 
 const NEWS_ITEMS = [
   {
@@ -98,16 +96,34 @@ const DEFAULT_MULTI_ASSETS: MultiAssetItem[] = [
   { id: "ipca", ticker: "IPCA", name: "Inflação 12 Meses", category: "taxas", price: 4.42, changePercent: 0.0 },
 ];
 
+const PALETTE: { color: Color; hex: string }[] = [
+  { color: "purple", hex: "#820AD1" },
+  { color: "emerald", hex: "#10B981" },
+  { color: "blue", hex: "#2563EB" },
+  { color: "amber", hex: "#F59E0B" },
+  { color: "cyan", hex: "#06B6D4" },
+  { color: "rose", hex: "#F43F5E" },
+  { color: "indigo", hex: "#6366F1" },
+  { color: "violet", hex: "#8B5CF6" },
+];
+
 export default function FinanceiroPage() {
   const { user } = useUser();
   const [showValues, setShowValues] = React.useState<boolean>(true);
-  const [selectedPeriod, setSelectedPeriod] = React.useState<Period>("1M");
+  const [selectedPeriod, setSelectedPeriod] = React.useState<ChartPeriod>("1M");
   const [selectedCategory, setSelectedCategory] = React.useState<AssetCategory>("todos");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [isLoadingMarket, setIsLoadingMarket] = React.useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = React.useState<string>("Agora");
   const searchInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Séries ativas no gráfico comparativo avançado (Koyfin / Tremor)
+  const [activeSeries, setActiveSeries] = React.useState<ActiveSeriesItem[]>([
+    { id: "bova11", ticker: "BOVA11", name: "iShares Ibovespa ETF", color: "purple", colorHex: "#820AD1", changePercent: 0.45 },
+    { id: "petr4", ticker: "PETR4", name: "Petrobras PN", color: "emerald", colorHex: "#10B981", changePercent: 1.18 },
+    { id: "vale3", ticker: "VALE3", name: "Vale ON", color: "blue", colorHex: "#2563EB", changePercent: -0.65 },
+  ]);
 
   // Dados reais consolidados da rota /api/market/multi-assets
   const [multiAssets, setMultiAssets] = React.useState<MultiAssetItem[]>(DEFAULT_MULTI_ASSETS);
@@ -116,6 +132,34 @@ export default function FinanceiroPage() {
     selic: 10.75,
     ipca: 4.42,
   });
+
+  // Alterna ativo na lista de séries do gráfico
+  const toggleSeries = (asset: MultiAssetItem) => {
+    if (activeSeries.some((s) => s.id === asset.id)) {
+      setActiveSeries(activeSeries.filter((s) => s.id !== asset.id));
+    } else {
+      const usedColors = activeSeries.map((s) => s.color);
+      const available =
+        PALETTE.find((p) => !usedColors.includes(p.color)) ||
+        PALETTE[activeSeries.length % PALETTE.length];
+
+      setActiveSeries([
+        ...activeSeries,
+        {
+          id: asset.id,
+          ticker: asset.ticker,
+          name: asset.name,
+          color: available.color,
+          colorHex: available.hex,
+          changePercent: asset.changePercent,
+        },
+      ]);
+    }
+  };
+
+  const handleRemoveSeries = (id: string) => {
+    setActiveSeries(activeSeries.filter((s) => s.id !== id));
+  };
 
   // Busca dados de mercado ao carregar a página
   const fetchMarketData = React.useCallback(async () => {
@@ -257,12 +301,6 @@ export default function FinanceiroPage() {
     price: 382450,
     changePercent: 3.12,
   };
-
-  // Dimensões do gráfico central
-  const chartWidth = 720;
-  const chartHeight = 180;
-  const paddingX = 20;
-  const paddingY = 20;
 
   return (
     <div className="h-screen w-full overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
@@ -438,7 +476,7 @@ export default function FinanceiroPage() {
                       Índices & Carteiras
                     </h2>
                     <p className="text-[10px] text-zinc-400">
-                      Cobertura Multi-Ativos B3
+                      Selecione para plotar no gráfico
                     </p>
                   </div>
                   <BarChart3 className="h-4 w-4 text-zinc-400" />
@@ -462,7 +500,7 @@ export default function FinanceiroPage() {
                   ))}
                 </div>
 
-                {/* Lista de Ativos com Scroll Customizado e Skeleton */}
+                {/* Lista de Ativos com Scroll Customizado e Checkboxes Conectados ao Gráfico */}
                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 space-y-1 mt-2">
                   {/* Estado de Carregamento Skeleton */}
                   {isLoadingMarket && multiAssets.length === 0 ? (
@@ -488,18 +526,48 @@ export default function FinanceiroPage() {
                   ) : (
                     filteredMultiAssets.map((asset) => {
                       const isPositive = asset.changePercent >= 0;
+                      const isSelected = activeSeries.some((s) => s.id === asset.id);
+                      const activeItem = activeSeries.find((s) => s.id === asset.id);
+
                       return (
-                        <div
+                        <button
                           key={asset.id}
-                          className="flex items-center justify-between p-2 rounded-2xl hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 transition-colors group cursor-default"
+                          type="button"
+                          onClick={() => toggleSeries(asset)}
+                          className={`w-full flex items-center justify-between p-2 rounded-2xl transition-all cursor-pointer border text-left ${
+                            isSelected
+                              ? "bg-purple-500/10 border-purple-500/30 text-zinc-900 dark:text-zinc-100 shadow-2xs"
+                              : "border-transparent hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300"
+                          }`}
                         >
-                          <div className="min-w-0 pr-2">
-                            <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100 leading-tight">
-                              {asset.ticker}
-                            </p>
-                            <p className="text-[11px] text-zinc-500 truncate leading-tight mt-0.5">
-                              {asset.name}
-                            </p>
+                          <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                            {/* Checkbox interativo conectado ao Tremor Chart */}
+                            <div
+                              className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
+                                isSelected
+                                  ? "bg-purple-600 border-purple-600 text-white"
+                                  : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400"
+                              }`}
+                              style={
+                                isSelected && activeItem?.colorHex
+                                  ? {
+                                      backgroundColor: activeItem.colorHex,
+                                      borderColor: activeItem.colorHex,
+                                    }
+                                  : {}
+                              }
+                            >
+                              {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                            </div>
+
+                            <div className="truncate">
+                              <p className="text-xs font-bold leading-tight truncate">
+                                {asset.ticker}
+                              </p>
+                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
+                                {asset.name}
+                              </p>
+                            </div>
                           </div>
 
                           <div className="text-right shrink-0 flex flex-col items-end">
@@ -518,7 +586,7 @@ export default function FinanceiroPage() {
                                 : `${asset.changePercent.toFixed(2)}%`}
                             </span>
                           </div>
-                        </div>
+                        </button>
                       );
                     })
                   )}
@@ -537,112 +605,35 @@ export default function FinanceiroPage() {
               </div>
             </section>
 
-            {/* 5. COLUNA CENTRAL (col-span-12 lg:col-span-6) */}
+            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO COM TREMOR (PERFORMANCE NORMALIZADA %) */}
             <section className="col-span-12 lg:col-span-6 flex flex-col gap-3 min-h-0 h-full">
-              {/* Card Principal: Patrimônio Total Zerado & Gráfico Plano */}
+              {/* Card Principal com FinancialChart */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
-                {/* Topo do Card de Performance */}
-                <div className="flex flex-wrap items-start justify-between gap-3 shrink-0">
-                  <div className="space-y-1">
-                    <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                {/* Topo do Card: Patrimônio Total */}
+                <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-2.5 mb-1 shrink-0">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
                       PATRIMÔNIO TOTAL
                     </span>
-                    <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex items-center gap-2">
                       <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
                         {formatBrl(0)}
                       </span>
-                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-zinc-100 dark:bg-zinc-800/80 px-2.5 py-0.5 text-xs font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums">
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums">
                         R$ 0,00 (0,0%)
                       </span>
                     </div>
                   </div>
-
-                  {/* Seletor de Período em Pílulas */}
-                  <div className="shrink-0 bg-zinc-100 dark:bg-zinc-950/80 p-0.5 rounded-full border border-zinc-200/80 dark:border-zinc-800/80 flex items-center gap-0.5 shadow-2xs">
-                    {(["1M", "3M", "6M", "1A", "Tudo"] as Period[]).map((p) => {
-                      const isActive = selectedPeriod === p;
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => setSelectedPeriod(p)}
-                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold transition-all cursor-pointer ${
-                            isActive
-                              ? "bg-purple-600 text-white shadow-xs"
-                              : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
-                          }`}
-                        >
-                          {p}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </div>
 
-                {/* Gráfico Central: Linha Plana Minimalista (Empty State Suave) */}
-                <div className="relative flex-1 min-h-[150px] max-h-[220px] flex flex-col justify-center my-2 items-center">
-                  <svg
-                    viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                    className="w-full h-full max-h-[170px] overflow-visible"
-                  >
-                    <defs>
-                      <linearGradient id="purpleGradZero" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#820AD1" stopOpacity="0.10" />
-                        <stop offset="100%" stopColor="#820AD1" stopOpacity="0" />
-                      </linearGradient>
-                    </defs>
-
-                    {/* Linha zero sutil */}
-                    <line
-                      x1={paddingX}
-                      y1={chartHeight / 2}
-                      x2={chartWidth - paddingX}
-                      y2={chartHeight / 2}
-                      stroke="currentColor"
-                      strokeDasharray="4 4"
-                      className="text-zinc-200 dark:text-zinc-800"
-                      strokeWidth={1}
-                    />
-
-                    {/* Preenchimento degradê e linha plana roxa Nubank */}
-                    <path
-                      d={`M ${paddingX} ${chartHeight / 2} L ${chartWidth - paddingX} ${chartHeight / 2} L ${chartWidth - paddingX} ${chartHeight - paddingY} L ${paddingX} ${chartHeight - paddingY} Z`}
-                      fill="url(#purpleGradZero)"
-                    />
-                    <line
-                      x1={paddingX}
-                      y1={chartHeight / 2}
-                      x2={chartWidth - paddingX}
-                      y2={chartHeight / 2}
-                      stroke="#820AD1"
-                      strokeWidth={2.5}
-                      strokeLinecap="round"
-                    />
-                  </svg>
-
-                  {/* Indicador de estado vazio no centro */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <span className="text-[11px] font-medium text-zinc-400 bg-white/90 dark:bg-zinc-900/90 px-3 py-1 rounded-full border border-zinc-200/60 dark:border-zinc-800/60 backdrop-blur-xs shadow-2xs">
-                      Aguardando primeiro aporte para gerar histórico
-                    </span>
-                  </div>
-
-                  {/* Legenda dos Eixos do Período */}
-                  <div className="flex items-center justify-between text-[10px] text-zinc-400 pt-1.5 px-1 shrink-0 w-full">
-                    {PERIOD_LABELS[selectedPeriod].map((label, idx) => (
-                      <span key={idx}>{label}</span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Status da Carteira */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-zinc-100 dark:border-zinc-800/80 shrink-0">
-                  <span className="text-[10px] text-zinc-400">Status da Carteira:</span>
-                  <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                    <span className="w-1.5 h-1.5 rounded-full bg-zinc-400" />
-                    <span>0 Ativos Registados</span>
-                  </div>
-                </div>
+                {/* Gráfico Avançado com Tremor (Performance Normalizada % Koyfin / Nubank) */}
+                <FinancialChart
+                  activeSeries={activeSeries}
+                  onRemoveSeries={handleRemoveSeries}
+                  selectedPeriod={selectedPeriod}
+                  onPeriodChange={setSelectedPeriod}
+                  className="flex-1 min-h-0"
+                />
               </div>
 
               {/* Card Inferior: Resumo Rápido em 3 Caixinhas Zeradas */}
