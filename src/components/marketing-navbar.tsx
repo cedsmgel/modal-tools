@@ -20,6 +20,7 @@ import {
   Lock,
   Binary,
   Cpu,
+  Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -114,6 +115,28 @@ export function MarketingNavbar() {
                   >
                     <Building2 className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
                     <span>Imóveis</span>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* Dropdown 'Ferramentas' */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 transition-colors hover:text-zinc-950 focus:outline-none dark:hover:text-white cursor-pointer select-none">
+                  <span>Ferramentas</span>
+                  <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56 p-2 shadow-xl rounded-xl">
+                {/* Hub de Ferramentas */}
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/hub-matematico"
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer text-base font-semibold text-zinc-900 dark:text-zinc-100"
+                  >
+                    <Calculator className="h-5 w-5 text-zinc-700 dark:text-zinc-300 shrink-0" />
+                    <span>Hub de Ferramentas</span>
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
