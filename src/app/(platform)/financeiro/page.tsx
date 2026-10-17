@@ -25,7 +25,10 @@ import {
   Bell,
   X,
   Check,
+  AlertCircle,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   FinancialChart,
   type ActiveSeriesItem,
@@ -168,7 +171,11 @@ export default function FinanceiroPage() {
     try {
       const res = await fetch("/api/market/multi-assets");
       if (res.ok) {
-        const json: any = await res.json();
+        const json = (await res.json()) as {
+          success?: boolean;
+          assets?: MultiAssetItem[];
+          macro?: { cdi?: number; selic?: number; ipca?: number };
+        };
         if (json && json.success && Array.isArray(json.assets)) {
           setMultiAssets(json.assets);
           if (json.macro) {
@@ -207,10 +214,22 @@ export default function FinanceiroPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const formatBrl = (value: number) => {
+  const formatBRL = (value: number) => {
     if (!showValues) return "R$ ••••••";
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
+  const formatBrl = formatBRL;
+
+  const patrimonio = 0;
+  const rendaFixa = 0;
+  const rendaVariavel = 0;
+  const reserva = 0;
+  const rendaFixaPct = 0;
+  const rendaVariavelPct = 0;
+  const reservaPct = 0;
+  const variacao = "+R$ 0,00";
+  const variacaoPct = "+0,0%";
+  const isAllZero = rendaFixa === 0 && rendaVariavel === 0 && reserva === 0;
 
   const formatAssetPrice = (asset: MultiAssetItem) => {
     if (!showValues) return "R$ •••";
@@ -362,11 +381,7 @@ export default function FinanceiroPage() {
         </nav>
 
         {/* Rodapé da Sidebar: Espaçamento de segurança (pb-12) para não colidir com dev tools */}
-        <div className="flex flex-col items-center pb-12">
-          <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-[10px] font-mono text-zinc-400">
-            PRO
-          </div>
-        </div>
+        <div className="flex flex-col items-center pb-12" />
       </aside>
 
       {/* ÁREA PRINCIPAL DO APLICATIVO */}
@@ -374,9 +389,14 @@ export default function FinanceiroPage() {
         {/* 2. HEADER INTERNO LIMPO */}
         <header className="h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-5 flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-3">
-            <h1 className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-              Olá, {user?.firstName || "Investidor"}!
-            </h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                Olá, {user?.firstName || "Investidor"}!
+              </h1>
+              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-semibold tracking-wider">
+                PRO
+              </Badge>
+            </div>
             <button
               onClick={() => setShowValues(!showValues)}
               className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer"
@@ -398,7 +418,18 @@ export default function FinanceiroPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Ícone de Alerta Discreto ("1 Issue") na Navbar */}
+            <button
+              type="button"
+              title="1 aviso do sistema pendente"
+              onClick={() => alert("Aviso do Sistema: Fechamento de mercado às 18h. Ordens enviadas após esse horário serão processadas no dia útil seguinte.")}
+              className="relative text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
+            >
+              <AlertCircle className="h-4 w-4" />
+              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-rose-500" />
+            </button>
+
             <button
               onClick={fetchMarketData}
               disabled={isLoadingMarket}
@@ -426,47 +457,47 @@ export default function FinanceiroPage() {
           </div>
         </header>
 
-        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO) */}
+        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO - CONTRASTE SUAVE) */}
         <div className="relative w-full overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xs shrink-0 select-none py-2.5">
           {/* Fades elegantes de gradiente nas laterais */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
 
-          {/* Track Animado Infinito */}
+          {/* Track Animado Infinito com Contraste Reduzido */}
           <div className="animate-bloomberg-ticker items-center gap-7 px-4">
             {tickerItems.map((item, idx) => (
               <div
                 key={`${item.label}-${idx}`}
                 className="flex items-center gap-2 whitespace-nowrap shrink-0 group cursor-default"
               >
-                <span className="text-zinc-500 dark:text-zinc-400 font-semibold uppercase text-xs tracking-wider">
+                <span className="text-zinc-500 text-xs uppercase tracking-wider">
                   {item.label}
                 </span>
-                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                <span className="text-zinc-300 font-medium tabular-nums text-xs">
                   {item.value}
                 </span>
                 {item.change !== undefined && (
                   <span
-                    className={`text-xs font-medium tabular-nums ${
+                    className={`text-xs tabular-nums font-medium ${
                       item.change >= 0
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-rose-600 dark:text-rose-400"
+                        ? "text-emerald-400"
+                        : "text-rose-400"
                     }`}
                   >
                     {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
                   </span>
                 )}
-                <span className="text-zinc-300 dark:text-zinc-800 font-normal ml-3 select-none">•</span>
+                <span className="text-zinc-600 dark:text-zinc-700 font-normal ml-3 select-none">•</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* 3. LAYOUT RESPIRÁVEL EM COLUNAS DINÂMICAS (MAIOR LARGURA PARA O GRÁFICO) */}
-        <main className="flex-1 min-h-0 overflow-hidden p-3 sm:p-4">
-          <div className="flex flex-col lg:flex-row gap-3.5 h-full w-full max-w-[1780px] mx-auto">
-            {/* 4. COLUNA ESQUERDA: ÍNDICES & CARTEIRAS (COBERTURA MULTI-ATIVOS) */}
-            <section className="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-3 min-h-0 h-full">
+        {/* 3. GRID DE 12 COLUNAS CONFORME ESPECIFICAÇÃO [ 3 (~25%) | 6 (~50%) | 3 (~25%) ] */}
+        <div className="flex-1 min-h-0 overflow-hidden p-4">
+          <div className="grid grid-cols-12 gap-4 h-full">
+            {/* 4. COLUNA ESQUERDA: ÍNDICES & CARTEIRAS (col-span-3: ~25%) */}
+            <aside className="col-span-3 flex flex-col gap-3 min-h-0 h-full">
               {/* Card Índices & Carteiras */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
                 <div className="flex items-center justify-between mb-2.5 shrink-0">
@@ -481,17 +512,17 @@ export default function FinanceiroPage() {
                   <BarChart3 className="h-4 w-4 text-zinc-400" />
                 </div>
 
-                {/* Seletor de Categorias Compacto: [ Todos | Ações | FIIs | Cripto | Câmbio | Taxas ] */}
+                {/* Seletor de Categorias: [ Todos | Ações | FIIs | Cripto | Câmbio | Taxas ] com alto contraste */}
                 <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 shrink-0">
                   {CATEGORY_TABS.map((tab) => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => setSelectedCategory(tab.id)}
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                      className={`px-3 py-1 rounded-md text-xs transition-all whitespace-nowrap cursor-pointer ${
                         selectedCategory === tab.id
-                          ? "bg-purple-600 text-white shadow-2xs"
-                          : "bg-zinc-100 dark:bg-zinc-800/80 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                          ? "bg-violet-600 text-white font-semibold"
+                          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
                       }`}
                     >
                       {tab.label}
@@ -602,30 +633,42 @@ export default function FinanceiroPage() {
                   </p>
                 </div>
               </div>
-            </section>
+            </aside>
 
-            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO (LARGURA MAXIMIZADA E RESPIRÁVEL) */}
-            <section className="flex-1 min-w-0 flex flex-col gap-3 min-h-0 h-full transition-all duration-300">
-              {/* Card Principal com FinancialChart */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
-                {/* Topo do Card: Patrimônio Total */}
-                <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-2 mb-1 shrink-0">
-                  <div className="space-y-0.5">
-                    <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
-                      PATRIMÔNIO TOTAL
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-100 tabular-nums">
-                        {formatBrl(0)}
-                      </span>
-                      <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-zinc-100 dark:bg-zinc-800/80 px-2 py-0.5 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 tabular-nums">
-                        R$ 0,00 (0,0%)
-                      </span>
-                    </div>
-                  </div>
+            {/* 5. COLUNA CENTRAL: GRÁFICO + KPIS (col-span-6: ~50% DA TELA) */}
+            <main className="col-span-6 flex flex-col min-h-0 h-full">
+              {/* Faixa de KPIs — Nível 1 */}
+              <div className="flex items-end justify-between mb-4 shrink-0">
+                <div>
+                  <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-1">
+                    Patrimônio Total
+                  </p>
+                  <p className="text-4xl font-bold tabular-nums text-white">
+                    {formatBRL(patrimonio)}
+                  </p>
+                  <p className="text-sm tabular-nums mt-1 text-zinc-400">
+                    {variacao} ({variacaoPct})
+                  </p>
                 </div>
+                {/* Botões de ação — hierarquia clara */}
+                <div className="flex items-center gap-2">
+                  <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
+                    Novo Aporte
+                  </Button> {/* primário */}
+                  <Button size="sm" variant="outline" asChild>
+                    <Link href="/hub-matematico">Simular</Link>
+                  </Button> {/* secundário */}
+                  <Button size="sm" variant="ghost" onClick={() => alert("Relatório consolidado exportado com sucesso!")}>
+                    Exportar
+                  </Button> {/* terciário */}
+                </div>
+              </div>
 
-                {/* Gráfico Avançado de Performance Normalizada */}
+              {/* Nível 2 — Gráfico (elemento dominante, min-h-[380px], sem padding lateral desnecessário) */}
+              <div
+                className="w-full flex-1 flex flex-col rounded-2xl bg-zinc-900/80 border border-zinc-800/80 shadow-xs overflow-hidden"
+                style={{ minHeight: "380px" }}
+              >
                 <FinancialChart
                   activeSeries={activeSeries}
                   onRemoveSeries={handleRemoveSeries}
@@ -637,124 +680,45 @@ export default function FinanceiroPage() {
                 />
               </div>
 
-              {/* Card Inferior: Resumo Rápido em 3 Caixinhas Zeradas (Ocultas ao Expandir) */}
-              {!isChartExpanded && (
-                <div className="grid grid-cols-3 gap-3 shrink-0 animate-in fade-in duration-200">
-                {/* Caixinha 1 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="w-8 h-8 rounded-xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold">
-                      <ShieldCheck className="h-4 w-4" />
+              {/* Nível 3 — Cards de Renda Fixa / Renda Variável / Reserva ou Empty State */}
+              <div className="mt-4 shrink-0">
+                {isAllZero ? (
+                  <div className="rounded-lg border border-dashed border-zinc-700 p-4 text-center bg-zinc-900/40">
+                    <p className="text-sm text-zinc-500 mb-2">Nenhum ativo cadastrado ainda.</p>
+                    <Button size="sm" variant="outline" asChild>
+                      <Link href="/dashboard/ativos/novo">Adicionar primeiro ativo →</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="rounded-lg bg-zinc-900/60 border border-zinc-800/60 p-3">
+                      <p className="text-[11px] text-zinc-500 mb-1">Renda Fixa</p>
+                      <p className="text-lg font-semibold tabular-nums text-zinc-200">
+                        {formatBRL(rendaFixa)}
+                      </p>
+                      <p className="text-xs text-zinc-500">{rendaFixaPct}%</p>
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
-                      Renda Fixa
-                    </h3>
-                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(0)}
-                    </p>
-                    <p className="text-[9px] text-zinc-400 font-medium truncate">
-                      CDI ({macroRates.cdi}%) + IPCA
-                    </p>
-                  </div>
-                </div>
-
-                {/* Caixinha 2 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-300 flex items-center justify-center font-bold">
-                      <TrendingUp className="h-4 w-4" />
+                    <div className="rounded-lg bg-zinc-900/60 border border-zinc-800/60 p-3">
+                      <p className="text-[11px] text-zinc-500 mb-1">Renda Variável</p>
+                      <p className="text-lg font-semibold tabular-nums text-zinc-200">
+                        {formatBRL(rendaVariavel)}
+                      </p>
+                      <p className="text-xs text-zinc-500">{rendaVariavelPct}%</p>
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
-                  </div>
-                  <div>
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
-                      Renda Variável
-                    </h3>
-                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(0)}
-                    </p>
-                    <p className="text-[9px] text-zinc-400 font-medium truncate">
-                      Ações B3 & Fundos
-                    </p>
-                  </div>
-                </div>
-
-                {/* Caixinha 3 */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <div className="w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:bg-cyan-500/20 dark:text-cyan-300 flex items-center justify-center font-bold">
-                      <CircleDollarSign className="h-4 w-4" />
+                    <div className="rounded-lg bg-zinc-900/60 border border-zinc-800/60 p-3">
+                      <p className="text-[11px] text-zinc-500 mb-1">Reserva</p>
+                      <p className="text-lg font-semibold tabular-nums text-zinc-200">
+                        {formatBRL(reserva)}
+                      </p>
+                      <p className="text-xs text-zinc-500">{reservaPct}%</p>
                     </div>
-                    <span className="text-[10px] font-semibold text-zinc-400">0%</span>
                   </div>
-                  <div>
-                    <h3 className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">
-                      Reserva
-                    </h3>
-                    <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                      {formatBrl(0)}
-                    </p>
-                    <p className="text-[9px] text-zinc-400 font-medium truncate">
-                      Liquidez Imediata
-                    </p>
-                  </div>
-                </div>
+                )}
               </div>
-              )}
-            </section>
+            </main>
 
-            {/* 6. COLUNA DIREITA (w-72 / w-80) - Oculta ao Expandir */}
-            {!isChartExpanded && (
-              <section className="w-full lg:w-72 xl:w-80 shrink-0 flex flex-col gap-3 min-h-0 h-full animate-in fade-in duration-200">
-                {/* Botões de Ação Rápida no Topo */}
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
-                  <div className="flex items-center justify-around">
-                  {/* Botão 1: Novo Aporte */}
-                  <div className="flex flex-col items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => setIsAddModalOpen(true)}
-                      className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
-                    >
-                      <PlusCircle className="h-5 w-5" />
-                    </button>
-                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
-                      Novo Aporte
-                    </span>
-                  </div>
-
-                  {/* Botão 2: Simular */}
-                  <Link
-                    href="/hub-matematico"
-                    className="flex flex-col items-center gap-1.5 group cursor-pointer"
-                  >
-                    <div className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 group-hover:bg-purple-600/15 group-hover:text-purple-600 dark:group-hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95">
-                      <Calculator className="h-5 w-5" />
-                    </div>
-                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
-                      Simular
-                    </span>
-                  </Link>
-
-                  {/* Botão 3: Exportar */}
-                  <div className="flex flex-col items-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => alert("Relatório consolidado exportado com sucesso!")}
-                      className="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 hover:bg-purple-600/15 hover:text-purple-600 dark:hover:text-purple-300 flex items-center justify-center transition-all shadow-xs active:scale-95 cursor-pointer"
-                    >
-                      <Download className="h-5 w-5" />
-                    </button>
-                    <span className="text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
-                      Exportar
-                    </span>
-                  </div>
-                </div>
-              </div>
-
+            {/* 6. COLUNA DIREITA: CÂMBIO & NOTÍCIAS (col-span-3: ~25% DA TELA) */}
+            <aside className="col-span-3 flex flex-col gap-3 min-h-0 h-full">
               {/* Card Câmbio & Cripto */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0 space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -860,28 +824,11 @@ export default function FinanceiroPage() {
                       </div>
                     ))}
                   </div>
-
-                  {/* Separador sutil */}
-                  <div className="border-t border-zinc-100 dark:border-zinc-800/80 my-1" />
-
-                  {/* Notificação de sistema */}
-                  <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-start gap-2">
-                    <Bell className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 shrink-0 mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-semibold text-purple-950 dark:text-purple-200 leading-tight">
-                        Aviso do Sistema
-                      </p>
-                      <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-snug mt-0.5">
-                        Aviso: Fechamento de mercado às 18h. Ordens enviadas após esse horário serão processadas no dia útil seguinte.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               </div>
-            </section>
-          )}
+            </aside>
           </div>
-        </main>
+        </div>
       </div>
 
       {/* Modal para Adicionar Ativo */}
