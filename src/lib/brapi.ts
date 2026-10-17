@@ -211,7 +211,13 @@ function getFallbackStocks(symbols: string[]): BrapiStockQuote[] {
     ITUB4: { shortName: "Itaú Unibanco PN", regularMarketPrice: 35.80, regularMarketChangePercent: 0.85 },
     BBDC4: { shortName: "Bradesco PN", regularMarketPrice: 14.92, regularMarketChangePercent: 1.02 },
     WEGE3: { shortName: "WEG ON", regularMarketPrice: 54.30, regularMarketChangePercent: 2.14 },
+    BBAS3: { shortName: "Banco do Brasil ON", regularMarketPrice: 28.15, regularMarketChangePercent: 0.72 },
+    BOVA11: { shortName: "iShares Ibovespa ETF", regularMarketPrice: 126.80, regularMarketChangePercent: 0.45 },
     HGLG11: { shortName: "CSHG Logística FII", regularMarketPrice: 165.40, regularMarketChangePercent: 0.32 },
+    KNIP11: { shortName: "Kinea Índices FII", regularMarketPrice: 94.50, regularMarketChangePercent: -0.15 },
+    XPLG11: { shortName: "XP Log FII", regularMarketPrice: 99.80, regularMarketChangePercent: 0.28 },
+    MXRF11: { shortName: "Maxi Renda FII", regularMarketPrice: 10.15, regularMarketChangePercent: 0.10 },
+    VISC11: { shortName: "Vinci Shopping FII", regularMarketPrice: 118.20, regularMarketChangePercent: -0.42 },
   };
 
   return symbols.map((s) => {
@@ -255,6 +261,17 @@ function getFallbackCurrencies(): BrapiCurrencyQuote[] {
       updatedAtTimestamp: Date.now(),
       pctChange: -0.15,
     },
+    {
+      fromCurrency: "GBP",
+      toCurrency: "BRL",
+      name: "Libra Esterlina / Real Brasileiro",
+      high: 7.45,
+      low: 7.36,
+      bidPrice: 7.412,
+      askPrice: 7.418,
+      updatedAtTimestamp: Date.now(),
+      pctChange: 0.18,
+    },
   ];
 }
 
@@ -275,6 +292,14 @@ function getFallbackCrypto(): BrapiCryptoQuote[] {
       regularMarketChangePercent: 1.84,
       regularMarketDayHigh: 15700.0,
       regularMarketDayLow: 14950.0,
+    },
+    {
+      coin: "SOL",
+      currency: "BRL",
+      regularMarketPrice: 890.0,
+      regularMarketChangePercent: 4.25,
+      regularMarketDayHigh: 915.0,
+      regularMarketDayLow: 865.0,
     },
   ];
 }

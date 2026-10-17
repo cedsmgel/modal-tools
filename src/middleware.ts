@@ -5,6 +5,12 @@ import { clerkMiddleware } from '@clerk/nextjs/server';
  */
 export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl;
+
+  // Cotações e dados de mercado públicos
+  if (pathname.startsWith('/api/market') || pathname.startsWith('/api/financeiro')) {
+    return;
+  }
+
   if (
     pathname.startsWith('/api') ||
     pathname.startsWith('/dashboard') ||
