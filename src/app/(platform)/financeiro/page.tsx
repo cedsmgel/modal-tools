@@ -114,6 +114,7 @@ export default function FinanceiroPage() {
   const [selectedCategory, setSelectedCategory] = React.useState<AssetCategory>("todos");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [isLoadingMarket, setIsLoadingMarket] = React.useState<boolean>(false);
+  const [isChartExpanded, setIsChartExpanded] = React.useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState<boolean>(false);
   const [lastUpdated, setLastUpdated] = React.useState<string>("Agora");
   const searchInputRef = React.useRef<HTMLInputElement>(null);
@@ -413,25 +414,11 @@ export default function FinanceiroPage() {
           </div>
         </header>
 
-        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO E INDICADOR AO VIVO) */}
-        <div className="relative w-full overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xs shrink-0 select-none py-2 flex items-center">
-          {/* Indicador de Mercado ao Vivo */}
-          <div className="hidden sm:flex items-center gap-2 pl-4 pr-3 border-r border-zinc-200/80 dark:border-zinc-800/80 shrink-0 z-20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-[10px] font-bold tracking-wider uppercase text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-              B3 AO VIVO
-            </span>
-            <span className="text-[9px] text-zinc-400 tabular-nums">
-              {lastUpdated}
-            </span>
-          </div>
-
+        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO) */}
+        <div className="relative w-full overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xs shrink-0 select-none py-2.5">
           {/* Fades elegantes de gradiente nas laterais */}
-          <div className="pointer-events-none absolute left-0 sm:left-32 top-0 bottom-0 w-8 bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
 
           {/* Track Animado Infinito */}
           <div className="animate-bloomberg-ticker items-center gap-7 px-4">
@@ -605,12 +592,16 @@ export default function FinanceiroPage() {
               </div>
             </section>
 
-            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO COM TREMOR (PERFORMANCE NORMALIZADA %) */}
-            <section className="col-span-12 lg:col-span-6 flex flex-col gap-3 min-h-0 h-full">
+            {/* 5. COLUNA CENTRAL: GRÁFICO AVANÇADO (PERFORMANCE NORMALIZADA %) */}
+            <section
+              className={`col-span-12 ${
+                isChartExpanded ? "lg:col-span-9" : "lg:col-span-6"
+              } flex flex-col gap-3 min-h-0 h-full transition-all duration-300`}
+            >
               {/* Card Principal com FinancialChart */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col justify-between">
                 {/* Topo do Card: Patrimônio Total */}
-                <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-2.5 mb-1 shrink-0">
+                <div className="flex items-center justify-between border-b border-zinc-100 dark:border-zinc-800/80 pb-2 mb-1 shrink-0">
                   <div className="space-y-0.5">
                     <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
                       PATRIMÔNIO TOTAL
@@ -626,18 +617,21 @@ export default function FinanceiroPage() {
                   </div>
                 </div>
 
-                {/* Gráfico Avançado com Tremor (Performance Normalizada % Koyfin / Nubank) */}
+                {/* Gráfico Avançado de Performance Normalizada */}
                 <FinancialChart
                   activeSeries={activeSeries}
                   onRemoveSeries={handleRemoveSeries}
                   selectedPeriod={selectedPeriod}
                   onPeriodChange={setSelectedPeriod}
+                  isExpanded={isChartExpanded}
+                  onToggleExpand={() => setIsChartExpanded(!isChartExpanded)}
                   className="flex-1 min-h-0"
                 />
               </div>
 
-              {/* Card Inferior: Resumo Rápido em 3 Caixinhas Zeradas */}
-              <div className="grid grid-cols-3 gap-3 shrink-0">
+              {/* Card Inferior: Resumo Rápido em 3 Caixinhas Zeradas (Ocultas ao Expandir) */}
+              {!isChartExpanded && (
+                <div className="grid grid-cols-3 gap-3 shrink-0 animate-in fade-in duration-200">
                 {/* Caixinha 1 */}
                 <div className="bg-white dark:bg-zinc-900 rounded-2xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs space-y-1.5">
                   <div className="flex items-center justify-between">
@@ -701,13 +695,15 @@ export default function FinanceiroPage() {
                   </div>
                 </div>
               </div>
+              )}
             </section>
 
-            {/* 6. COLUNA DIREITA (col-span-12 lg:col-span-3) */}
-            <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full">
-              {/* Botões de Ação Rápida no Topo */}
-              <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
-                <div className="flex items-center justify-around">
+            {/* 6. COLUNA DIREITA (col-span-12 lg:col-span-3) - Oculta ao Expandir */}
+            {!isChartExpanded && (
+              <section className="col-span-12 lg:col-span-3 flex flex-col gap-3 min-h-0 h-full animate-in fade-in duration-200">
+                {/* Botões de Ação Rápida no Topo */}
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs shrink-0">
+                  <div className="flex items-center justify-around">
                   {/* Botão 1: Novo Aporte */}
                   <div className="flex flex-col items-center gap-1.5">
                     <button
@@ -875,6 +871,7 @@ export default function FinanceiroPage() {
                 </div>
               </div>
             </section>
+          )}
           </div>
         </main>
       </div>
