@@ -2,6 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { MarketingNavbar } from "@/components/marketing-navbar";
+import { toolCategories, getAvailableTools, toolHref } from "@/lib/tools/registry";
 
 export default function MarketingLayout({
   children,
@@ -34,11 +35,28 @@ export default function MarketingLayout({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-xs">
             <div>
-              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Módulos</h4>
+              <h4 className="font-semibold text-zinc-900 dark:text-zinc-100 mb-3">Ferramentas</h4>
               <ul className="space-y-2 text-zinc-500">
-                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Financeiro</Link></li>
-                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Fiscal & IR</Link></li>
-                <li><Link href="/#servicos" className="hover:text-zinc-900 dark:hover:text-zinc-100">Módulo Imobiliário</Link></li>
+                {toolCategories.map((cat) => (
+                  <li key={cat.slug}>
+                    <Link
+                      href={`/ferramentas/${cat.slug}`}
+                      className="hover:text-zinc-900 dark:hover:text-zinc-100 font-medium text-zinc-700 dark:text-zinc-300"
+                    >
+                      {cat.title}
+                    </Link>
+                  </li>
+                ))}
+                {getAvailableTools().map(({ category, tool }) => (
+                  <li key={`${category.slug}-${tool.slug}`}>
+                    <Link
+                      href={toolHref(category.slug, tool.slug)}
+                      className="hover:text-zinc-900 dark:hover:text-zinc-100"
+                    >
+                      {tool.title}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
             <div>
