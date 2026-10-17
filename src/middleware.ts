@@ -1,18 +1,28 @@
 import { clerkMiddleware } from '@clerk/nextjs/server';
 
 /**
- * Middleware Clerk combinado com proteção de rotas de API na borda.
+ * Middleware Clerk combinado com proteção de rotas de API e páginas da plataforma.
  */
 export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl;
 
-  // Cotações e dados de mercado públicos
-  if (pathname.startsWith('/api/market') || pathname.startsWith('/api/financeiro')) {
+  // Rotas de API exigem autenticação estrita do Clerk (retorna 401 JSON sem userId)
+  if (pathname.startsWith('/api')) {
+    const session = await auth();
+    if (!session.userId) {
+      return Response.json(
+        {
+          error: 'Unauthorized',
+          message: 'Usuário não autenticado. Acesso negado.',
+        },
+        { status: 401 }
+      );
+    }
     return;
   }
 
+  // Rotas da aplicação protegidas na plataforma web
   if (
-    pathname.startsWith('/api') ||
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/account') ||
     pathname.startsWith('/hub-matematico') ||

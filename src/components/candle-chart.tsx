@@ -22,12 +22,13 @@ export function CandleChart({ data, height = 380 }: CandleChartProps) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Garante largura real do container antes de criar o chart
-    const containerWidth = containerRef.current.clientWidth;
+    // Garante largura e altura reais do container antes de criar o chart
+    const containerWidth = containerRef.current.clientWidth || 600;
+    const initialHeight = height;
 
     const chart = createChart(containerRef.current, {
       width: containerWidth,
-      height: height,
+      height: initialHeight,
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#a1a1aa', // zinc-400
@@ -42,11 +43,18 @@ export function CandleChart({ data, height = 380 }: CandleChartProps) {
       rightPriceScale: {
         borderColor: '#3f3f46', // zinc-700
         visible: true,
+        autoScale: true,
+        scaleMargins: {
+          top: 0.1,
+          bottom: 0.12, // Evita sobreposição do último preço com a escala de tempo
+        },
       },
       timeScale: {
         borderColor: '#3f3f46',
         timeVisible: true,
         secondsVisible: false,
+        fixLeftEdge: true,
+        fixRightEdge: true,
       },
       handleScroll: true,
       handleScale: true,
@@ -64,7 +72,7 @@ export function CandleChart({ data, height = 380 }: CandleChartProps) {
     });
 
     if (data && data.length > 0) {
-      // Ordenação ascendente e deduplicação estrita de horários para evitar erros do Lightweight Charts
+      // Ordenação ascendente e deduplicação estrita de horários
       const sorted = [...data].sort((a, b) => {
         const tA = typeof a.time === 'number' ? a.time : new Date(a.time as string).getTime();
         const tB = typeof b.time === 'number' ? b.time : new Date(b.time as string).getTime();
@@ -83,7 +91,7 @@ export function CandleChart({ data, height = 380 }: CandleChartProps) {
       chart.timeScale().fitContent(); // ajusta zoom para mostrar todos os candles
     }
 
-    // ResizeObserver — acompanha redimensionamento do container
+    // ResizeObserver — acompanha redimensionamento responsivo de largura do container
     const resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width } = entry.contentRect;

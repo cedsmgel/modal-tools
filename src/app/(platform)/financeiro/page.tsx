@@ -12,51 +12,88 @@ import {
   Search,
   PlusCircle,
   Calculator,
-  Download,
   TrendingUp,
   Sparkles,
-  ShieldCheck,
-  CircleDollarSign,
   Coins,
   BarChart3,
   Home,
   RefreshCw,
   Newspaper,
-  Bell,
   X,
   Check,
   AlertCircle,
+  Plus,
+  Trash2,
+  Columns3,
+  Lock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import {
   FinancialChart,
   type ActiveSeriesItem,
   type ChartPeriod,
 } from "@/components/financial-chart";
-import type { Color } from "@tremor/react";
+import {
+  ALLOWED_UNIVERSE,
+  getTickerMeta,
+  type TickerUniverseItem,
+} from "@/lib/market/universe";
 
-export type AssetCategory = "todos" | "acoes" | "fiis" | "cripto" | "cambio" | "taxas";
-
-export interface MultiAssetItem {
+export interface WatchlistItem {
   id: string;
+  watchlistId: string;
   ticker: string;
-  name: string;
-  category: "acoes" | "fiis" | "cripto" | "cambio" | "taxas";
-  price: number;
-  changePercent: number;
-  currency?: string;
-  updatedAt?: string;
+  position: number;
 }
 
-const CATEGORY_TABS: { id: AssetCategory; label: string }[] = [
-  { id: "todos", label: "Todos" },
-  { id: "acoes", label: "Ações" },
-  { id: "fiis", label: "FIIs" },
-  { id: "cripto", label: "Cripto" },
-  { id: "cambio", label: "Câmbio" },
-  { id: "taxas", label: "Taxas" },
-];
+export interface Watchlist {
+  id: string;
+  userId: string;
+  name: string;
+  columns: string;
+  position: number;
+  items: WatchlistItem[];
+}
+
+export interface MarketQuote {
+  ticker: string;
+  name: string | null;
+  price: number;
+  changePct: number | null;
+  volume: number | null;
+  open: number;
+  high: number;
+  low: number;
+  previousClose: number;
+  fetchedAt: number;
+  stale: boolean;
+  cacheStatus: "HIT" | "MISS" | "STALE";
+}
+
+const AVAILABLE_COLUMNS = [
+  { id: "price", label: "Preço" },
+  { id: "changePct", label: "Var %" },
+  { id: "volume", label: "Volume" },
+  { id: "open", label: "Abertura" },
+  { id: "high", label: "Máxima" },
+  { id: "low", label: "Mínima" },
+] as const;
 
 const NEWS_ITEMS = [
   {
@@ -79,128 +116,148 @@ const NEWS_ITEMS = [
   },
 ];
 
-const DEFAULT_MULTI_ASSETS: MultiAssetItem[] = [
-  { id: "petr4", ticker: "PETR4", name: "Petrobras PN", category: "acoes", price: 38.45, changePercent: 1.18 },
-  { id: "vale3", ticker: "VALE3", name: "Vale ON", category: "acoes", price: 61.20, changePercent: -0.65 },
-  { id: "itub4", ticker: "ITUB4", name: "Itaú Unibanco PN", category: "acoes", price: 35.80, changePercent: 0.85 },
-  { id: "bbdc4", ticker: "BBDC4", name: "Bradesco PN", category: "acoes", price: 14.92, changePercent: 1.02 },
-  { id: "wege3", ticker: "WEGE3", name: "WEG ON", category: "acoes", price: 54.30, changePercent: 2.14 },
-  { id: "bova11", ticker: "BOVA11", name: "iShares Ibovespa ETF", category: "acoes", price: 126.80, changePercent: 0.45 },
-  { id: "hglg11", ticker: "HGLG11", name: "CSHG Logística FII", category: "fiis", price: 165.40, changePercent: 0.32 },
-  { id: "knip11", ticker: "KNIP11", name: "Kinea Índices FII", category: "fiis", price: 94.50, changePercent: -0.15 },
-  { id: "xplg11", ticker: "XPLG11", name: "XP Log FII", category: "fiis", price: 99.80, changePercent: 0.28 },
-  { id: "mxrf11", ticker: "MXRF11", name: "Maxi Renda FII", category: "fiis", price: 10.15, changePercent: 0.10 },
-  { id: "btc", ticker: "BTC", name: "Bitcoin", category: "cripto", price: 382450.0, changePercent: 3.12 },
-  { id: "eth", ticker: "ETH", name: "Ethereum", category: "cripto", price: 15420.0, changePercent: 1.84 },
-  { id: "usd", ticker: "USD/BRL", name: "Dólar Comercial", category: "cambio", price: 5.682, changePercent: 0.42 },
-  { id: "eur", ticker: "EUR/BRL", name: "Euro Comercial", category: "cambio", price: 6.184, changePercent: -0.15 },
-  { id: "selic", ticker: "SELIC", name: "Taxa Selic Meta", category: "taxas", price: 10.75, changePercent: 0.0 },
-  { id: "cdi", ticker: "CDI", name: "Certificado de Depósito", category: "taxas", price: 10.65, changePercent: 0.0 },
-  { id: "ipca", ticker: "IPCA", name: "Inflação 12 Meses", category: "taxas", price: 4.42, changePercent: 0.0 },
-];
-
-const PALETTE: { color: Color; hex: string }[] = [
-  { color: "purple", hex: "#820AD1" },
-  { color: "emerald", hex: "#10B981" },
-  { color: "blue", hex: "#2563EB" },
-  { color: "amber", hex: "#F59E0B" },
-  { color: "cyan", hex: "#06B6D4" },
-  { color: "rose", hex: "#F43F5E" },
-  { color: "indigo", hex: "#6366F1" },
-  { color: "violet", hex: "#8B5CF6" },
-];
+function formatVolume(vol: number | null | undefined): string {
+  if (vol === null || vol === undefined || vol === 0) return "-";
+  if (vol >= 1_000_000_000) return `${(vol / 1_000_000_000).toFixed(1)}B`;
+  if (vol >= 1_000_000) return `${(vol / 1_000_000).toFixed(1)}M`;
+  if (vol >= 1_000) return `${(vol / 1_000).toFixed(1)}K`;
+  return vol.toString();
+}
 
 export default function FinanceiroPage() {
   const { user } = useUser();
   const [showValues, setShowValues] = React.useState<boolean>(true);
   const [selectedPeriod, setSelectedPeriod] = React.useState<ChartPeriod>("1M");
-  const [selectedCategory, setSelectedCategory] = React.useState<AssetCategory>("todos");
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
-  const [isLoadingMarket, setIsLoadingMarket] = React.useState<boolean>(false);
   const [isChartExpanded, setIsChartExpanded] = React.useState<boolean>(false);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState<boolean>(false);
-  const [lastUpdated, setLastUpdated] = React.useState<string>("Agora");
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
-  // Séries ativas no gráfico comparativo avançado (Koyfin / Tremor)
+  // Watchlists do Usuário
+  const [watchlists, setWatchlists] = React.useState<Watchlist[]>([]);
+  const [activeWatchlistId, setActiveWatchlistId] = React.useState<string | null>(null);
+  const [isLoadingWatchlists, setIsLoadingWatchlists] = React.useState<boolean>(true);
+
+  // Cotações em cache da rota /api/market/quotes
+  const [quotesMap, setQuotesMap] = React.useState<Record<string, MarketQuote>>({});
+  const [isLoadingQuotes, setIsLoadingQuotes] = React.useState<boolean>(false);
+  const [quotesStale, setQuotesStale] = React.useState<boolean>(false);
+  const [lastFetchedAt, setLastFetchedAt] = React.useState<number | null>(null);
+
+  // Modais de Watchlist
+  const [isCreateListOpen, setIsCreateListOpen] = React.useState<boolean>(false);
+  const [newListName, setNewListName] = React.useState<string>("");
+  const [createListError, setCreateListError] = React.useState<string | null>(null);
+
+  // Modal de Adicionar Ativo à Watchlist
+  const [isAddTickerOpen, setIsAddTickerOpen] = React.useState<boolean>(false);
+  const [tickerSearchQuery, setTickerSearchQuery] = React.useState<string>("");
+  const [addTickerError, setAddTickerError] = React.useState<string | null>(null);
+
+  // Modal de Aviso de Limite do Plano
+  const [planLimitNotice, setPlanLimitNotice] = React.useState<string | null>(null);
+
+  // Séries ativas no gráfico comparativo
   const [activeSeries, setActiveSeries] = React.useState<ActiveSeriesItem[]>([
-    { id: "bova11", ticker: "BOVA11", name: "iShares Ibovespa ETF", color: "purple", colorHex: "#820AD1", changePercent: 0.45 },
-    { id: "petr4", ticker: "PETR4", name: "Petrobras PN", color: "emerald", colorHex: "#10B981", changePercent: 1.18 },
-    { id: "vale3", ticker: "VALE3", name: "Vale ON", color: "blue", colorHex: "#2563EB", changePercent: -0.65 },
+    {
+      id: "petr4",
+      ticker: "PETR4",
+      name: "Petrobras PN",
+      color: "purple",
+      colorHex: "#820AD1",
+      currentValue: 38.45,
+      changePercent: 1.18,
+    },
   ]);
 
-  // Dados reais consolidados da rota /api/market/multi-assets
-  const [multiAssets, setMultiAssets] = React.useState<MultiAssetItem[]>(DEFAULT_MULTI_ASSETS);
-  const [macroRates, setMacroRates] = React.useState<{ cdi?: number; selic?: number; ipca?: number }>({
+  // TODO: Integrar com API pública do Banco Central (SGS) em fase futura sem consumir cota da brapi
+  const macroRates = {
     cdi: 10.65,
     selic: 10.75,
     ipca: 4.42,
-  });
-
-  // Alterna ativo na lista de séries do gráfico
-  const toggleSeries = (asset: MultiAssetItem) => {
-    if (activeSeries.some((s) => s.id === asset.id)) {
-      setActiveSeries(activeSeries.filter((s) => s.id !== asset.id));
-    } else {
-      const usedColors = activeSeries.map((s) => s.color);
-      const available =
-        PALETTE.find((p) => !usedColors.includes(p.color)) ||
-        PALETTE[activeSeries.length % PALETTE.length];
-
-      setActiveSeries([
-        ...activeSeries,
-        {
-          id: asset.id,
-          ticker: asset.ticker,
-          name: asset.name,
-          color: available.color,
-          colorHex: available.hex,
-          changePercent: asset.changePercent,
-        },
-      ]);
-    }
   };
 
-  const handleRemoveSeries = (id: string) => {
-    setActiveSeries(activeSeries.filter((s) => s.id !== id));
-  };
+  // Watchlist ativa atual
+  const activeWatchlist = React.useMemo(() => {
+    return watchlists.find((w) => w.id === activeWatchlistId) || watchlists[0] || null;
+  }, [watchlists, activeWatchlistId]);
 
-  // Busca dados de mercado ao carregar a página
-  const fetchMarketData = React.useCallback(async () => {
-    setIsLoadingMarket(true);
+  // Colunas selecionadas para a watchlist ativa
+  const parsedColumns = React.useMemo<string[]>(() => {
+    if (!activeWatchlist?.columns) return ["price", "changePct"];
     try {
-      const res = await fetch("/api/market/multi-assets");
+      const parsed = JSON.parse(activeWatchlist.columns);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch {
+      // fallback
+    }
+    return ["price", "changePct"];
+  }, [activeWatchlist?.columns]);
+
+  // Carrega watchlists do usuário na montagem
+  const loadWatchlists = React.useCallback(async () => {
+    setIsLoadingWatchlists(true);
+    try {
+      const res = await fetch("/api/watchlists");
       if (res.ok) {
-        const json = (await res.json()) as {
-          success?: boolean;
-          assets?: MultiAssetItem[];
-          macro?: { cdi?: number; selic?: number; ipca?: number };
-        };
-        if (json && json.success && Array.isArray(json.assets)) {
-          setMultiAssets(json.assets);
-          if (json.macro) {
-            setMacroRates({
-              cdi: json.macro.cdi ?? 10.65,
-              selic: json.macro.selic ?? 10.75,
-              ipca: json.macro.ipca ?? 4.42,
-            });
-          }
-          const now = new Date();
-          setLastUpdated(
-            now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-          );
+        const json = (await res.json()) as { data?: Watchlist[] };
+        if (json && Array.isArray(json.data) && json.data.length > 0) {
+          setWatchlists(json.data);
+          setActiveWatchlistId((prev) => {
+            if (prev && json.data?.some((w) => w.id === prev)) return prev;
+            return json.data ? json.data[0].id : null;
+          });
         }
       }
     } catch (err) {
-      console.warn("Erro ao buscar dados multi-assets:", err);
+      console.error("Erro ao buscar watchlists do usuário:", err);
     } finally {
-      setIsLoadingMarket(false);
+      setIsLoadingWatchlists(false);
     }
   }, []);
 
   React.useEffect(() => {
-    fetchMarketData();
-  }, [fetchMarketData]);
+    loadWatchlists();
+  }, [loadWatchlists]);
+
+  // Busca cotações dos tickers da watchlist ativa
+  const fetchQuotes = React.useCallback(async (tickers: string[]) => {
+    if (tickers.length === 0) return;
+    setIsLoadingQuotes(true);
+    try {
+      const sliceTickers = tickers.slice(0, 10).join(",");
+      const res = await fetch(`/api/market/quotes?tickers=${encodeURIComponent(sliceTickers)}`);
+      if (res.ok) {
+        const json = (await res.json()) as { data?: MarketQuote[] };
+        if (json && Array.isArray(json.data)) {
+          const newMap: Record<string, MarketQuote> = {};
+          let anyStale = false;
+          let latestFetched = 0;
+
+          for (const q of json.data) {
+            newMap[q.ticker.toUpperCase()] = q;
+            if (q.stale) anyStale = true;
+            if (q.fetchedAt > latestFetched) latestFetched = q.fetchedAt;
+          }
+
+          setQuotesMap((prev) => ({ ...prev, ...newMap }));
+          setQuotesStale(anyStale);
+          if (latestFetched > 0) setLastFetchedAt(latestFetched);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao buscar cotações dos ativos da watchlist:", err);
+    } finally {
+      setIsLoadingQuotes(false);
+    }
+  }, []);
+
+  // Dispara busca de cotações sempre que os tickers da watchlist mudam
+  React.useEffect(() => {
+    if (activeWatchlist && activeWatchlist.items.length > 0) {
+      const tickers = activeWatchlist.items.map((i) => i.ticker);
+      fetchQuotes(tickers);
+    }
+  }, [activeWatchlist?.id, activeWatchlist?.items, fetchQuotes]);
 
   // Atalho '/' para focar na pesquisa
   React.useEffect(() => {
@@ -218,7 +275,241 @@ export default function FinanceiroPage() {
     if (!showValues) return "R$ ••••••";
     return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
   };
-  const formatBrl = formatBRL;
+
+  const formatAssetPrice = (val: number | null | undefined) => {
+    if (!showValues) return "R$ •••";
+    if (val === null || val === undefined) return "—";
+    return `R$ ${val.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  // Seleciona ticker da watchlist como ativo principal do gráfico central
+  const handleSelectPrimaryTicker = (ticker: string) => {
+    const upper = ticker.toUpperCase();
+    const quote = quotesMap[upper];
+    const meta = getTickerMeta(upper);
+
+    setActiveSeries([
+      {
+        id: upper.toLowerCase(),
+        ticker: upper,
+        name: quote?.name || meta?.name || upper,
+        color: "purple",
+        colorHex: "#820AD1",
+        currentValue: quote?.price,
+        changePercent: quote?.changePct ?? 0,
+      },
+      ...activeSeries.filter((s) => s.ticker.toUpperCase() !== upper),
+    ]);
+  };
+
+  // Alterna visibilidade de coluna e persiste via PATCH /api/watchlists/:id
+  const handleToggleColumn = async (colKey: string) => {
+    if (!activeWatchlist) return;
+    let nextCols: string[];
+    if (parsedColumns.includes(colKey)) {
+      if (parsedColumns.length <= 1) return; // Não remove a última coluna
+      nextCols = parsedColumns.filter((c) => c !== colKey);
+    } else {
+      nextCols = [...parsedColumns, colKey];
+    }
+
+    const columnsJson = JSON.stringify(nextCols);
+    setWatchlists((prev) =>
+      prev.map((wl) =>
+        wl.id === activeWatchlist.id ? { ...wl, columns: columnsJson } : wl
+      )
+    );
+
+    try {
+      await fetch(`/api/watchlists/${activeWatchlist.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ columns: columnsJson }),
+      });
+    } catch (err) {
+      console.error("Erro ao salvar preferências de colunas da watchlist:", err);
+    }
+  };
+
+  // Criação de nova watchlist
+  const handleCreateWatchlist = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!newListName.trim()) return;
+    setCreateListError(null);
+
+    try {
+      const res = await fetch("/api/watchlists", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newListName.trim() }),
+      });
+
+      if (res.status === 403) {
+        const errJson = (await res.json()) as { message?: string };
+        setCreateListError(
+          errJson.message ||
+            "O plano Free permite no máximo 3 watchlists. Faça upgrade para o Pro para ter listas ilimitadas."
+        );
+        return;
+      }
+
+      if (res.ok) {
+        const json = (await res.json()) as { data?: Watchlist };
+        if (json.data) {
+          setWatchlists((prev) => [...prev, { ...json.data!, items: [] }]);
+          setActiveWatchlistId(json.data.id);
+          setNewListName("");
+          setIsCreateListOpen(false);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao criar watchlist:", err);
+      setCreateListError("Erro ao processar criação da watchlist.");
+    }
+  };
+
+  // Adição de ativo na watchlist ativa
+  const handleAddTicker = async (ticker: string) => {
+    if (!activeWatchlist) return;
+
+    if (activeWatchlist.items.length >= 10) {
+      setPlanLimitNotice(
+        "O plano Free permite no máximo 10 ativos por watchlist. Faça upgrade para o Pro para adicionar ativos ilimitados."
+      );
+      setIsAddTickerOpen(false);
+      return;
+    }
+
+    setAddTickerError(null);
+    try {
+      const res = await fetch(`/api/watchlists/${activeWatchlist.id}/items`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ticker }),
+      });
+
+      if (res.status === 403) {
+        const errJson = (await res.json()) as { message?: string };
+        setPlanLimitNotice(
+          errJson.message ||
+            "O plano Free permite no máximo 10 ativos por watchlist. Faça upgrade para o Pro."
+        );
+        setIsAddTickerOpen(false);
+        return;
+      }
+
+      if (res.status === 409) {
+        setAddTickerError("Este ativo já está na watchlist.");
+        return;
+      }
+
+      if (res.ok) {
+        const json = (await res.json()) as { data?: WatchlistItem };
+        if (json.data) {
+          setWatchlists((prev) =>
+            prev.map((wl) =>
+              wl.id === activeWatchlist.id
+                ? { ...wl, items: [...wl.items, json.data!] }
+                : wl
+            )
+          );
+          setIsAddTickerOpen(false);
+          setTickerSearchQuery("");
+          fetchQuotes([ticker]);
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao adicionar ativo:", err);
+      setAddTickerError("Falha ao adicionar ativo.");
+    }
+  };
+
+  // Remoção de ativo da watchlist ativa
+  const handleRemoveTicker = async (
+    e: React.MouseEvent,
+    itemId: string,
+    ticker: string
+  ) => {
+    e.stopPropagation();
+    if (!activeWatchlist) return;
+
+    setWatchlists((prev) =>
+      prev.map((wl) =>
+        wl.id === activeWatchlist.id
+          ? { ...wl, items: wl.items.filter((i) => i.id !== itemId) }
+          : wl
+      )
+    );
+
+    try {
+      await fetch(`/api/watchlists/${activeWatchlist.id}/items/${itemId}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error(`Erro ao remover ticker ${ticker} da watchlist:`, err);
+    }
+  };
+
+  // Filtragem de ativos disponíveis no ALLOWED_UNIVERSE para adicionar à watchlist
+  const availableUniverseTickers = React.useMemo(() => {
+    const existing = new Set(
+      (activeWatchlist?.items || []).map((i) => i.ticker.toUpperCase())
+    );
+    const q = tickerSearchQuery.trim().toLowerCase();
+
+    return ALLOWED_UNIVERSE.filter((u) => {
+      if (existing.has(u.ticker.toUpperCase())) return false;
+      if (!q) return true;
+      return (
+        u.ticker.toLowerCase().includes(q) || u.name.toLowerCase().includes(q)
+      );
+    });
+  }, [activeWatchlist?.items, tickerSearchQuery]);
+
+  // Carrossel Bloomberg Ticker Tape
+  const tickerItems = React.useMemo(() => {
+    const bova11 = quotesMap["BOVA11"];
+    const petr4 = quotesMap["PETR4"];
+    const vale3 = quotesMap["VALE3"];
+
+    const baseList = [
+      { label: "IBOV", value: "131.200", change: 0.4 },
+      { label: "S&P 500", value: "5.800", change: 1.2 },
+      { label: "USD", value: "R$ 5,68", change: -0.2 },
+      { label: "EUR", value: "R$ 6,15", change: 0.1 },
+      {
+        label: "BOVA11",
+        value: bova11 ? `R$ ${bova11.price.toFixed(2)}` : "R$ 126,80",
+        change: bova11 ? Number((bova11.changePct ?? 0).toFixed(1)) : 0.45,
+      },
+      { label: "SELIC", value: `${macroRates.selic}%`, change: undefined },
+      { label: "CDI", value: `${macroRates.cdi}%`, change: undefined },
+      { label: "IPCA", value: `${macroRates.ipca}%`, change: undefined },
+      { label: "BTC", value: "R$ 382.450", change: 3.12 },
+      {
+        label: "PETR4",
+        value: petr4 ? `R$ ${petr4.price.toFixed(2)}` : "R$ 38,40",
+        change: petr4 ? Number((petr4.changePct ?? 0).toFixed(1)) : 1.18,
+      },
+      {
+        label: "VALE3",
+        value: vale3 ? `R$ ${vale3.price.toFixed(2)}` : "R$ 61,20",
+        change: vale3 ? Number((vale3.changePct ?? 0).toFixed(1)) : -0.65,
+      },
+    ];
+
+    return [...baseList, ...baseList];
+  }, [quotesMap, macroRates]);
+
+  const lastUpdatedLabel = lastFetchedAt
+    ? new Date(lastFetchedAt * 1000).toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "Agora";
 
   const patrimonio = 0;
   const rendaFixa = 0;
@@ -231,102 +522,11 @@ export default function FinanceiroPage() {
   const variacaoPct = "+0,0%";
   const isAllZero = rendaFixa === 0 && rendaVariavel === 0 && reserva === 0;
 
-  const formatAssetPrice = (asset: MultiAssetItem) => {
-    if (!showValues) return "R$ •••";
-    if (asset.category === "taxas") {
-      return `${asset.price.toFixed(2)}% a.a.`;
-    }
-    return `R$ ${asset.price.toLocaleString("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
-
-  // Filtragem multi-ativos por categoria e busca
-  const filteredMultiAssets = React.useMemo(() => {
-    let list = multiAssets;
-    if (selectedCategory !== "todos") {
-      list = list.filter((a) => a.category === selectedCategory);
-    }
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      list = list.filter(
-        (a) => a.ticker.toLowerCase().includes(q) || a.name.toLowerCase().includes(q)
-      );
-    }
-    return list;
-  }, [multiAssets, selectedCategory, searchQuery]);
-
-  // Itens para o Carrossel Bloomberg Ticker Tape
-  const tickerItems = React.useMemo(() => {
-    const usd = multiAssets.find((a) => a.id === "usd" || a.ticker.includes("USD"));
-    const eur = multiAssets.find((a) => a.id === "eur" || a.ticker.includes("EUR"));
-    const btc = multiAssets.find((a) => a.id === "btc");
-    const bova11 = multiAssets.find((a) => a.ticker === "BOVA11");
-    const petr4 = multiAssets.find((a) => a.ticker === "PETR4");
-    const vale3 = multiAssets.find((a) => a.ticker === "VALE3");
-
-    const baseList = [
-      { label: "IBOV", value: "131.200", change: 0.4 },
-      { label: "S&P 500", value: "5.800", change: 1.2 },
-      {
-        label: "USD",
-        value: usd ? `R$ ${usd.price.toFixed(2)}` : "R$ 5,68",
-        change: usd ? Number(usd.changePercent.toFixed(1)) : -0.2,
-      },
-      {
-        label: "EUR",
-        value: eur ? `R$ ${eur.price.toFixed(2)}` : "R$ 6,15",
-        change: eur ? Number(eur.changePercent.toFixed(1)) : 0.1,
-      },
-      {
-        label: "BOVA11",
-        value: bova11 ? `R$ ${bova11.price.toFixed(2)}` : "R$ 126,80",
-        change: bova11 ? Number(bova11.changePercent.toFixed(1)) : 0.45,
-      },
-      { label: "SELIC", value: `${macroRates.selic || 10.75}%`, change: undefined },
-      { label: "CDI", value: `${macroRates.cdi || 10.65}%`, change: undefined },
-      { label: "IPCA", value: `${macroRates.ipca || 4.42}%`, change: undefined },
-      {
-        label: "BTC",
-        value: btc ? `R$ ${btc.price.toLocaleString("pt-BR")}` : "R$ 382.450",
-        change: btc ? Number(btc.changePercent.toFixed(1)) : 3.12,
-      },
-      {
-        label: "PETR4",
-        value: petr4 ? `R$ ${petr4.price.toFixed(2)}` : "R$ 38,40",
-        change: petr4 ? Number(petr4.changePercent.toFixed(1)) : 1.18,
-      },
-      {
-        label: "VALE3",
-        value: vale3 ? `R$ ${vale3.price.toFixed(2)}` : "R$ 61,20",
-        change: vale3 ? Number(vale3.changePercent.toFixed(1)) : -0.65,
-      },
-    ];
-
-    // Duplicação para looping 100% contínuo e sem saltos
-    return [...baseList, ...baseList];
-  }, [multiAssets, macroRates]);
-
-  // Cotações laterais do card Câmbio & Cripto
-  const usdItem = multiAssets.find((a) => a.id === "usd" || a.ticker.includes("USD")) || {
-    price: 5.68,
-    changePercent: 0.42,
-  };
-  const eurItem = multiAssets.find((a) => a.id === "eur" || a.ticker.includes("EUR")) || {
-    price: 6.18,
-    changePercent: -0.15,
-  };
-  const btcItem = multiAssets.find((a) => a.id === "btc") || {
-    price: 382450,
-    changePercent: 3.12,
-  };
-
   return (
     <div className="h-screen w-full overflow-hidden flex bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 font-sans selection:bg-purple-600 selection:text-white">
       {/* 1. SIDEBAR ESQUERDA ESTILO APP NATIVO (W-20) */}
       <aside className="w-20 border-r border-zinc-200/80 dark:border-zinc-800/80 bg-white dark:bg-zinc-900 flex flex-col items-center py-5 justify-between shrink-0 z-30 select-none shadow-xs">
-        {/* Topo: Perfil do Usuário Clerk com avatarBox w-10 h-10 */}
+        {/* Topo: Perfil do Usuário Clerk */}
         <div className="flex items-center justify-center">
           <UserButton
             appearance={{
@@ -380,20 +580,23 @@ export default function FinanceiroPage() {
           </Link>
         </nav>
 
-        {/* Rodapé da Sidebar: Espaçamento de segurança (pb-12) para não colidir com dev tools */}
+        {/* Rodapé da Sidebar */}
         <div className="flex flex-col items-center pb-12" />
       </aside>
 
       {/* ÁREA PRINCIPAL DO APLICATIVO */}
       <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden">
-        {/* 2. HEADER INTERNO LIMPO */}
+        {/* 2. HEADER INTERNO */}
         <header className="h-14 border-b border-zinc-200/80 dark:border-zinc-800/80 bg-white/70 dark:bg-zinc-900/70 backdrop-blur-md px-5 flex items-center justify-between shrink-0 z-20">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
                 Olá, {user?.firstName || "Investidor"}!
               </h1>
-              <Badge variant="secondary" className="text-[10px] px-1.5 py-0 font-semibold tracking-wider">
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 font-semibold tracking-wider"
+              >
                 PRO
               </Badge>
             </div>
@@ -402,68 +605,71 @@ export default function FinanceiroPage() {
               className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-all cursor-pointer"
               title={showValues ? "Ocultar saldos" : "Mostrar saldos"}
             >
-              {showValues ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4 text-purple-500" />}
+              {showValues ? (
+                <Eye className="h-4 w-4" />
+              ) : (
+                <EyeOff className="h-4 w-4 text-purple-500" />
+              )}
             </button>
 
-            {/* Status e Horário do Pregão B3 no Header */}
+            {/* Status e Horário do Pregão B3 com indicador honesto de dados */}
             <div className="hidden lg:inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100/90 dark:bg-zinc-800/80 border border-zinc-200/80 dark:border-zinc-700/60 text-xs shadow-2xs">
               <span className="relative flex h-2 w-2">
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                <span
+                  className={`relative inline-flex rounded-full h-2 w-2 ${
+                    quotesStale ? "bg-amber-500" : "bg-emerald-500"
+                  }`}
+                />
               </span>
               <span className="font-bold text-zinc-900 dark:text-zinc-100">B3</span>
               <span className="text-zinc-300 dark:text-zinc-600">•</span>
               <span className="text-[11px] text-zinc-600 dark:text-zinc-300 font-medium">
-                Pregão: <strong className="font-semibold text-zinc-900 dark:text-zinc-100">10:00 às 18:00</strong> (UTC-3)
+                Pregão:{" "}
+                <strong className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  10:00 às 18:00
+                </strong>{" "}
+                (UTC-3)
               </span>
+              {quotesStale && (
+                <>
+                  <span className="text-zinc-300 dark:text-zinc-600">•</span>
+                  <span className="text-[10px] font-semibold text-amber-500 dark:text-amber-400">
+                    Dados em cache (mercado fechado)
+                  </span>
+                </>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-2.5">
-            {/* Ícone de Alerta Discreto ("1 Issue") na Navbar */}
-            <button
-              type="button"
-              title="1 aviso do sistema pendente"
-              onClick={() => alert("Aviso do Sistema: Fechamento de mercado às 18h. Ordens enviadas após esse horário serão processadas no dia útil seguinte.")}
-              className="relative text-zinc-400 hover:text-zinc-100 p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800/60 transition-colors cursor-pointer"
-            >
-              <AlertCircle className="h-4 w-4" />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-rose-500" />
-            </button>
+            <span className="text-[11px] text-zinc-400 hidden md:inline">
+              Atualizado às {lastUpdatedLabel}
+            </span>
 
             <button
-              onClick={fetchMarketData}
-              disabled={isLoadingMarket}
-              title="Atualizar cotações em tempo real"
+              onClick={() => {
+                if (activeWatchlist && activeWatchlist.items.length > 0) {
+                  fetchQuotes(activeWatchlist.items.map((i) => i.ticker));
+                }
+              }}
+              disabled={isLoadingQuotes}
+              title="Recarregar cotações"
               className="p-1.5 rounded-full text-zinc-400 hover:text-purple-600 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all cursor-pointer"
             >
-              <RefreshCw className={`h-4 w-4 ${isLoadingMarket ? "animate-spin text-purple-600" : ""}`} />
-            </button>
-
-            {/* Barra de Pesquisa Arredondada */}
-            <div className="relative hidden sm:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar ação, FII, cripto, taxa..."
-                className="w-64 pl-8.5 pr-8 py-1.5 rounded-full bg-zinc-100 dark:bg-zinc-800/90 border border-transparent focus:border-purple-500/50 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden transition-all shadow-2xs"
+              <RefreshCw
+                className={`h-4 w-4 ${
+                  isLoadingQuotes ? "animate-spin text-purple-600" : ""
+                }`}
               />
-              <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[9px] font-mono text-zinc-400 border border-zinc-300 dark:border-zinc-700 rounded-md px-1 py-0.2 pointer-events-none">
-                /
-              </span>
-            </div>
+            </button>
           </div>
         </header>
 
-        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO - CONTRASTE SUAVE) */}
+        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG */}
         <div className="relative w-full overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xs shrink-0 select-none py-2.5">
-          {/* Fades elegantes de gradiente nas laterais */}
           <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
           <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
 
-          {/* Track Animado Infinito com Contraste Reduzido */}
           <div className="animate-bloomberg-ticker items-center gap-7 px-4">
             {tickerItems.map((item, idx) => (
               <div
@@ -479,157 +685,298 @@ export default function FinanceiroPage() {
                 {item.change !== undefined && (
                   <span
                     className={`text-xs tabular-nums font-medium ${
-                      item.change >= 0
-                        ? "text-emerald-400"
-                        : "text-rose-400"
+                      item.change >= 0 ? "text-emerald-400" : "text-rose-400"
                     }`}
                   >
                     {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
                   </span>
                 )}
-                <span className="text-zinc-600 dark:text-zinc-700 font-normal ml-3 select-none">•</span>
+                <span className="text-zinc-600 dark:text-zinc-700 font-normal ml-3 select-none">
+                  •
+                </span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* 3. GRID DE 12 COLUNAS CONFORME ESPECIFICAÇÃO [ 3 (~25%) | 6 (~50%) | 3 (~25%) ] */}
+        {/* 3. GRID DE 12 COLUNAS [ 3 (~25%) | 6 (~50%) | 3 (~25%) ] */}
         <div className="flex-1 min-h-0 overflow-hidden p-4">
           <div className="grid grid-cols-12 gap-4 h-full">
-            {/* 4. COLUNA ESQUERDA: ÍNDICES & CARTEIRAS (col-span-3: ~25%) */}
+            {/* 4. COLUNA ESQUERDA: WATCHLISTS DINÂMICAS (col-span-3: ~25%) */}
             <aside className="col-span-3 flex flex-col gap-3 min-h-0 h-full">
-              {/* Card Índices & Carteiras */}
+              {/* Card Watchlists do Usuário */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-4 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
+                {/* Cabeçalho do Card com Título e Ações */}
                 <div className="flex items-center justify-between mb-2.5 shrink-0">
                   <div>
                     <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                       Índices & Carteiras
                     </h2>
                     <p className="text-[10px] text-zinc-400">
-                      Selecione para plotar no gráfico
+                      Clique no ativo para plotar no gráfico
                     </p>
                   </div>
-                  <BarChart3 className="h-4 w-4 text-zinc-400" />
-                </div>
 
-                {/* Seletor de Categorias: [ Todos | Ações | FIIs | Cripto | Câmbio | Taxas ] com alto contraste */}
-                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 shrink-0">
-                  {CATEGORY_TABS.map((tab) => (
+                  <div className="flex items-center gap-1">
+                    {/* Botão Adicionar Ticker */}
                     <button
-                      key={tab.id}
                       type="button"
-                      onClick={() => setSelectedCategory(tab.id)}
-                      className={`px-3 py-1 rounded-md text-xs transition-all whitespace-nowrap cursor-pointer ${
-                        selectedCategory === tab.id
-                          ? "bg-violet-600 text-white font-semibold"
-                          : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-                      }`}
+                      onClick={() => {
+                        if ((activeWatchlist?.items.length || 0) >= 10) {
+                          setPlanLimitNotice(
+                            "O plano Free permite no máximo 10 ativos por watchlist. Faça upgrade para o Pro para adicionar ativos ilimitados."
+                          );
+                        } else {
+                          setIsAddTickerOpen(true);
+                        }
+                      }}
+                      className="p-1 rounded-md text-zinc-400 hover:text-purple-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                      title="Adicionar ativo à lista"
                     >
-                      {tab.label}
+                      <Plus className="h-4 w-4" />
                     </button>
-                  ))}
+
+                    {/* Seletor de Colunas Visíveis */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="p-1 rounded-md text-zinc-400 hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                          title="Personalizar colunas visíveis"
+                        >
+                          <Columns3 className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="w-44 bg-zinc-900 border-zinc-800 text-zinc-200 text-xs"
+                      >
+                        <DropdownMenuLabel className="text-[10px] text-zinc-500 uppercase tracking-wider">
+                          Colunas Visíveis
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-zinc-800" />
+                        {AVAILABLE_COLUMNS.map((col) => {
+                          const isChecked = parsedColumns.includes(col.id);
+                          return (
+                            <DropdownMenuCheckboxItem
+                              key={col.id}
+                              checked={isChecked}
+                              onCheckedChange={() => handleToggleColumn(col.id)}
+                              className="text-xs cursor-pointer focus:bg-zinc-800 focus:text-white"
+                            >
+                              {col.label}
+                            </DropdownMenuCheckboxItem>
+                          );
+                        })}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
 
-                {/* Lista de Ativos com Scroll Customizado e Checkboxes Conectados ao Gráfico */}
+                {/* Abas com as Watchlists do Usuário + Botão '+' */}
+                <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 shrink-0 border-b border-zinc-200/60 dark:border-zinc-800/80 pb-2">
+                  {watchlists.map((wl) => {
+                    const isActive = activeWatchlist?.id === wl.id;
+                    return (
+                      <button
+                        key={wl.id}
+                        type="button"
+                        onClick={() => setActiveWatchlistId(wl.id)}
+                        className={`px-3 py-1 rounded-md text-xs transition-all whitespace-nowrap cursor-pointer ${
+                          isActive
+                            ? "bg-purple-600 text-white font-semibold shadow-2xs"
+                            : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                        }`}
+                      >
+                        {wl.name}
+                      </button>
+                    );
+                  })}
+
+                  {/* Botão '+' para criar nova watchlist */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (watchlists.length >= 3) {
+                        setPlanLimitNotice(
+                          "O plano Free permite no máximo 3 watchlists. Faça upgrade para o plano Pro para criar listas ilimitadas."
+                        );
+                      } else {
+                        setIsCreateListOpen(true);
+                      }
+                    }}
+                    className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors flex items-center justify-center cursor-pointer shrink-0"
+                    title="Criar nova Watchlist"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Lista de Ativos da Watchlist Ativa */}
                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-1 space-y-1 mt-2">
-                  {/* Estado de Carregamento Skeleton */}
-                  {isLoadingMarket && multiAssets.length === 0 ? (
-                    Array.from({ length: 6 }).map((_, i) => (
+                  {isLoadingWatchlists ? (
+                    Array.from({ length: 4 }).map((_, i) => (
                       <div
                         key={i}
                         className="flex items-center justify-between p-2 rounded-2xl animate-pulse bg-zinc-50/50 dark:bg-zinc-800/20"
                       >
                         <div className="space-y-1.5 flex-1 min-w-0 pr-4">
                           <div className="h-3.5 w-16 bg-zinc-200 dark:bg-zinc-800 rounded-md" />
-                          <div className="h-2.5 w-28 bg-zinc-100 dark:bg-zinc-800/60 rounded-md" />
+                          <div className="h-2.5 w-24 bg-zinc-100 dark:bg-zinc-800/60 rounded-md" />
                         </div>
-                        <div className="text-right space-y-1.5 shrink-0 flex flex-col items-end">
-                          <div className="h-3.5 w-14 bg-zinc-200 dark:bg-zinc-800 rounded-md" />
-                          <div className="h-4 w-12 bg-zinc-100 dark:bg-zinc-800/60 rounded-full" />
-                        </div>
+                        <div className="h-4 w-12 bg-zinc-200 dark:bg-zinc-800 rounded-md" />
                       </div>
                     ))
-                  ) : filteredMultiAssets.length === 0 ? (
-                    <div className="py-8 text-center text-xs text-zinc-400">
-                      Nenhum ativo encontrado para esta categoria.
+                  ) : !activeWatchlist || activeWatchlist.items.length === 0 ? (
+                    <div className="py-8 text-center text-xs text-zinc-400 space-y-2">
+                      <p>Nenhum ativo nesta watchlist.</p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsAddTickerOpen(true)}
+                        className="text-xs"
+                      >
+                        <Plus className="h-3 w-3 mr-1" />
+                        Adicionar Ativo
+                      </Button>
                     </div>
                   ) : (
-                    filteredMultiAssets.map((asset) => {
-                      const isPositive = asset.changePercent >= 0;
-                      const isSelected = activeSeries.some((s) => s.id === asset.id);
-                      const activeItem = activeSeries.find((s) => s.id === asset.id);
+                    activeWatchlist.items.map((item) => {
+                      const quote = quotesMap[item.ticker.toUpperCase()];
+                      const meta = getTickerMeta(item.ticker);
+                      const isPrimaryPlotted =
+                        activeSeries.length > 0 &&
+                        activeSeries[0].ticker.toUpperCase() ===
+                          item.ticker.toUpperCase();
+                      const isPositive = (quote?.changePct ?? 0) >= 0;
 
                       return (
-                        <button
-                          key={asset.id}
-                          type="button"
-                          onClick={() => toggleSeries(asset)}
-                          className={`w-full flex items-center justify-between p-2 rounded-2xl transition-all cursor-pointer border text-left ${
-                            isSelected
+                        <div
+                          key={item.id}
+                          onClick={() => handleSelectPrimaryTicker(item.ticker)}
+                          className={`group w-full flex items-center justify-between p-2 rounded-2xl transition-all cursor-pointer border text-left ${
+                            isPrimaryPlotted
                               ? "bg-purple-500/10 border-purple-500/30 text-zinc-900 dark:text-zinc-100 shadow-2xs"
                               : "border-transparent hover:bg-zinc-100/70 dark:hover:bg-zinc-800/50 text-zinc-700 dark:text-zinc-300"
                           }`}
                         >
-                          <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                            {/* Checkbox interativo conectado ao Tremor Chart */}
-                            <div
-                              className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 transition-colors ${
-                                isSelected
-                                  ? "bg-purple-600 border-purple-600 text-white"
-                                  : "border-zinc-300 dark:border-zinc-700 hover:border-zinc-400"
+                          {/* Identificação do Ativo */}
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span
+                              className={`w-2 h-2 rounded-full shrink-0 ${
+                                isPrimaryPlotted ? "bg-purple-500" : "bg-transparent"
                               }`}
-                              style={
-                                isSelected && activeItem?.colorHex
-                                  ? {
-                                      backgroundColor: activeItem.colorHex,
-                                      borderColor: activeItem.colorHex,
-                                    }
-                                  : {}
-                              }
-                            >
-                              {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
-                            </div>
-
+                            />
                             <div className="truncate">
                               <p className="text-xs font-bold leading-tight truncate">
-                                {asset.ticker}
+                                {item.ticker}
                               </p>
-                              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
-                                {asset.name}
+                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate leading-tight mt-0.5">
+                                {quote?.name || meta?.name || item.ticker}
                               </p>
                             </div>
                           </div>
 
-                          <div className="text-right shrink-0 flex flex-col items-end">
-                            <span className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
-                              {formatAssetPrice(asset)}
-                            </span>
-                            <span
-                              className={`mt-0.5 inline-flex items-center px-1.5 py-0.2 rounded-full text-[10px] font-semibold tabular-nums ${
-                                isPositive
-                                  ? "bg-emerald-500/10 text-emerald-400"
-                                  : "bg-rose-500/10 text-rose-400"
-                              }`}
+                          {/* Colunas Dinâmicas Configuradas */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            {parsedColumns.includes("open") && quote && (
+                              <div className="text-right hidden sm:block">
+                                <span className="text-[9px] text-zinc-500 block">
+                                  Ab
+                                </span>
+                                <span className="text-xs font-mono tabular-nums text-zinc-300">
+                                  {formatAssetPrice(quote.open)}
+                                </span>
+                              </div>
+                            )}
+
+                            {parsedColumns.includes("high") && quote && (
+                              <div className="text-right hidden sm:block">
+                                <span className="text-[9px] text-zinc-500 block">
+                                  Máx
+                                </span>
+                                <span className="text-xs font-mono tabular-nums text-zinc-300">
+                                  {formatAssetPrice(quote.high)}
+                                </span>
+                              </div>
+                            )}
+
+                            {parsedColumns.includes("low") && quote && (
+                              <div className="text-right hidden sm:block">
+                                <span className="text-[9px] text-zinc-500 block">
+                                  Mín
+                                </span>
+                                <span className="text-xs font-mono tabular-nums text-zinc-300">
+                                  {formatAssetPrice(quote.low)}
+                                </span>
+                              </div>
+                            )}
+
+                            {parsedColumns.includes("volume") && (
+                              <div className="text-right hidden sm:block">
+                                <span className="text-[9px] text-zinc-500 block">
+                                  Vol
+                                </span>
+                                <span className="text-xs font-mono tabular-nums text-zinc-300">
+                                  {formatVolume(quote?.volume)}
+                                </span>
+                              </div>
+                            )}
+
+                            {parsedColumns.includes("price") && (
+                              <div className="text-right">
+                                <span className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100">
+                                  {quote ? formatAssetPrice(quote.price) : "..."}
+                                </span>
+                              </div>
+                            )}
+
+                            {parsedColumns.includes("changePct") && (
+                              <div className="text-right">
+                                <span
+                                  className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold tabular-nums ${
+                                    isPositive
+                                      ? "bg-emerald-500/10 text-emerald-400"
+                                      : "bg-rose-500/10 text-rose-400"
+                                  }`}
+                                >
+                                  {quote && quote.changePct !== null
+                                    ? `${isPositive ? "+" : ""}${quote.changePct.toFixed(2)}%`
+                                    : "..."}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Botão Hover de Remover Ticker da Lista */}
+                            <button
+                              type="button"
+                              onClick={(e) =>
+                                handleRemoveTicker(e, item.id, item.ticker)
+                              }
+                              className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-all cursor-pointer ml-1"
+                              title={`Remover ${item.ticker} da watchlist`}
                             >
-                              {isPositive
-                                ? `+${asset.changePercent.toFixed(2)}%`
-                                : `${asset.changePercent.toFixed(2)}%`}
-                            </span>
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
                           </div>
-                        </button>
+                        </div>
                       );
                     })
                   )}
                 </div>
               </div>
 
-              {/* Status Macro via brapi */}
+              {/* Status Macroeconomia B3 */}
               <div className="bg-purple-600/5 dark:bg-purple-900/10 rounded-2xl p-3 border border-purple-500/20 text-xs text-purple-900 dark:text-purple-200 shrink-0 flex items-center gap-2.5">
                 <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0" />
                 <div className="min-w-0 truncate">
-                  <p className="font-semibold text-[11px] leading-tight">Macroeconomia B3</p>
+                  <p className="font-semibold text-[11px] leading-tight">
+                    Macroeconomia B3
+                  </p>
                   <p className="text-[10px] text-zinc-500 dark:text-zinc-400 truncate">
-                    CDI: <strong>{macroRates.cdi}%</strong> • Selic: <strong>{macroRates.selic}%</strong> • IPCA: <strong>{macroRates.ipca}%</strong>
+                    CDI: <strong>{macroRates.cdi}%</strong> • Selic:{" "}
+                    <strong>{macroRates.selic}%</strong> • IPCA:{" "}
+                    <strong>{macroRates.ipca}%</strong>
                   </p>
                 </div>
               </div>
@@ -650,28 +997,36 @@ export default function FinanceiroPage() {
                     {variacao} ({variacaoPct})
                   </p>
                 </div>
-                {/* Botões de ação — hierarquia clara */}
+                {/* Botões de Ação */}
                 <div className="flex items-center gap-2">
                   <Button size="sm" onClick={() => setIsAddModalOpen(true)}>
                     Novo Aporte
-                  </Button> {/* primário */}
+                  </Button>
                   <Button size="sm" variant="outline" asChild>
                     <Link href="/hub-matematico">Simular</Link>
-                  </Button> {/* secundário */}
-                  <Button size="sm" variant="ghost" onClick={() => alert("Relatório consolidado exportado com sucesso!")}>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() =>
+                      alert("Relatório consolidado exportado com sucesso!")
+                    }
+                  >
                     Exportar
-                  </Button> {/* terciário */}
+                  </Button>
                 </div>
               </div>
 
-              {/* Nível 2 — Gráfico (elemento dominante, min-h-[380px], sem padding lateral desnecessário) */}
+              {/* Nível 2 — Gráfico Central */}
               <div
                 className="w-full flex-1 flex flex-col rounded-2xl bg-zinc-900/80 border border-zinc-800/80 shadow-xs overflow-hidden"
                 style={{ minHeight: "380px" }}
               >
                 <FinancialChart
                   activeSeries={activeSeries}
-                  onRemoveSeries={handleRemoveSeries}
+                  onRemoveSeries={(id) =>
+                    setActiveSeries(activeSeries.filter((s) => s.id !== id))
+                  }
                   selectedPeriod={selectedPeriod}
                   onPeriodChange={setSelectedPeriod}
                   isExpanded={isChartExpanded}
@@ -680,13 +1035,17 @@ export default function FinanceiroPage() {
                 />
               </div>
 
-              {/* Nível 3 — Cards de Renda Fixa / Renda Variável / Reserva ou Empty State */}
+              {/* Nível 3 — Cards de Alocação / Empty State */}
               <div className="mt-4 shrink-0">
                 {isAllZero ? (
                   <div className="rounded-lg border border-dashed border-zinc-700 p-4 text-center bg-zinc-900/40">
-                    <p className="text-sm text-zinc-500 mb-2">Nenhum ativo cadastrado ainda.</p>
+                    <p className="text-sm text-zinc-500 mb-2">
+                      Nenhum ativo cadastrado ainda.
+                    </p>
                     <Button size="sm" variant="outline" asChild>
-                      <Link href="/dashboard/ativos/novo">Adicionar primeiro ativo →</Link>
+                      <Link href="/dashboard/ativos/novo">
+                        Adicionar primeiro ativo →
+                      </Link>
                     </Button>
                   </div>
                 ) : (
@@ -699,7 +1058,9 @@ export default function FinanceiroPage() {
                       <p className="text-xs text-zinc-500">{rendaFixaPct}%</p>
                     </div>
                     <div className="rounded-lg bg-zinc-900/60 border border-zinc-800/60 p-3">
-                      <p className="text-[11px] text-zinc-500 mb-1">Renda Variável</p>
+                      <p className="text-[11px] text-zinc-500 mb-1">
+                        Renda Variável
+                      </p>
                       <p className="text-lg font-semibold tabular-nums text-zinc-200">
                         {formatBRL(rendaVariavel)}
                       </p>
@@ -726,7 +1087,12 @@ export default function FinanceiroPage() {
                     <h2 className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">
                       Câmbio & Cripto
                     </h2>
-                    <p className="text-[9px] text-zinc-400">Tempo real B3 & Mercado Global</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                      <p className="text-[9px] text-zinc-400">
+                        Cotações com atraso de ~30 min
+                      </p>
+                    </div>
                   </div>
                   <Coins className="h-4 w-4 text-zinc-400" />
                 </div>
@@ -735,19 +1101,17 @@ export default function FinanceiroPage() {
                   {/* Dólar */}
                   <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Dólar PTAX</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                        Dólar PTAX
+                      </p>
                       <p className="text-[9px] text-zinc-400">USD / BRL</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
-                        {showValues ? `R$ ${usdItem.price.toFixed(2)}` : "R$ •••"}
+                        {showValues ? "R$ 5,68" : "R$ •••"}
                       </p>
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
-                        usdItem.changePercent >= 0
-                          ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                          : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
-                      }`}>
-                        {usdItem.changePercent >= 0 ? `+${usdItem.changePercent.toFixed(2)}%` : `${usdItem.changePercent.toFixed(2)}%`}
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums text-rose-400 bg-rose-500/10">
+                        -0.20%
                       </span>
                     </div>
                   </div>
@@ -755,19 +1119,17 @@ export default function FinanceiroPage() {
                   {/* Euro */}
                   <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Euro PTAX</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                        Euro PTAX
+                      </p>
                       <p className="text-[9px] text-zinc-400">EUR / BRL</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
-                        {showValues ? `R$ ${eurItem.price.toFixed(2)}` : "R$ •••"}
+                        {showValues ? "R$ 6,15" : "R$ •••"}
                       </p>
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
-                        eurItem.changePercent >= 0
-                          ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                          : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
-                      }`}>
-                        {eurItem.changePercent >= 0 ? `+${eurItem.changePercent.toFixed(2)}%` : `${eurItem.changePercent.toFixed(2)}%`}
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums text-emerald-400 bg-emerald-500/10">
+                        +0.10%
                       </span>
                     </div>
                   </div>
@@ -775,26 +1137,24 @@ export default function FinanceiroPage() {
                   {/* Bitcoin */}
                   <div className="flex items-center justify-between p-1.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors">
                     <div>
-                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">Bitcoin</p>
+                      <p className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                        Bitcoin
+                      </p>
                       <p className="text-[9px] text-zinc-400">BTC / BRL</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs font-bold tabular-nums text-zinc-900 dark:text-zinc-100 leading-tight">
-                        {showValues ? `R$ ${btcItem.price.toLocaleString("pt-BR")}` : "R$ •••••"}
+                        {showValues ? "R$ 382.450" : "R$ •••••"}
                       </p>
-                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums ${
-                        btcItem.changePercent >= 0
-                          ? "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10"
-                          : "text-rose-600 dark:text-rose-400 bg-rose-500/10"
-                      }`}>
-                        {btcItem.changePercent >= 0 ? `+${btcItem.changePercent.toFixed(2)}%` : `${btcItem.changePercent.toFixed(2)}%`}
+                      <span className="text-[9px] font-semibold px-1.5 py-0.2 rounded-full tabular-nums text-emerald-400 bg-emerald-500/10">
+                        +3.12%
                       </span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Card Radar & Notícias (Agregador) */}
+              {/* Card Radar & Notícias */}
               <div className="bg-white dark:bg-zinc-900 rounded-3xl p-3.5 border border-zinc-200/60 dark:border-zinc-800/80 shadow-xs flex-1 min-h-0 flex flex-col">
                 <div className="flex items-center justify-between mb-2 shrink-0">
                   <div className="flex items-center gap-1.5">
@@ -807,7 +1167,6 @@ export default function FinanceiroPage() {
                 </div>
 
                 <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-2 pr-1">
-                  {/* Feed com 3 notícias estilo feed */}
                   <div className="space-y-1.5">
                     {NEWS_ITEMS.map((item) => (
                       <div
@@ -831,7 +1190,177 @@ export default function FinanceiroPage() {
         </div>
       </div>
 
-      {/* Modal para Adicionar Ativo */}
+      {/* Modal para Criar Nova Watchlist */}
+      <Dialog open={isCreateListOpen} onOpenChange={setIsCreateListOpen}>
+        <DialogContent className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Criar Nova Watchlist
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-400">
+              Organize seus ativos em listas personalizadas. O plano Free permite até 3 listas.
+            </DialogDescription>
+          </DialogHeader>
+
+          <form onSubmit={handleCreateWatchlist} className="space-y-4 pt-2">
+            <div>
+              <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300 block mb-1">
+                Nome da Lista
+              </label>
+              <input
+                type="text"
+                autoFocus
+                placeholder="Ex: Dividendos, FIIs Favoritos, Blue Chips..."
+                value={newListName}
+                onChange={(e) => setNewListName(e.target.value)}
+                className="w-full px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden focus:border-purple-500"
+              />
+            </div>
+
+            {createListError && (
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{createListError}</span>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsCreateListOpen(false)}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={!newListName.trim()}
+                className="bg-purple-600 hover:bg-purple-700 text-white"
+              >
+                Criar Watchlist
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal para Adicionar Ativo à Watchlist */}
+      <Dialog open={isAddTickerOpen} onOpenChange={setIsAddTickerOpen}>
+        <DialogContent className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Adicionar Ativo à Watchlist
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-400">
+              Pesquise entre os ativos mais líquidos da B3 (Ações, FIIs e ETFs).
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 pt-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Buscar código ou empresa (ex: PETR4, HGLG11, BOVA11)..."
+                value={tickerSearchQuery}
+                onChange={(e) => setTickerSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-hidden focus:border-purple-500"
+              />
+            </div>
+
+            {addTickerError && (
+              <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{addTickerError}</span>
+              </div>
+            )}
+
+            {/* Lista com os ativos do ALLOWED_UNIVERSE */}
+            <div className="max-h-60 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+              {availableUniverseTickers.length === 0 ? (
+                <div className="py-6 text-center text-xs text-zinc-400">
+                  Nenhum ativo encontrado no universo monitorado.
+                </div>
+              ) : (
+                availableUniverseTickers.map((item) => (
+                  <button
+                    key={item.ticker}
+                    type="button"
+                    onClick={() => handleAddTicker(item.ticker)}
+                    className="w-full flex items-center justify-between p-2 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800/70 transition-colors text-left cursor-pointer border border-transparent hover:border-zinc-200 dark:hover:border-zinc-700"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+                          {item.ticker}
+                        </span>
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-medium">
+                          {item.type === "STOCK"
+                            ? "Ação"
+                            : item.type === "FII"
+                            ? "FII"
+                            : "ETF"}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 truncate">
+                        {item.name}
+                      </p>
+                    </div>
+                    <Plus className="h-4 w-4 text-purple-600 dark:text-purple-400 shrink-0" />
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Informativo de Limite do Plano Free */}
+      <Dialog
+        open={Boolean(planLimitNotice)}
+        onOpenChange={(open) => !open && setPlanLimitNotice(null)}
+      >
+        <DialogContent className="bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 sm:max-w-md">
+          <DialogHeader>
+            <div className="w-10 h-10 rounded-2xl bg-purple-600/10 text-purple-600 dark:bg-purple-500/20 dark:text-purple-300 flex items-center justify-center font-bold mb-2">
+              <Lock className="h-5 w-5" />
+            </div>
+            <DialogTitle className="text-base font-bold text-zinc-900 dark:text-zinc-100">
+              Limite do Plano Gratuito
+            </DialogTitle>
+            <DialogDescription className="text-xs text-zinc-400 leading-relaxed pt-1">
+              {planLimitNotice}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex justify-end gap-2 pt-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setPlanLimitNotice(null)}
+            >
+              Entendi
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={() => {
+                alert("Redirecionando para checkout do Plano Pro...");
+                setPlanLimitNotice(null);
+              }}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Fazer Upgrade PRO
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal Genérico para Adicionar Aporte */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-xs animate-in fade-in">
           <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 w-full max-w-md shadow-2xl space-y-4">
@@ -841,8 +1370,12 @@ export default function FinanceiroPage() {
                   <PlusCircle className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Adicionar Ativo</h3>
-                  <p className="text-[11px] text-zinc-400">Cadastre um novo ativo na sua carteira</p>
+                  <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">
+                    Adicionar Aporte
+                  </h3>
+                  <p className="text-[11px] text-zinc-400">
+                    Cadastre um novo ativo na sua carteira
+                  </p>
                 </div>
               </div>
               <button
@@ -899,12 +1432,12 @@ export default function FinanceiroPage() {
               <button
                 type="button"
                 onClick={() => {
-                  alert("Aporte inicial registrado com sucesso!");
+                  alert("Aporte registrado com sucesso!");
                   setIsAddModalOpen(false);
                 }}
                 className="flex-1 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-xs font-semibold text-white shadow-xs transition-colors cursor-pointer"
               >
-                Salvar Ativo
+                Salvar Aporte
               </button>
             </div>
           </div>

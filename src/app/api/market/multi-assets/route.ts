@@ -150,12 +150,12 @@ export async function GET() {
         },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Erro na rota multi-assets:", error);
     return NextResponse.json(
       {
         success: false,
-        error: error.message || "Erro ao consultar ativos múltiplos",
+        error: error instanceof Error ? error.message : "Erro ao consultar ativos múltiplos",
       },
       { status: 500 }
     );

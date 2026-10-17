@@ -1,4 +1,4 @@
-import { sqliteTable, text, real } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, real, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 /**
@@ -8,9 +8,7 @@ export const users = sqliteTable("users", {
   id: text("id").primaryKey(), // ID único vindo do Clerk (ex: user_2xxx)
   email: text("email"),
   name: text("name"),
-  plan: text("plan", { enum: ["FREE", "PRO", "CORPORATE"] })
-    .notNull()
-    .default("FREE"),
+  plan: text("plan").notNull().default("free"), // 'free' | 'pro'
   stripeCustomerId: text("stripe_customer_id"),
   createdAt: text("created_at")
     .notNull()
@@ -72,4 +70,48 @@ export const transactions = sqliteTable("transactions", {
   createdAt: text("created_at")
     .notNull()
     .default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+// Cache de cotações (compartilhado entre todos os usuários)
+export const marketQuotes = sqliteTable("market_quotes", {
+  ticker: text("ticker").primaryKey(),          // ex: PETR4
+  name: text("name"),
+  price: real("price").notNull(),
+  changePct: real("change_pct"),
+  volume: real("volume"),
+  payload: text("payload"),                      // JSON bruto resumido (open/high/low/close etc.)
+  fetchedAt: integer("fetched_at").notNull(),    // epoch em segundos
+});
+
+// Cache de histórico por ticker + range
+export const marketHistory = sqliteTable("market_history", {
+  id: text("id").primaryKey(),                   // `${ticker}:${range}`
+  ticker: text("ticker").notNull(),
+  range: text("range").notNull(),                // "5d" | "1mo" | "3mo"
+  candles: text("candles").notNull(),            // JSON: [{time,open,high,low,close,volume}]
+  fetchedAt: integer("fetched_at").notNull(),
+});
+
+// Contador de requisições à brapi por mês
+export const apiUsage = sqliteTable("api_usage", {
+  period: text("period").primaryKey(),           // "2026-10"
+  count: integer("count").notNull().default(0),
+});
+
+// Watchlists do usuário
+export const watchlists = sqliteTable("watchlists", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id),
+  name: text("name").notNull(),
+  columns: text("columns").notNull().default('["price","changePct"]'), // JSON
+  position: integer("position").notNull().default(0),
+  createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+  updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
+});
+
+export const watchlistItems = sqliteTable("watchlist_items", {
+  id: text("id").primaryKey(),
+  watchlistId: text("watchlist_id").notNull().references(() => watchlists.id, { onDelete: "cascade" }),
+  ticker: text("ticker").notNull(),
+  position: integer("position").notNull().default(0),
 });
