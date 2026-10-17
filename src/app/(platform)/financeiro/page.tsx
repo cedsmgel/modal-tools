@@ -68,7 +68,7 @@ export default function FinanceiroPage() {
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Estados de dados da brapi.dev
-  const [, setBrapiStocks] = React.useState<BrapiStockQuote[]>([]);
+  const [brapiStocks, setBrapiStocks] = React.useState<BrapiStockQuote[]>([]);
   const [brapiCurrencies, setBrapiCurrencies] = React.useState<BrapiCurrencyQuote[]>([]);
   const [brapiCrypto, setBrapiCrypto] = React.useState<BrapiCryptoQuote[]>([]);
   const [macroRates, setMacroRates] = React.useState<{ cdi?: number; selic?: number; ipca?: number }>({
@@ -129,17 +129,37 @@ export default function FinanceiroPage() {
   const eurCurrency = brapiCurrencies.find((c) => c.fromCurrency === "EUR") || { bidPrice: 6.15, pctChange: 0.1 };
   const btcCrypto = brapiCrypto.find((c) => c.coin === "BTC") || { regularMarketPrice: 382450, regularMarketChangePercent: 3.12 };
 
-  // Lista minimalista de índices para o carrossel horizontal
-  const indicesList = [
-    { label: "IBOV", value: "131.200", change: 0.4 },
-    { label: "S&P 500", value: "5.800", change: 1.2 },
-    { label: "USD", value: usdCurrency.bidPrice.toFixed(2), change: Number(usdCurrency.pctChange.toFixed(1)) },
-    { label: "EUR", value: eurCurrency.bidPrice.toFixed(2), change: Number(eurCurrency.pctChange.toFixed(1)) },
-    { label: "SELIC", value: `${macroRates.selic || 10.75}%`, change: undefined },
-    { label: "CDI", value: `${macroRates.cdi || 10.65}%`, change: undefined },
-    { label: "IPCA", value: `${macroRates.ipca || 4.42}%`, change: undefined },
-    { label: "BTC", value: `R$ ${btcCrypto.regularMarketPrice.toLocaleString("pt-BR")}`, change: Number(btcCrypto.regularMarketChangePercent.toFixed(1)) },
-  ];
+  // Lista de índices e cotações para o Bloomberg Ticker Tape contínuo
+  const tickerItems = React.useMemo(() => {
+    const baseIndices = [
+      { label: "IBOV", value: "131.200", change: 0.4 },
+      { label: "S&P 500", value: "5.800", change: 1.2 },
+      { label: "USD", value: usdCurrency.bidPrice.toFixed(2), change: Number(usdCurrency.pctChange.toFixed(1)) },
+      { label: "EUR", value: eurCurrency.bidPrice.toFixed(2), change: Number(eurCurrency.pctChange.toFixed(1)) },
+      { label: "SELIC", value: `${macroRates.selic || 10.75}%`, change: undefined },
+      { label: "CDI", value: `${macroRates.cdi || 10.65}%`, change: undefined },
+      { label: "IPCA", value: `${macroRates.ipca || 4.42}%`, change: undefined },
+      { label: "BTC", value: `R$ ${btcCrypto.regularMarketPrice.toLocaleString("pt-BR")}`, change: Number(btcCrypto.regularMarketChangePercent.toFixed(1)) },
+    ];
+
+    const stockTickers = brapiStocks.length > 0
+      ? brapiStocks.slice(0, 8).map((st) => ({
+          label: st.symbol,
+          value: `R$ ${st.regularMarketPrice.toFixed(2)}`,
+          change: Number(st.regularMarketChangePercent.toFixed(2)),
+        }))
+      : [
+          { label: "PETR4", value: "R$ 38,40", change: 1.25 },
+          { label: "VALE3", value: "R$ 61,15", change: -0.68 },
+          { label: "ITUB4", value: "R$ 34,90", change: 0.52 },
+          { label: "BBDC4", value: "R$ 14,20", change: -0.35 },
+          { label: "BBAS3", value: "R$ 27,80", change: 0.88 },
+        ];
+
+    const combined = [...baseIndices, ...stockTickers];
+    // Duplicamos a lista exatamente para criar o looping infinito sem emendas
+    return [...combined, ...combined];
+  }, [usdCurrency, eurCurrency, macroRates, btcCrypto, brapiStocks]);
 
   // Dimensões do gráfico central
   const chartWidth = 720;
@@ -258,29 +278,40 @@ export default function FinanceiroPage() {
           </div>
         </header>
 
-        {/* 2.5 CARROSSEL DE ÍNDICES MINIMALISTA */}
-        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-3 px-4 border-b border-zinc-800/60 bg-white/40 dark:bg-zinc-900/40 backdrop-blur-xs shrink-0 select-none">
-          {indicesList.map((item) => (
-            <div key={item.label} className="flex items-center gap-2 whitespace-nowrap shrink-0">
-              <span className="text-zinc-500 dark:text-zinc-400 font-semibold uppercase text-xs">
-                {item.label}
-              </span>
-              <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
-                {item.value}
-              </span>
-              {item.change !== undefined && (
-                <span
-                  className={`text-xs font-medium tabular-nums ${
-                    item.change >= 0
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-rose-600 dark:text-rose-400"
-                  }`}
-                >
-                  {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
+        {/* 2.5 CARROSSEL DE ÍNDICES COM EFEITO BLOOMBERG (MARQUEE INFINITO) */}
+        <div className="relative w-full overflow-hidden border-b border-zinc-200/80 dark:border-zinc-800/60 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xs shrink-0 select-none py-2.5">
+          {/* Fades elegantes de gradiente nas laterais */}
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-10 bg-gradient-to-r from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-zinc-50 dark:from-zinc-950 to-transparent z-10" />
+
+          {/* Track com animação infinita de rolagem contínua */}
+          <div className="animate-bloomberg-ticker items-center gap-7 px-4">
+            {tickerItems.map((item, idx) => (
+              <div
+                key={`${item.label}-${idx}`}
+                className="flex items-center gap-2 whitespace-nowrap shrink-0 group cursor-default"
+              >
+                <span className="text-zinc-500 dark:text-zinc-400 font-semibold uppercase text-xs tracking-wider">
+                  {item.label}
                 </span>
-              )}
-            </div>
-          ))}
+                <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 tabular-nums">
+                  {item.value}
+                </span>
+                {item.change !== undefined && (
+                  <span
+                    className={`text-xs font-medium tabular-nums ${
+                      item.change >= 0
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-rose-600 dark:text-rose-400"
+                    }`}
+                  >
+                    {item.change >= 0 ? `+${item.change}%` : `${item.change}%`}
+                  </span>
+                )}
+                <span className="text-zinc-300 dark:text-zinc-800 font-normal ml-3 select-none">•</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* 3. GRID PRINCIPAL EM 3 COLUNAS RESPIRÁVEIS */}

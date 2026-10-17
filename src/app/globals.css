@@ -137,3 +137,27 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* =========================================================================
+   BLOOMBERG TICKER TAPE (MARQUEE INFINITO)
+   ========================================================================= */
+
+@keyframes bloomberg-marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-bloomberg-ticker {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: bloomberg-marquee 40s linear infinite;
+}
+
+.animate-bloomberg-ticker:hover {
+  animation-play-state: paused;
+}
