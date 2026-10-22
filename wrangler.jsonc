@@ -10,9 +10,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "build": {
-    "command": "npm run build:worker"
-  },
   "vars": {
     "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_YW1wbGUtbWlkZ2UtNTQ4MS5jbGVyay5hY2NvdW50cy5kZXYk",
     "NEXT_PUBLIC_CLERK_SIGN_IN_URL": "/sign-in",

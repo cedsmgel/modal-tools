@@ -19,6 +19,8 @@ export interface MultiAssetItem {
   updatedAt?: string;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const stockSymbols = ["PETR4", "VALE3", "ITUB4", "BBDC4", "WEGE3", "BBAS3", "BOVA11"];
