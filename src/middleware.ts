@@ -1,4 +1,14 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+
+const isProtectedRoute = createRouteMatcher([
+  '/dashboard(.*)',
+  '/account(.*)',
+  '/hub-matematico(.*)',
+  '/financeiro(.*)',
+  '/imobiliario(.*)',
+  '/fiscal(.*)',
+]);
 
 /**
  * Middleware Clerk combinado com proteção de rotas de API e páginas da plataforma.
@@ -10,7 +20,7 @@ export default clerkMiddleware(async (auth, request) => {
   if (pathname.startsWith('/api')) {
     const session = await auth();
     if (!session.userId) {
-      return Response.json(
+      return NextResponse.json(
         {
           error: 'Unauthorized',
           message: 'Usuário não autenticado. Acesso negado.',
@@ -18,27 +28,26 @@ export default clerkMiddleware(async (auth, request) => {
         { status: 401 }
       );
     }
-    return;
+    return NextResponse.next();
   }
 
   // Rotas da aplicação protegidas na plataforma web
-  if (
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/account') ||
-    pathname.startsWith('/hub-matematico') ||
-    pathname.startsWith('/financeiro') ||
-    pathname.startsWith('/imobiliario') ||
-    pathname.startsWith('/fiscal')
-  ) {
+  if (isProtectedRoute(request)) {
     await auth.protect();
   }
+
+  return NextResponse.next();
 });
 
 export const config = {
   matcher: [
-    // Pula rotas internas do Next.js e arquivos estáticos
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    // Executa sempre para rotas de API
-    '/(api|trpc)(.*)',
+    // Executa APENAS para rotas da API e páginas autenticadas/protegidas da aplicação
+    '/api/(.*)',
+    '/dashboard(.*)',
+    '/account(.*)',
+    '/hub-matematico(.*)',
+    '/financeiro(.*)',
+    '/imobiliario(.*)',
+    '/fiscal(.*)',
   ],
 };

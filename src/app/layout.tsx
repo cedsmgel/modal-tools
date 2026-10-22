@@ -34,7 +34,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="min-h-screen bg-white font-sans text-zinc-950 antialiased selection:bg-zinc-900 selection:text-white dark:bg-zinc-950 dark:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900 flex flex-col">
-        <ClerkProvider localization={ptBR}>
+        <ClerkProvider
+          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+          localization={ptBR}
+        >
           <ThemeProvider
             attribute="class"
             defaultTheme="system"
