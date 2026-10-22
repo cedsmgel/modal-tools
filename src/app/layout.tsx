@@ -22,6 +22,10 @@ export const metadata: Metadata = {
   description: "Next.js & Cloudflare Edge Powered Asset & Financial Management Platform",
 };
 
+const clerkPublishableKey =
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||
+  "pk_test_YW1wbGUtbWlkZ2UtNTQ4MS5jbGVyay5hY2NvdW50cy5kZXYk";
+
 export default function RootLayout({
   children,
 }: {
@@ -35,7 +39,7 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-white font-sans text-zinc-950 antialiased selection:bg-zinc-900 selection:text-white dark:bg-zinc-950 dark:text-zinc-50 dark:selection:bg-zinc-100 dark:selection:text-zinc-900 flex flex-col">
         <ClerkProvider
-          publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+          publishableKey={clerkPublishableKey}
           localization={ptBR}
         >
           <ThemeProvider
